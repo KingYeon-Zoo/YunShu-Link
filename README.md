@@ -1,4 +1,4 @@
-<h1 align="center">YunShu-Link-Server（云枢·链）</h1>
+<h1 align="center">YunShu-Link-Server（云枢）</h1>
 
 <p align="center">
 面向 ESP32 智能语音硬件的自研后端服务<br/>
