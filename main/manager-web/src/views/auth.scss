@@ -1,4 +1,4 @@
-@import "@/styles/design-system.scss";
+@import "@/styles/tokens";
 
 .welcome {
   min-width: 1200px;
@@ -7,37 +7,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e8f0fe 0%, #d2e3fc 50%, #f5f8fd 100%);
+  background: transparent;
   overflow: hidden;
   position: relative;
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-  }
-
-  &::before {
-    width: 70vw;
-    height: 70vw;
-    max-width: 900px;
-    max-height: 900px;
-    background: radial-gradient(circle, rgba($color-primary, 0.12) 0%, transparent 70%);
-    top: -25%;
-    left: -15%;
-  }
-
-  &::after {
-    width: 50vw;
-    height: 50vw;
-    max-width: 700px;
-    max-height: 700px;
-    background: radial-gradient(circle, rgba($color-primary, 0.08) 0%, transparent 70%);
-    bottom: -20%;
-    right: -10%;
-  }
 }
 
 .auth-header {
@@ -93,13 +65,13 @@
   right: 15%;
   transform: translateY(-50%);
   width: 460px;
-  background: $glass-bg;
+  background: $color-glass-bg;
   backdrop-filter: blur($glass-blur);
   -webkit-backdrop-filter: blur($glass-blur);
-  border: 1px solid $glass-border;
-  border-radius: $radius-xl;
-  box-shadow: $glass-shadow;
-  padding: $spacing-xl 0;
+  border: 1px solid $color-glass-border-strong;
+  border-radius: $rounded-xxxl;
+  box-shadow: $shadow-dialog;
+  padding: $spacing-xxl 0;
   box-sizing: border-box;
   z-index: 2;
 }
@@ -109,20 +81,19 @@
   align-items: center;
   gap: $spacing-md;
   margin-bottom: $spacing-xl;
-  padding: 0 $spacing-xl;
+  padding: 0 $spacing-xxl;
 }
 
 .login-text {
-  font-weight: 700;
-  font-size: $font-size-xl;
-  color: $color-text-primary;
+  font: $font-display-lg;
+  color: $color-ink-deep;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .login-welcome {
-  font-size: $font-size-xs;
-  color: $color-text-tertiary;
+  font: $font-body-md;
+  color: $color-steel;
   align-self: flex-end;
   margin-bottom: 4px;
   flex-shrink: 0;
@@ -136,8 +107,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: $font-size-sm;
-  color: $color-text-tertiary;
+  font: $font-body-sm;
+  color: $color-steel;
   cursor: pointer;
   transition: color 0.2s $ease-out-expo;
 
@@ -147,7 +118,7 @@
 }
 
 .current-language-text {
-  font-size: $font-size-sm;
+  font: $font-body-sm;
   color: inherit;
 }
 
@@ -160,7 +131,7 @@
 }
 
 .login-form {
-  padding: 0 $spacing-xl;
+  padding: 0 $spacing-xxl;
 }
 
 .input-box {
@@ -170,15 +141,15 @@
   margin-top: $spacing-md;
   padding: 0 $spacing-md;
   height: 48px;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: rgba($color-bg-surface, 0.6);
+  border: 1px solid $color-hairline;
+  border-radius: $rounded-lg;
+  background: rgba($color-canvas, 0.6);
   transition: border-color 0.2s $ease-out-expo, box-shadow 0.2s $ease-out-expo, background 0.2s $ease-out-expo;
 
   &:hover,
   &:focus-within {
     border-color: rgba($color-primary, 0.4);
-    background: rgba($color-bg-surface, 0.9);
+    background: rgba($color-canvas, 0.9);
   }
 
   &:focus-within {
@@ -208,10 +179,10 @@
 .captcha-img {
   width: 130px;
   height: 48px;
-  border-radius: $radius-md;
+  border-radius: $rounded-md;
   cursor: pointer;
   object-fit: cover;
-  border: 1px solid $color-border;
+  border: 1px solid $color-hairline;
 }
 
 .login-actions {
@@ -219,8 +190,8 @@
   justify-content: space-between;
   align-items: center;
   margin-top: $spacing-md;
-  padding: 0 $spacing-xl;
-  font-size: $font-size-sm;
+  padding: 0 $spacing-xxl;
+  font: $font-body-sm;
 
   &__link {
     color: $color-primary;
@@ -228,7 +199,7 @@
     transition: color 0.2s $ease-out-expo;
 
     &:hover {
-      color: $color-primary-hover;
+      color: $color-primary-soft;
     }
   }
 }
@@ -238,18 +209,17 @@
   align-items: center;
   justify-content: center;
   height: 48px;
-  margin: $spacing-lg $spacing-xl $spacing-md;
+  margin: $spacing-lg $spacing-xxl $spacing-md;
   background: $color-primary;
-  border-radius: $radius-md;
-  font-size: $font-size-base;
-  font-weight: 500;
-  color: #fff;
+  border-radius: $rounded-full;
+  font: $font-body-md-bold;
+  color: $color-on-primary;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba($color-primary, 0.25);
   transition: background 0.2s $ease-out-expo, transform 0.2s $ease-out-expo, box-shadow 0.2s $ease-out-expo;
 
   &:hover {
-    background: $color-primary-hover;
+    background: lighten($color-primary, 6%);
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba($color-primary, 0.35);
   }
@@ -263,9 +233,9 @@
 
 .auth-agreement {
   text-align: center;
-  font-size: $font-size-xs;
-  color: $color-text-tertiary;
-  padding: 0 $spacing-xl;
+  font: $font-caption;
+  color: $color-steel;
+  padding: 0 $spacing-xxl;
 
   &__link {
     display: inline;
@@ -274,7 +244,7 @@
     transition: color 0.2s $ease-out-expo;
 
     &:hover {
-      color: $color-primary-hover;
+      color: $color-primary-soft;
     }
   }
 }
@@ -300,26 +270,26 @@
     outline: none;
     height: 46px;
     padding: 0;
-    color: $color-text-primary;
+    color: $color-ink;
 
     &::placeholder {
-      color: $color-text-tertiary;
+      color: $color-steel;
     }
   }
 
   .el-input__suffix {
-    color: $color-text-tertiary;
+    color: $color-steel;
   }
 
   .el-button--primary {
     background-color: $color-primary;
     border-color: $color-primary;
-    border-radius: $radius-md;
+    border-radius: $rounded-full;
 
     &:hover,
     &:focus {
-      background-color: $color-primary-hover;
-      border-color: $color-primary-hover;
+      background-color: lighten($color-primary, 6%);
+      border-color: lighten($color-primary, 6%);
     }
   }
 }

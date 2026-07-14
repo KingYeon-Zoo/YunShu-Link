@@ -1,5 +1,6 @@
 <template>
   <div class="welcome">
+    <DynamicBackground variant="login" />
     <header class="auth-header">
       <div class="auth-header__brand">
         <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" style="width: 42px; height: 42px" />
@@ -127,6 +128,7 @@
 
 <script>
 import Api from "@/apis/api";
+import DynamicBackground from "@/components/DynamicBackground.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import i18n, { changeLanguage } from "@/i18n";
 import { getUUID, goToPage, showDanger, showSuccess, sm2Encrypt, validateMobile } from "@/utils";
@@ -136,6 +138,7 @@ import featureManager from "@/utils/featureManager";
 export default {
   name: "login",
   components: {
+    DynamicBackground,
     VersionFooter,
   },
   computed: {
