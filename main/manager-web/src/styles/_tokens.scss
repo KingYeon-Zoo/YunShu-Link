@@ -87,3 +87,6 @@ $shadow-flat: none;
 $shadow-subtle: rgba(0, 0, 0, 0.2) 1px 1px 0px 0px;
 $shadow-sticky: rgba(20, 22, 26, 0.3) 0px 1px 4px 0px;
 $shadow-dialog: 0 4px 24px rgba(0, 0, 0, 0.12);
+
+// 缓动 Token
+$ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);

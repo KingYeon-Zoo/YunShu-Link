@@ -1,2 +1,129 @@
-// Element UI 变量覆盖与全局覆盖
-// 将在后续任务中填充
+@import "./tokens";
+
+// Element UI SCSS 变量覆盖 —— 在编译官方主题之前注入
+$--color-primary: $color-primary;
+$--color-success: $color-success;
+$--color-warning: $color-warning;
+$--color-danger: $color-critical;
+$--color-text-primary: $color-ink;
+$--color-text-regular: $color-charcoal;
+$--color-text-secondary: $color-steel;
+$--color-text-placeholder: $color-stone;
+$--border-color-base: $color-hairline;
+$--border-color-light: $color-hairline-soft;
+$--background-color-base: $color-surface-soft;
+
+// 修正源码编译时字体路径解析
+$--font-path: "~element-ui/packages/theme-chalk/src/fonts";
+
+// 通过源码重新编译 Element UI 主题，使上方变量生效
+@import "~element-ui/packages/theme-chalk/src/index";
+
+// 组件级微调 --------------------------------------------------------------
+
+// 按钮：统一胶囊
+.el-button {
+  border-radius: $rounded-full !important;
+  font: $font-body-sm-bold;
+
+  &--primary {
+    background-color: $color-primary;
+    border-color: $color-primary;
+
+    &:hover,
+    &:focus {
+      background-color: lighten($color-primary, 6%);
+      border-color: lighten($color-primary, 6%);
+    }
+
+    &:active {
+      background-color: $color-primary-deep;
+      border-color: $color-primary-deep;
+    }
+  }
+
+  &.is-disabled {
+    background-color: $color-disabled-text;
+    border-color: $color-disabled-text;
+    color: $color-canvas;
+  }
+}
+
+// 输入框
+.el-input__inner {
+  height: 44px;
+  border-radius: $rounded-lg;
+  border: 1px solid $color-hairline;
+  font: $font-body-md;
+
+  &:focus {
+    border-color: $color-primary-soft;
+    box-shadow: 0 0 0 3px rgba($color-primary-soft, 0.12);
+  }
+}
+
+.el-input.is-error .el-input__inner {
+  border-color: $color-critical-strong;
+}
+
+// 弹窗
+.el-dialog {
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  border-radius: $rounded-xxl;
+  box-shadow: $shadow-dialog;
+  border: 1px solid $color-glass-border-strong;
+
+  &__header {
+    padding: $spacing-xl;
+    padding-bottom: $spacing-base;
+  }
+
+  &__title {
+    font: $font-subtitle-lg;
+    color: $color-ink-deep;
+  }
+
+  &__body {
+    padding: $spacing-xl;
+    color: $color-charcoal;
+  }
+
+  &__footer {
+    padding: $spacing-base $spacing-xl $spacing-xl;
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-base;
+  }
+}
+
+// 表格
+.el-table {
+  th {
+    background-color: $color-surface-soft;
+    color: $color-ink;
+    font: $font-body-sm-bold;
+    height: 48px;
+  }
+
+  td {
+    color: $color-charcoal;
+    height: 48px;
+  }
+
+  tr:hover > td {
+    background-color: $color-surface-soft;
+  }
+}
+
+// 分页
+.el-pagination {
+  .el-pager li {
+    border-radius: $rounded-full;
+
+    &.active {
+      background-color: $color-primary;
+      color: $color-on-primary;
+    }
+  }
+}
