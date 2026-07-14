@@ -124,29 +124,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/tokens";
+
 .custom-dialog {
   ::v-deep .el-dialog {
-    border-radius: 10px;
+    border-radius: $rounded-xxl;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-dialog;
   }
 
   ::v-deep .el-dialog__header {
-    padding: 16px 20px 12px;
-    background: linear-gradient(135deg, #e2eeff, #edeafe);
+    padding: $spacing-xl $spacing-xl $spacing-base;
+    background: transparent;
     text-align: left;
   }
 
   ::v-deep .el-dialog__title {
-    font-size: 16px;
-    font-weight: 500;
-    color: #1a1a1a;
+    font: $font-subtitle-lg;
+    color: $color-ink-deep;
   }
 
   .dialog-title {
-    font-size: 18px;
+    font: $font-subtitle-lg;
     display: inline-flex;
     align-items: center;
+
     > span {
       line-height: 18px;
       font-weight: 500;
@@ -156,7 +158,7 @@ export default {
   .title-icon {
     width: 24px;
     height: 24px;
-    margin-right: 8px;
+    margin-right: $spacing-xs;
   }
 
   ::v-deep .el-dialog__headerbtn {
@@ -165,8 +167,8 @@ export default {
     width: 32px;
     height: 32px;
     border: none;
-    border-radius: 50%;
-    background: #fff;
+    border-radius: $rounded-circle;
+    background: $color-canvas;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     display: flex;
     align-items: center;
@@ -174,60 +176,51 @@ export default {
 
     .el-dialog__close {
       font-size: 18px;
-      color: #666;
+      color: $color-charcoal;
       position: static;
       transform: none;
     }
 
     &:hover {
-      background: #fff;
+      background: $color-canvas;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 
       .el-dialog__close {
-        color: #333;
+        color: $color-ink;
       }
     }
   }
 
   ::v-deep .el-dialog__body {
-    padding: 20px;
+    padding: $spacing-xl;
+    color: $color-charcoal;
   }
 
   ::v-deep .el-dialog__footer {
-    padding: 12px 20px 16px;
+    padding: $spacing-base $spacing-xl $spacing-xl;
   }
 
   .dialog-footer {
     display: flex;
     justify-content: flex-end;
+    gap: $spacing-base;
 
     .el-button {
       padding: 10px 20px;
       display: flex;
       align-items: center;
     }
+  }
 
-    .el-button--primary {
-      background: linear-gradient(to right, #4a7cfd, #8154fc);
-      border: none;
+  .confirm-inner {
+    display: inline-flex;
+    align-items: center;
+  }
 
-      &:hover,
-      &:focus {
-        background: linear-gradient(to right, #4a7cfd, #8154fc);
-        opacity: 0.85;
-      }
-    }
-
-    .confirm-inner {
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .confirm-icon {
-      width: 16px;
-      height: 16px;
-      margin-right: 4px;
-    }
+  .confirm-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
   }
 }
 </style>
