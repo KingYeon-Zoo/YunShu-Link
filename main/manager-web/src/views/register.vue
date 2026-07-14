@@ -188,7 +188,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('fetchPubConfig').then(() => {
-      if (!this.allowUserRegister) {
+      if (!this.allowUserRegister && process.env.NODE_ENV === 'production') {
         showDanger(this.$t('register.notAllowRegister'));
         setTimeout(() => {
           goToPage('/login');
