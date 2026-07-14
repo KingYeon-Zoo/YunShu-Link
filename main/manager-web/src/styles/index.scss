@@ -1,5 +1,4 @@
 // 样式统一入口
 @import './tokens';
-@import './global';    // legacy global.scss
-@import './globals';   // new global styles placeholder (will become main in Task 2)
+@import './globals';
 @import './element-override';

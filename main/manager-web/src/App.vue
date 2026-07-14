@@ -6,30 +6,18 @@
 </template>
 
 <style lang="scss">
+@import '@/styles/tokens';
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: $font-family-base;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
+  color: $color-ink;
 }
 
 .copyright {
   padding: 0 !important;
-  color: rgb(0, 0, 0);
   font-size: 12px;
   font-weight: 400;
   margin-top: auto;
@@ -38,10 +26,6 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.el-message {
-  top: 70px !important;
 }
 </style>
 <script>
@@ -70,7 +54,7 @@ export default {
       window.location.href = process.env.VUE_APP_H5_URL;
       return;
     }
-    
+
     // 只有在启用CDN时才添加相关事件和功能
     if (this.isCDNEnabled) {
       // 添加全局快捷键Alt+C用于显示缓存查看器
@@ -116,7 +100,7 @@ export default {
       // 检测是否为移动设备的函数
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     },
-    
+
     async checkServiceWorkerStatus() {
       // 检查Service Worker是否已注册
       if ('serviceWorker' in navigator) {
@@ -133,46 +117,46 @@ export default {
               const hasCaches = await logCacheStatus();
               if (!hasCaches) {
                 console.info(
-                '%c[' + this.$t('system.name') + '] ' + this.$t('cache.noCacheDetected'),
-                'color: #E6A23C; font-weight: bold;'
-              );
-
-              // 开发环境下提供额外提示
-              if (process.env.NODE_ENV === 'development') {
-                console.info(
-                  '%c[' + this.$t('system.name') + '] ' + this.$t('cache.swDevEnvWarning'),
+                  '%c[' + this.$t('system.name') + '] ' + this.$t('cache.noCacheDetected'),
                   'color: #E6A23C; font-weight: bold;'
                 );
-                console.info(this.$t('cache.swCheckMethods'));
-                console.info('1. ' + this.$t('cache.swCheckMethod1'));
-                console.info('2. ' + this.$t('cache.swCheckMethod2'));
-                console.info('3. ' + this.$t('cache.swCheckMethod3'));
-              }
+
+                // 开发环境下提供额外提示
+                if (process.env.NODE_ENV === 'development') {
+                  console.info(
+                    '%c[' + this.$t('system.name') + '] ' + this.$t('cache.swDevEnvWarning'),
+                    'color: #E6A23C; font-weight: bold;'
+                  );
+                  console.info(this.$t('cache.swCheckMethods'));
+                  console.info('1. ' + this.$t('cache.swCheckMethod1'));
+                  console.info('2. ' + this.$t('cache.swCheckMethod2'));
+                  console.info('3. ' + this.$t('cache.swCheckMethod3'));
+                }
               }
             }, 2000);
           } else {
             console.info(
-                  '%c[' + this.$t('system.name') + '] ' + this.$t('cache.serviceWorkerNotRegistered'),
-                  'color: #F56C6C; font-weight: bold;'
-                );
+              '%c[' + this.$t('system.name') + '] ' + this.$t('cache.serviceWorkerNotRegistered'),
+              'color: #F56C6C; font-weight: bold;'
+            );
 
-                if (process.env.NODE_ENV === 'development') {
-                  console.info(
-                    '%c[' + this.$t('system.name') + '] ' + this.$t('cache.swDevEnvNormal'),
-                    'color: #E6A23C; font-weight: bold;'
-                  );
-                  console.info(this.$t('cache.swProdOnly'));
-                  console.info(this.$t('cache.swTestingTitle'));
-                  console.info('1. ' + this.$t('cache.swTestingStep1'));
-                  console.info('2. ' + this.$t('cache.swTestingStep2'));
-                }
+            if (process.env.NODE_ENV === 'development') {
+              console.info(
+                '%c[' + this.$t('system.name') + '] ' + this.$t('cache.swDevEnvNormal'),
+                'color: #E6A23C; font-weight: bold;'
+              );
+              console.info(this.$t('cache.swProdOnly'));
+              console.info(this.$t('cache.swTestingTitle'));
+              console.info('1. ' + this.$t('cache.swTestingStep1'));
+              console.info('2. ' + this.$t('cache.swTestingStep2'));
+            }
           }
         } catch (error) {
           console.error('检查Service Worker状态失败:', error);
         }
       } else {
-          console.warn(this.$t('cache.swNotSupported'));
-        }
+        console.warn(this.$t('cache.swNotSupported'));
+      }
     }
   }
 };

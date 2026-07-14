@@ -1,2 +1,119 @@
-// 全局工具样式、滚动条、autofill
-// 占位文件：后续任务会继续迁移/完善全局样式
+// 全局工具样式、滚动条、autofill — Meta 设计语言
+@import './tokens';
+
+// 统一盒模型
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// 页面基础
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family-base;
+  color: $color-ink;
+  background-color: $color-canvas;
+}
+
+// 覆盖浏览器自动填充背景色
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  transition: background-color 5000s ease-in-out 0s;
+  background-color: transparent;
+}
+
+// Element 全局消息提示位置
+.el-message {
+  top: 70px !important;
+}
+
+// 页脚高度覆盖
+.el-footer {
+  height: 35px !important;
+}
+
+// 视频播放/暂停图标大小覆盖
+.el-icon-video-play,
+.el-icon-video-pause {
+  font-size: 18px !important;
+}
+
+// 浅色 popover/tooltip 样式覆盖
+.is-light {
+  border: 1px solid #e4e7ed !important;
+  color: #595959;
+  font-size: 14px;
+  background: #fafcfe !important;
+
+  .popper__arrow {
+    border-top-color: #e4e7ed !important;
+  }
+}
+
+// 滚动条样式 mixin（保持组件中 @include scrollbar-style 可用）
+@mixin scrollbar-style {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($color-primary, 0.35);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $color-surface-soft;
+    border-radius: 3px;
+  }
+}
+
+// 全局滚动条
+html,
+body {
+  @include scrollbar-style;
+}
+
+// 玻璃拟态卡片工具类
+.glass-card {
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $color-glass-border;
+  border-radius: $rounded-xxxl;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: $color-glass-bg-hover;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+}
+
+@supports not (backdrop-filter: blur($glass-blur)) {
+  .glass-card {
+    background: $color-canvas;
+  }
+}
+
+// 尊重用户减少动画偏好
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
