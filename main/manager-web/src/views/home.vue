@@ -1,8 +1,9 @@
 <template>
   <div class="welcome">
+    <DynamicBackground variant="management" />
     <!-- 公共头部 -->
-    <HeaderBar :devices="devices" />
-    <el-main style="padding: 20px;display: flex;flex-direction: column;">
+    <HeaderBar :devices="devices" style="position: relative; z-index: 1;" />
+    <el-main style="padding: 20px; position: relative; z-index: 1; display: flex; flex-direction: column;">
       <div>
         <!-- 首页内容 -->
         <div class="add-device">
@@ -50,7 +51,7 @@
                   </div>
                 </div>
               </div>
-              <el-button icon="el-icon-plus" class="add-device-btn" @click="showAddDialog">{{ $t('home.addAgent') }}</el-button>
+              <el-button icon="el-icon-plus" type="primary" class="add-device-btn" @click="showAddDialog">{{ $t('home.addAgent') }}</el-button>
             </div>
           </div>
         </div>
@@ -74,7 +75,7 @@
       </div>
       <AddWisdomBodyDialog :visible.sync="addDeviceDialogVisible" @confirm="handleWisdomBodyAdded" />
     </el-main>
-    <el-footer>
+    <el-footer style="position: relative; z-index: 1;">
       <version-footer />
     </el-footer>
     <chat-history-dialog :visible.sync="showChatHistory" :agent-id="currentAgentId" :agent-name="currentAgentName" />
@@ -86,6 +87,7 @@
 import Api from '@/apis/api';
 import { mapState } from "vuex";
 import AddWisdomBodyDialog from '@/components/AddWisdomBodyDialog.vue';
+import DynamicBackground from '@/components/DynamicBackground.vue';
 import ChatHistoryDialog from '@/components/ChatHistoryDialog.vue';
 import DeviceItem from '@/components/DeviceItem.vue';
 import HeaderBar from '@/components/HeaderBar.vue';
@@ -94,7 +96,7 @@ import featureManager from '@/utils/featureManager';
 
 export default {
   name: 'HomePage',
-  components: { DeviceItem, AddWisdomBodyDialog, HeaderBar, VersionFooter, ChatHistoryDialog },
+  components: { DeviceItem, AddWisdomBodyDialog, DynamicBackground, HeaderBar, VersionFooter, ChatHistoryDialog },
   data() {
     return {
       addDeviceDialogVisible: false,
@@ -335,83 +337,63 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "@/styles/tokens";
+
 .welcome {
   min-width: 900px;
   min-height: 506px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #eff4ff;
-  background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
-  background-position: center;
-  /* 从顶部中心对齐 */
-  -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
-  -o-background-size: cover;
-  /* 兼容老版本Opera浏览器 */
+  background: transparent;
 }
 
 .add-device {
-  height: 195px;
-  border-radius: 15px;
-  position: relative;
-  background: linear-gradient(269.62deg,
-      #e0e6fd 0%,
-      #cce7ff 49.69%,
-      #d3d3fe 100%);
+  height: auto;
+  border-radius: $rounded-xxxl;
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $color-glass-border;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  padding: $spacing-section;
 }
 
 .add-device-bg {
   width: 100%;
   height: 100%;
   text-align: left;
-  background-image: url("@/assets/home/main-top-bg.png");
-  background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
-  background-position: center;
-  /* 从顶部中心对齐 */
-  -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
-  -o-background-size: cover;
+  background: transparent;
   box-sizing: border-box;
 
-  /* 兼容老版本Opera浏览器 */
   .hellow-text {
-    margin-left: 75px;
-    color: #3d4566;
-    font-size: 33px;
-    font-weight: 700;
-    letter-spacing: 0;
+    margin-left: 0;
+    font: $font-heading-lg;
+    color: $color-ink-deep;
   }
 
   .hi-hint {
-    font-weight: 400;
-    font-size: 12px;
-    text-align: left;
-    color: #818cae;
-    margin-left: 75px;
-    margin-top: 5px;
+    font: $font-body-sm;
+    color: $color-steel;
+    margin-left: 0;
+    margin-top: $spacing-xs;
   }
 }
+
 .add-device-options {
   display: flex;
-  margin-top: 16px;
-  margin-left: 75px;
+  margin-top: $spacing-lg;
+  margin-left: 0;
   align-items: center;
 }
 
 .add-device-btn {
-  color: #fff;
-  margin-left: 10px;
-  background: #3375fd;
-  border-radius: 20px;
+  margin-left: $spacing-sm;
 }
 
 .search-container {
   width: 360px;
-  margin-right: 5px;
 }
 
 .search-wrapper {
@@ -420,26 +402,28 @@ export default {
 
 .custom-search-input {
   &::v-deep .el-input__inner {
-    border-radius: 20px;
-    border: 1px solid transparent;
-    box-shadow: 0 2px 2px 0 #cfe1fb;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: $rounded-full;
+    border: 1px solid $color-glass-border;
+    box-shadow: none;
   }
+
   &::v-deep .el-input__suffix {
     right: 10px;
   }
+
   &::v-deep .el-input__suffix-inner {
     display: flex;
     align-items: center;
     height: 100%;
     cursor: pointer;
   }
+
   .search-icon {
     font-size: 14px;
   }
-}
-
-.search-wrapper {
-  position: relative;
 }
 
 .search-history-dropdown {
@@ -447,33 +431,33 @@ export default {
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #e4e6ef;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: $color-canvas;
+  border: 1px solid $color-hairline-soft;
+  border-radius: $rounded-xl;
+  box-shadow: $shadow-dialog;
   z-index: 1000;
-  margin-top: 2px;
+  margin-top: 6px;
 }
 
 .search-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0f0f0;
-  font-size: 12px;
-  color: #909399;
+  padding: $spacing-xs $spacing-md;
+  border-bottom: 1px solid $color-hairline-soft;
+  font: $font-caption;
+  color: $color-steel;
 }
 
 .clear-history-btn {
-  color: #909399;
-  font-size: 11px;
+  color: $color-steel;
+  font: $font-caption;
   padding: 0;
   height: auto;
-}
 
-.clear-history-btn:hover {
-  color: #606266;
+  &:hover {
+    color: $color-charcoal;
+  }
 }
 
 .search-history-list {
@@ -485,102 +469,46 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: $spacing-xs $spacing-md;
   cursor: pointer;
-  font-size: 12px;
-  color: #606266;
-}
+  font: $font-caption;
+  color: $color-charcoal;
 
-.search-history-item:hover {
-  background-color: #f5f7fa;
-}
+  &:hover {
+    background-color: $color-surface-soft;
 
-.search-wrapper {
-  position: relative;
-}
-
-.search-history-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e4e6ef;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  margin-top: 6px;
-}
-
-.clear-history-btn {
-  color: #909399;
-  font-size: 12px;
-  padding: 0;
-  height: auto;
-}
-
-.clear-history-btn:hover {
-  color: #606266;
-}
-
-.search-history-list {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.search-history-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 12px;
-  color: #606266;
-}
-
-.search-history-item:hover {
-  background-color: #f5f7fa;
-}
-
-.search-history-item:hover .clear-item-icon {
-  visibility: visible;
-}
-
-.clear-item-icon:hover {
-  color: #ff4949;
+    .clear-item-icon {
+      visibility: visible;
+    }
+  }
 }
 
 .clear-item-icon {
   font-size: 10px;
-  color: #909399;
+  color: $color-steel;
   visibility: hidden;
+
+  &:hover {
+    color: $color-critical;
+  }
 }
 
 .device-list-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 30px;
-  padding: 30px 0;
-}
-
-/* 在 DeviceItem.vue 的样式中 */
-.device-item {
-  margin: 0 !important;
-  /* 避免冲突 */
-  width: auto !important;
+  gap: $spacing-xl;
+  padding: $spacing-xl 0;
 }
 
 .footer {
-  font-size: 12px;
-  font-weight: 400;
+  font: $font-caption;
   margin-top: auto;
-  padding-top: 30px;
-  color: #979db1;
+  padding-top: $spacing-section-sm;
+  color: $color-stone;
   text-align: center;
-  /* 居中显示 */
 }
 
-/* 骨架屏动画 */
+/* 骨架屏 */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
@@ -588,20 +516,21 @@ export default {
 }
 
 .skeleton-item {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  background: $color-glass-bg;
+  border: 1px solid $color-glass-border;
+  border-radius: $rounded-xl;
+  padding: $spacing-xl;
   height: 120px;
   position: relative;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: $spacing-xl;
 }
 
 .skeleton-image {
   width: 80px;
   height: 80px;
-  background: #f0f2f5;
-  border-radius: 4px;
+  background: $color-surface-soft;
+  border-radius: $rounded-md;
   float: left;
   position: relative;
   overflow: hidden;
@@ -613,9 +542,9 @@ export default {
 
 .skeleton-line {
   height: 16px;
-  background: #f0f2f5;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  background: $color-surface-soft;
+  border-radius: $rounded-md;
+  margin-bottom: $spacing-md;
   width: 70%;
   position: relative;
   overflow: hidden;
@@ -623,8 +552,8 @@ export default {
 
 .skeleton-line-short {
   height: 12px;
-  background: #f0f2f5;
-  border-radius: 4px;
+  background: $color-surface-soft;
+  border-radius: $rounded-md;
   width: 50%;
 }
 
@@ -640,5 +569,11 @@ export default {
       rgba(255, 255, 255, 0.3),
       rgba(255, 255, 255, 0));
   animation: shimmer 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-item::after {
+    animation: none;
+  }
 }
 </style>

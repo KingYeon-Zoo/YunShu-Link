@@ -117,17 +117,30 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "@/styles/tokens";
+
 .device-item {
-  width: 342px;
-  border-radius: 20px;
-  background: #fafcfe;
-  padding: 22px 22px 14px;
+  margin: 0 !important;
+  width: auto !important;
+  border-radius: $rounded-xxxl;
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $color-glass-border;
+  padding: $spacing-xxl;
   box-sizing: border-box;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: $color-glass-bg-hover;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+
   &-title {
     flex: 1;
-    font-weight: bold;
-    font-size: 18px;
-    color: #3d4566;
+    font: $font-subtitle-lg;
+    color: $color-ink-deep;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -135,37 +148,46 @@ export default {
   }
 }
 
+@supports not (backdrop-filter: blur($glass-blur)) {
+  .device-item {
+    background: $color-canvas;
+  }
+}
+
 .device-name {
-  margin: 7px 0 10px;
-  font-weight: 400;
-  font-size: 11px;
-  color: #3d4566;
+  margin: $spacing-xs 0 $spacing-base;
+  font: $font-caption;
+  color: $color-charcoal;
   text-align: left;
 }
 
 .settings-btn {
-  font-weight: 500;
-  font-size: 12px;
-  color: #5778ff;
-  background: #e6ebff;
+  font: $font-caption-bold;
+  color: $color-primary-soft;
+  background: rgba($color-primary, 0.1);
   width: auto;
-  padding: 0 12px;
-  height: 21px;
-  line-height: 21px;
+  padding: 0 $spacing-base;
+  height: 24px;
+  line-height: 24px;
   cursor: pointer;
-  border-radius: 14px;
+  border-radius: $rounded-full;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba($color-primary, 0.18);
+  }
 }
 
 .version-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
-  font-size: 12px;
-  color: #979db1;
+  margin-top: $spacing-lg;
+  font: $font-caption;
+  color: $color-stone;
   font-weight: 400;
   &-scroll {
-    margin-left: 20px;
+    margin-left: $spacing-lg;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -182,13 +204,17 @@ export default {
 .all-tags-popover {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: $spacing-xs;
 }
 
 .disabled-btn {
-  background: #e6e6e6;
-  color: #999;
+  background: $color-surface-soft;
+  color: $color-stone;
   cursor: not-allowed;
+
+  &:hover {
+    background: $color-surface-soft;
+  }
 }
 </style>
 
