@@ -1657,5 +1657,28 @@ export default {
 
   // Header navigation
   'header.addressBook': 'Adressbuch',
-
+  // Breadcrumb navigation and user menu
+  'breadcrumb.home': 'Startseite',
+  'breadcrumb.dashboard': 'Dashboard',
+  'breadcrumb.roleConfig': 'Rollenkonfiguration',
+  'breadcrumb.deviceManagement': 'Geräteverwaltung',
+  'breadcrumb.userManagement': 'Benutzerverwaltung',
+  'breadcrumb.modelConfig': 'Modellkonfiguration',
+  'breadcrumb.knowledgeBase': 'Wissensdatenbank',
+  'breadcrumb.server': 'Serververwaltung',
+  'breadcrumb.ota': 'OTA-Verwaltung',
+  'breadcrumb.voiceResource': 'Sprachressourcen',
+  'breadcrumb.voiceClone': 'Sprachklonverwaltung',
+  'breadcrumb.dict': 'Wörterbuchverwaltung',
+  'breadcrumb.provider': 'Anbieterverwaltung',
+  'breadcrumb.roleTemplate': 'Rollenvorlagenverwaltung',
+  'breadcrumb.templateQuickConfig': 'Schnellvorlagenkonfiguration',
+  'breadcrumb.feature': 'Funktionsverwaltung',
+  'breadcrumb.replacement': 'Ersatzwortverwaltung',
+  'breadcrumb.addressBook': 'Adressbuchverwaltung',
+  'breadcrumb.voicePrint': 'Sprachdruck',
+  'breadcrumb.params': 'Parameterverwaltung',
+  'user.language': 'Sprache wechseln',
+  'user.changePassword': 'Passwort ändern',
+  'user.logout': 'Abmelden',
 }

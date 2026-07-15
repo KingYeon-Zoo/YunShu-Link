@@ -1657,5 +1657,28 @@ export default {
 
   // Header navigation
   'header.addressBook': 'Lista de Contatos',
-
+  // Breadcrumb navigation and user menu
+  'breadcrumb.home': 'Início',
+  'breadcrumb.dashboard': 'Painel',
+  'breadcrumb.roleConfig': 'Configuração de Papel',
+  'breadcrumb.deviceManagement': 'Gerenciamento de Dispositivos',
+  'breadcrumb.userManagement': 'Gerenciamento de Usuários',
+  'breadcrumb.modelConfig': 'Configuração de Modelo',
+  'breadcrumb.knowledgeBase': 'Base de Conhecimento',
+  'breadcrumb.server': 'Gerenciamento de Servidor',
+  'breadcrumb.ota': 'Gerenciamento de OTA',
+  'breadcrumb.voiceResource': 'Recurso de Voz',
+  'breadcrumb.voiceClone': 'Clonagem de Voz',
+  'breadcrumb.dict': 'Gerenciamento de Dicionário',
+  'breadcrumb.provider': 'Gerenciamento de Provedor',
+  'breadcrumb.roleTemplate': 'Modelo de Papel',
+  'breadcrumb.templateQuickConfig': 'Configuração Rápida de Modelo',
+  'breadcrumb.feature': 'Gerenciamento de Recursos',
+  'breadcrumb.replacement': 'Substituição de Palavras',
+  'breadcrumb.addressBook': 'Gerenciamento de Agenda',
+  'breadcrumb.voicePrint': 'Impressão Vocal',
+  'breadcrumb.params': 'Gerenciamento de Parâmetros',
+  'user.language': 'Alternar Idioma',
+  'user.changePassword': 'Alterar Senha',
+  'user.logout': 'Sair',
 }

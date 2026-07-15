@@ -1657,5 +1657,28 @@ export default {
 
   // Header navigation
   'header.addressBook': 'Danh bạ',
-
+  // Breadcrumb navigation and user menu
+  'breadcrumb.home': 'Trang chủ',
+  'breadcrumb.dashboard': 'Bảng điều khiển',
+  'breadcrumb.roleConfig': 'Cấu hình vai trò',
+  'breadcrumb.deviceManagement': 'Quản lý thiết bị',
+  'breadcrumb.userManagement': 'Quản lý ngườ dùng',
+  'breadcrumb.modelConfig': 'Cấu hình mô hình',
+  'breadcrumb.knowledgeBase': 'Quản lý cơ sở tri thức',
+  'breadcrumb.server': 'Quản lý máy chủ',
+  'breadcrumb.ota': 'Quản lý OTA',
+  'breadcrumb.voiceResource': 'Kích hoạt tài nguyên giọng nói',
+  'breadcrumb.voiceClone': 'Quản lý nhân bản giọng nói',
+  'breadcrumb.dict': 'Quản lý từ điển',
+  'breadcrumb.provider': 'Quản lý nhà cung cấp',
+  'breadcrumb.roleTemplate': 'Quản lý mẫu vai trò',
+  'breadcrumb.templateQuickConfig': 'Cấu hình nhanh mẫu',
+  'breadcrumb.feature': 'Quản lý tính năng',
+  'breadcrumb.replacement': 'Quản lý từ thay thế',
+  'breadcrumb.addressBook': 'Quản lý danh bạ',
+  'breadcrumb.voicePrint': 'Quản lý dấu giọng nói',
+  'breadcrumb.params': 'Quản lý tham số',
+  'user.language': 'Chuyển ngôn ngữ',
+  'user.changePassword': 'Đổi mật khẩu',
+  'user.logout': 'Đăng xuất',
 }
