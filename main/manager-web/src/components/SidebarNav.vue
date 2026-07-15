@@ -4,7 +4,7 @@
       <img v-if="logoUrl" :src="logoUrl" alt="logo" />
       <i v-else class="el-icon-s-home"></i>
     </div>
-    <nav class="sidebar-nav__menu">
+    <nav v-if="initialized" class="sidebar-nav__menu">
       <el-tooltip
         v-for="item in visibleItems"
         :key="item.key"
@@ -20,6 +20,9 @@
         </div>
       </el-tooltip>
     </nav>
+    <div v-else class="sidebar-nav__loading">
+      <i class="el-icon-loading"></i>
+    </div>
   </aside>
 </template>
 
@@ -69,7 +72,10 @@ export default {
     },
     handleClick(item) {
       if (item.children && item.children.length) {
-        this.$router.push({ name: item.children[0].routeName });
+        const firstRoute = item.children[0]?.routeName;
+        if (firstRoute) {
+          this.$router.push({ name: firstRoute });
+        }
       } else if (item.routeName) {
         this.$router.push({ name: item.routeName });
       }
@@ -122,6 +128,15 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  &__loading {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-steel;
+    font-size: 20px;
   }
 
   &__item {
