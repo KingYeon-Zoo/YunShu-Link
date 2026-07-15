@@ -53,6 +53,27 @@ services:
         aliases:
           - xiaozhi-esp32-server-web
 
+  web-dev:
+    image: node:20
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - if [ ! -x node_modules/.bin/vue-cli-service ]; then npm install; fi; npm run serve -- --host 0.0.0.0 --port 8001
+    depends_on:
+      manager:
+        condition: service_started
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      VUE_APP_DEV_PROXY_TARGET: http://manager:8002
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./main/manager-web:/app
+      - manager_web_node_modules:/app/node_modules
+
   mysql:
     image: mysql:latest
     restart: unless-stopped
@@ -76,3 +97,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+volumes:
+  manager_web_node_modules:

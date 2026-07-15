@@ -44,7 +44,7 @@ module.exports = defineConfig({
     port: 8001, // 指定端口为 8001
     proxy: {
       '/xiaozhi': {
-        target: 'http://127.0.0.1:8002',
+        target: process.env.VUE_APP_DEV_PROXY_TARGET || 'http://127.0.0.1:8002',
         changeOrigin: true
       }
     },

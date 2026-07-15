@@ -133,6 +133,23 @@ pnpm dev:h5                      # 或 pnpm dev:mp-weixin / pnpm dev:app
 
 停止服务不会删除 MySQL 数据、模型文件、运行配置或上传文件。
 
+### 前端热更新轻量开发
+
+频繁修改 `manager-web` 时，推荐使用独立的 Docker 前端开发容器。它直接挂载本地源码并负责热更新，宿主机无需运行 Node 后台进程。首次使用前需完成一次全量构建：
+
+```bash
+./start-fast-dev.sh rebuild
+```
+
+日常访问 `http://localhost:8001`。保存 `.vue`、JavaScript、样式或图片后，`web-dev` 容器会自动重新编译；前端依赖保存在独立 Docker 卷中。`http://localhost:8002` 仍是 Docker 镜像中的静态前端与 Java API。
+
+- 快速启动：`./start-fast-dev.sh start`
+- 仅重启前端：`./start-fast-dev.sh restart-web`
+- 查看状态：`./start-fast-dev.sh status`
+- 查看前端日志：`./start-fast-dev.sh logs`
+- 停止全部开发服务：`./start-fast-dev.sh stop`
+- 源码或依赖变化后全量重建：`./start-fast-dev.sh rebuild`
+
 ---
 
 ## 支持的模型与平台
