@@ -2,7 +2,8 @@
   <div class="dynamic-background" :class="`dynamic-background--${variant}`">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
-    <div v-if="variant === 'login'" class="blob blob-3"></div>
+    <div class="blob blob-3"></div>
+    <div v-if="variant === 'login'" class="blob blob-4"></div>
   </div>
 </template>
 
@@ -44,38 +45,57 @@ export default {
     #cce7ff 100%
   );
   background-size: 400% 400%;
-  animation: aurora-flow 10s ease infinite;
+  animation: aurora-flow 20s ease infinite;
 
   .blob {
-    filter: blur(50px);
+    filter: blur(60px);
   }
 
   .blob-1 {
-    width: 400px;
-    height: 400px;
-    background: rgba($color-primary, 0.35);
-    top: -100px;
-    left: -100px;
-    animation: blob-float 12s ease-in-out infinite;
+    width: 40vw;
+    height: 40vw;
+    min-width: 320px;
+    min-height: 320px;
+    background: rgba($color-primary, 0.42);
+    top: -8%;
+    left: -6%;
+    animation: blob-float 18s ease-in-out infinite;
   }
 
   .blob-2 {
-    width: 350px;
-    height: 350px;
-    background: rgba($color-primary-soft, 0.3);
-    bottom: -80px;
-    right: -80px;
-    animation: blob-float 14s ease-in-out infinite;
-    animation-delay: -4s;
+    width: 35vw;
+    height: 35vw;
+    min-width: 280px;
+    min-height: 280px;
+    background: rgba($color-primary-soft, 0.36);
+    bottom: -10%;
+    right: -5%;
+    animation: blob-float 22s ease-in-out infinite;
+    animation-delay: -6s;
   }
 
   .blob-3 {
-    width: 300px;
-    height: 300px;
-    background: rgba($color-primary-deep, 0.2);
-    top: 50%;
-    left: 50%;
-    animation: blob-float 16s ease-in-out infinite reverse;
+    width: 30vw;
+    height: 30vw;
+    min-width: 240px;
+    min-height: 240px;
+    background: rgba($color-primary-deep, 0.3);
+    top: 45%;
+    left: 55%;
+    animation: blob-float 15s ease-in-out infinite reverse;
+    animation-delay: -3s;
+  }
+
+  .blob-4 {
+    width: 32vw;
+    height: 32vw;
+    min-width: 260px;
+    min-height: 260px;
+    background: rgba($color-primary, 0.28);
+    top: 10%;
+    left: 30%;
+    animation: blob-float 20s ease-in-out infinite;
+    animation-delay: -10s;
   }
 }
 
@@ -94,24 +114,41 @@ export default {
   }
 
   .blob-1 {
-    width: 500px;
-    height: 500px;
+    width: 45vw;
+    height: 45vw;
+    min-width: 360px;
+    min-height: 360px;
     background: rgba($color-primary, 0.5);
-    top: -150px;
-    right: -150px;
-    opacity: 0.06;
-    animation: blob-float 25s ease-in-out infinite;
+    top: -10%;
+    right: -8%;
+    opacity: 0.08;
+    animation: blob-float 20s ease-in-out infinite;
   }
 
   .blob-2 {
-    width: 400px;
-    height: 400px;
+    width: 38vw;
+    height: 38vw;
+    min-width: 300px;
+    min-height: 300px;
     background: rgba($color-primary-soft, 0.4);
-    bottom: -100px;
-    left: -100px;
+    bottom: -8%;
+    left: -6%;
     opacity: 0.06;
-    animation: blob-float 28s ease-in-out infinite;
+    animation: blob-float 24s ease-in-out infinite;
     animation-delay: -8s;
+  }
+
+  .blob-3 {
+    width: 32vw;
+    height: 32vw;
+    min-width: 260px;
+    min-height: 260px;
+    background: rgba($color-primary, 0.35);
+    top: 55%;
+    left: 45%;
+    opacity: 0.06;
+    animation: blob-float 22s ease-in-out infinite reverse;
+    animation-delay: -4s;
   }
 }
 
@@ -123,8 +160,8 @@ export default {
 
 @keyframes blob-float {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(60px, -60px) scale(1.1); }
-  66% { transform: translate(-40px, 40px) scale(0.95); }
+  33% { transform: translate(60px, -60px) scale(1.08); }
+  66% { transform: translate(-40px, 40px) scale(0.96); }
 }
 
 @media (prefers-reduced-motion: reduce) {
