@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <router-view />
+    <MainLayout v-if="useLayout" />
+    <router-view v-else />
     <cache-viewer v-if="isCDNEnabled" :visible.sync="showCacheViewer" />
   </div>
 </template>
@@ -30,18 +31,27 @@
 </style>
 <script>
 import CacheViewer from '@/components/CacheViewer.vue';
+import MainLayout from '@/layouts/MainLayout.vue';
 import { logCacheStatus } from '@/utils/cacheViewer';
+
+const layoutExcludes = ['login', 'Register', 'RetrievePassword', 'welcome'];
 
 export default {
   name: 'App',
   components: {
-    CacheViewer
+    CacheViewer,
+    MainLayout
   },
   data() {
     return {
       showCacheViewer: false,
       isCDNEnabled: process.env.VUE_APP_USE_CDN === 'true'
     };
+  },
+  computed: {
+    useLayout() {
+      return !layoutExcludes.includes(this.$route.name);
+    }
   },
   created() {
     // 挂载 store 状态
