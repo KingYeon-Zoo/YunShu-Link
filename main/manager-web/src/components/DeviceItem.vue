@@ -130,11 +130,12 @@ export default {
   padding: $spacing-xxl;
   box-sizing: border-box;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease-out;
 
   &:hover {
     background: $color-glass-bg-hover;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 
   &-title {

@@ -1,115 +1,119 @@
 <template>
-  <div class="welcome">
-    <DynamicBackground variant="management" />
-    <!-- 公共头部 -->
-    <HeaderBar :devices="devices" style="position: relative; z-index: 1;" />
-    <el-main style="padding: 20px; position: relative; z-index: 1; display: flex; flex-direction: column;">
-      <div>
-        <!-- 首页内容 -->
-        <div class="add-device">
-          <div class="add-device-bg">
-            <div class="hellow-text" style="padding-top: 30px;">
-              {{ $t('home.greeting') }}
+  <div class="home-page">
+    <WelcomeBanner :username="userInfo?.username" :summary="statusSummary" />
+
+    <div class="stat-grid">
+      <StatCard
+        v-for="(stat, idx) in stats"
+        :key="stat.key"
+        :icon="stat.icon"
+        :value="stat.value"
+        :label="stat.label"
+        :index="idx + 1"
+      />
+    </div>
+
+    <section class="agent-section">
+      <div class="agent-section__header">
+        <h3>{{ $t('home.myAgents') }}</h3>
+        <button class="primary-btn" @click="showAddDialog">
+          <i class="el-icon-plus"></i> {{ $t('home.addAgent') }}
+        </button>
+      </div>
+
+      <div class="search-bar">
+        <div class="search-wrapper">
+          <el-input
+            v-model="search"
+            :placeholder="$t('header.searchPlaceholder')"
+            class="custom-search-input"
+            @keyup.enter.native="handleSearch"
+            @clear="handleSearchReset"
+            clearable
+            ref="searchInput"
+            @focus="showSearchHistory"
+            @blur="hideSearchHistory"
+          >
+            <i slot="suffix" class="el-icon-search search-icon" @click="handleSearch"></i>
+          </el-input>
+          <div v-if="showHistory && searchHistory.length > 0" class="search-history-dropdown">
+            <div class="search-history-header">
+              <span>{{ $t('header.searchHistory') }}</span>
+              <el-button type="text" size="small" class="clear-history-btn" @click="clearSearchHistory">
+                {{ $t('header.clearHistory') }}
+              </el-button>
             </div>
-            <div class="hellow-text">
-              {{ $t('home.wish') }}
-            </div>
-            <div class="hi-hint">
-              let's have a wonderful day!
-            </div>
-            <div class="add-device-options">
-            <div class="search-container">
-              <div class="search-wrapper">
-                  <el-input
-                    v-model="search"
-                    :placeholder="$t('header.searchPlaceholder')"
-                    class="custom-search-input"
-                    @keyup.enter.native="handleSearch"
-                    @clear="handleSearchReset"
-                    clearable
-                    ref="searchInput"
-                    @focus="showSearchHistory"
-                    @blur="hideSearchHistory"
-                  >
-                    <i slot="suffix" class="el-icon-search search-icon" @click="handleSearch"></i>
-                  </el-input>
-                  <!-- 搜索历史下拉框 -->
-                  <div v-if="showHistory && searchHistory.length > 0" class="search-history-dropdown">
-                    <div class="search-history-header">
-                      <span>{{ $t("header.searchHistory") }}</span>
-                      <el-button type="text" size="small" class="clear-history-btn" @click="clearSearchHistory">
-                        {{ $t("header.clearHistory") }}
-                      </el-button>
-                    </div>
-                    <div class="search-history-list">
-                      <div v-for="(item, index) in searchHistory" :key="index" class="search-history-item"
-                        @click.stop="selectSearchHistory(item)">
-                        <span class="history-text">{{ item }}</span>
-                        <i class="el-icon-close clear-item-icon" @click.stop="removeSearchHistory(index)"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div class="search-history-list">
+              <div v-for="(item, index) in searchHistory" :key="index" class="search-history-item"
+                @click.stop="selectSearchHistory(item)">
+                <span class="history-text">{{ item }}</span>
+                <i class="el-icon-close clear-item-icon" @click.stop="removeSearchHistory(index)"></i>
               </div>
-              <el-button icon="el-icon-plus" type="primary" class="add-device-btn" @click="showAddDialog">{{ $t('home.addAgent') }}</el-button>
             </div>
           </div>
         </div>
-        <div class="device-list-container">
-          <template v-if="isLoading">
-            <div v-for="i in skeletonCount" :key="'skeleton-' + i" class="skeleton-item">
-              <div class="skeleton-image"></div>
-              <div class="skeleton-content">
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line-short"></div>
-              </div>
-            </div>
-          </template>
-
-          <template v-else>
-            <DeviceItem v-for="(item, index) in devices" :key="index" :device="item" :feature-status="featureStatus" 
-              @configure="goToRoleConfig" @deviceManage="handleDeviceManage" @delete="handleDeleteAgent" 
-              @chat-history="handleShowChatHistory" />
-          </template>
-        </div>
       </div>
-      <AddWisdomBodyDialog :visible.sync="addDeviceDialogVisible" @confirm="handleWisdomBodyAdded" />
-    </el-main>
-    <el-footer style="position: relative; z-index: 1;">
-      <version-footer />
-    </el-footer>
+
+      <EmptyAgentState v-if="!isLoading && devices.length === 0" @add="showAddDialog" />
+
+      <div v-else class="device-list-container">
+        <template v-if="isLoading">
+          <div v-for="i in skeletonCount" :key="'skeleton-' + i" class="skeleton-item">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-content">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line-short"></div>
+            </div>
+          </div>
+        </template>
+
+        <template v-else>
+          <DeviceItem
+            v-for="(item, index) in devices"
+            :key="index"
+            :device="item"
+            :feature-status="featureStatus"
+            class="fade-in-up"
+            :style="{ animationDelay: `${index * 60}ms` }"
+            @configure="goToRoleConfig"
+            @deviceManage="handleDeviceManage"
+            @delete="handleDeleteAgent"
+            @chat-history="handleShowChatHistory"
+          />
+        </template>
+      </div>
+    </section>
+
+    <AddWisdomBodyDialog :visible.sync="addDeviceDialogVisible" @confirm="handleWisdomBodyAdded" />
     <chat-history-dialog :visible.sync="showChatHistory" :agent-id="currentAgentId" :agent-name="currentAgentName" />
   </div>
-
 </template>
 
 <script>
 import Api from '@/apis/api';
 import { mapState } from "vuex";
 import AddWisdomBodyDialog from '@/components/AddWisdomBodyDialog.vue';
-import DynamicBackground from '@/components/DynamicBackground.vue';
 import ChatHistoryDialog from '@/components/ChatHistoryDialog.vue';
 import DeviceItem from '@/components/DeviceItem.vue';
-import HeaderBar from '@/components/HeaderBar.vue';
-import VersionFooter from '@/components/VersionFooter.vue';
+import EmptyAgentState from '@/components/EmptyAgentState.vue';
+import StatCard from '@/components/StatCard.vue';
+import WelcomeBanner from '@/components/WelcomeBanner.vue';
 import featureManager from '@/utils/featureManager';
 
 export default {
   name: 'HomePage',
-  components: { DeviceItem, AddWisdomBodyDialog, DynamicBackground, HeaderBar, VersionFooter, ChatHistoryDialog },
+  components: { DeviceItem, AddWisdomBodyDialog, ChatHistoryDialog, EmptyAgentState, StatCard, WelcomeBanner },
   data() {
     return {
       addDeviceDialogVisible: false,
       devices: [],
       originalDevices: [],
       isSearching: false,
-      searchRegex: null,
       isLoading: true,
       skeletonCount: localStorage.getItem('skeletonCount') || 8,
       showChatHistory: false,
       currentAgentId: '',
       currentAgentName: '',
-      // 功能状态
       featureStatus: {
         voiceprintRecognition: false,
         voiceClone: false,
@@ -118,6 +122,8 @@ export default {
       search: "",
       showHistory: false,
       searchHistory: [],
+      SEARCH_HISTORY_KEY: 'home_agent_search_history',
+      MAX_HISTORY_COUNT: 10
     }
   },
 
@@ -125,17 +131,40 @@ export default {
     ...mapState({
       userInfo: (state) => state.userInfo,
     }),
+    stats() {
+      const agentCount = this.devices.length;
+      const deviceCount = this.devices.reduce((sum, d) => sum + (d.deviceCount || 0), 0);
+      const onlineCount = this.devices.filter(d => {
+        if (typeof d.online === 'boolean') return d.online;
+        const lastConnect = d.lastConnectedAt ? new Date(d.lastConnectedAt) : null;
+        return lastConnect && (Date.now() - lastConnect.getTime()) < 24 * 60 * 60 * 1000;
+      }).length;
+      const modelSet = new Set();
+      this.devices.forEach(d => {
+        if (d.llmModelName) modelSet.add(d.llmModelName);
+        if (d.ttsModelName) modelSet.add(d.ttsModelName);
+      });
+      return [
+        { key: 'agents', icon: 'el-icon-s-custom', value: agentCount, label: this.$t('home.statAgents') },
+        { key: 'devices', icon: 'el-icon-s-grid', value: deviceCount, label: this.$t('home.statDevices') },
+        { key: 'online', icon: 'el-icon-success', value: onlineCount, label: this.$t('home.statOnline') },
+        { key: 'models', icon: 'el-icon-s-operation', value: modelSet.size, label: this.$t('home.statModels') }
+      ];
+    },
+    statusSummary() {
+      const online = this.stats.find(s => s.key === 'online').value;
+      const active = this.stats.find(s => s.key === 'agents').value;
+      return this.$t('home.statusSummary', { online, active });
+    }
   },
 
   async mounted() {
     this.fetchAgentList();
     await this.loadFeatureStatus();
-    // 从localStorage加载搜索历史
     this.loadSearchHistory();
   },
 
   methods: {
-    // 加载功能状态
     async loadFeatureStatus() {
       await featureManager.waitForInitialization();
       const config = featureManager.getConfig();
@@ -145,32 +174,29 @@ export default {
         knowledgeBase: config.knowledgeBase
       };
     },
-    
+
     showAddDialog() {
       this.addDeviceDialogVisible = true
     },
+
     goToRoleConfig() {
-      // 点击配置角色后跳转到角色配置页
       this.$router.push('/role-config')
     },
+
     handleWisdomBodyAdded(res) {
       this.fetchAgentList();
       this.addDeviceDialogVisible = false;
     },
+
     handleDeviceManage() {
       this.$router.push('/device-management');
     },
+
     handleSearchReset() {
       this.isSearching = false;
-      // 直接将原始设备列表赋值给显示设备列表，避免重新加载数据
       this.devices = [...this.originalDevices];
     },
 
-    // 搜索更新智能体列表
-    handleSearchResult(filteredList) {
-      this.devices = filteredList; // 更新设备列表
-    },
-    // 获取智能体列表
     fetchAgentList() {
       this.isLoading = true;
       Api.agent.getAgentList(({ data }) => {
@@ -180,10 +206,9 @@ export default {
             agentId: item.id
           }));
 
-          // 动态设置骨架屏数量（可选）
           this.skeletonCount = Math.min(
-            Math.max(this.originalDevices.length, 3), // 最少3个
-            10 // 最多10个
+            Math.max(this.originalDevices.length, 3),
+            10
           );
 
           this.handleSearchReset();
@@ -191,10 +216,11 @@ export default {
         this.isLoading = false;
       }, (error) => {
         console.error('Failed to fetch agent list:', error);
+        this.$message.error(this.$t('message.loadFailed'));
         this.isLoading = false;
       });
     },
-    // 删除智能体
+
     handleDeleteAgent(agentId) {
       this.$confirm(this.$t('home.confirmDeleteAgent'), '提示', {
         confirmButtonText: this.$t('button.ok'),
@@ -207,7 +233,7 @@ export default {
               message: this.$t('home.deleteSuccess'),
               showClose: true
             });
-            this.fetchAgentList(); // 刷新列表
+            this.fetchAgentList();
           } else {
             this.$message.error({
               message: res.data.msg || this.$t('home.deleteFailed'),
@@ -217,32 +243,29 @@ export default {
         });
       }).catch(() => { });
     },
+
     handleShowChatHistory({ agentId, agentName }) {
       this.currentAgentId = agentId;
       this.currentAgentName = agentName;
       this.showChatHistory = true;
     },
-    // 处理搜索
+
     handleSearch() {
       const searchValue = this.search.trim();
 
-      // 如果搜索内容为空，触发重置事件
       if (!searchValue) {
         this.handleSearchReset();
         return;
       }
 
-      // 保存搜索历史
       this.saveSearchHistory(searchValue);
 
-      // 搜索完成后让输入框失去焦点，从而触发blur事件隐藏搜索历史
       if (this.$refs.searchInput) {
         this.$refs.searchInput.blur();
       }
 
       this.isSearching = true;
       this.isLoading = true;
-      // 检测MAC地址格式：包含4个冒号
       const isMac = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(searchValue)
       const searchType = isMac ? 'mac' : 'name';
       Api.agent.searchAgent(searchValue, searchType, ({ data }) => {
@@ -260,20 +283,16 @@ export default {
       });
     },
 
-    // 显示搜索历史
     showSearchHistory() {
       this.showHistory = true;
     },
 
-    // 隐藏搜索历史
     hideSearchHistory() {
-      // 延迟隐藏，以便点击事件能够执行
       setTimeout(() => {
         this.showHistory = false;
       }, 200);
     },
 
-    // 加载搜索历史
     loadSearchHistory() {
       try {
         const history = localStorage.getItem(this.SEARCH_HISTORY_KEY);
@@ -286,21 +305,17 @@ export default {
       }
     },
 
-    // 保存搜索历史
     saveSearchHistory(keyword) {
       if (!keyword || this.searchHistory.includes(keyword)) {
         return;
       }
 
-      // 添加到历史记录开头
       this.searchHistory.unshift(keyword);
 
-      // 限制历史记录数量
       if (this.searchHistory.length > this.MAX_HISTORY_COUNT) {
         this.searchHistory = this.searchHistory.slice(0, this.MAX_HISTORY_COUNT);
       }
 
-      // 保存到localStorage
       try {
         localStorage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(this.searchHistory));
       } catch (error) {
@@ -308,13 +323,11 @@ export default {
       }
     },
 
-    // 选择搜索历史项
     selectSearchHistory(keyword) {
       this.search = keyword;
       this.handleSearch();
     },
 
-    // 移除单个搜索历史项
     removeSearchHistory(index) {
       this.searchHistory.splice(index, 1);
       try {
@@ -324,7 +337,6 @@ export default {
       }
     },
 
-    // 清空所有搜索历史
     clearSearchHistory() {
       this.searchHistory = [];
       try {
@@ -332,7 +344,7 @@ export default {
       } catch (error) {
         console.error("清空搜索历史失败:", error);
       }
-    },
+    }
   }
 }
 </script>
@@ -340,74 +352,54 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/tokens";
 
-.welcome {
-  min-width: 900px;
-  min-height: 506px;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: transparent;
+.home-page {
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-.add-device {
-  height: auto;
-  border-radius: $rounded-xxxl;
-  background: $color-glass-bg;
-  backdrop-filter: blur($glass-blur);
-  -webkit-backdrop-filter: blur($glass-blur);
-  border: 1px solid $color-glass-border;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  padding: $spacing-section;
-}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
 
-.add-device-bg {
-  width: 100%;
-  height: 100%;
-  text-align: left;
-  background: transparent;
-  box-sizing: border-box;
-
-  .hellow-text {
-    margin-left: 0;
-    font: $font-heading-lg;
-    color: $color-ink-deep;
-  }
-
-  .hi-hint {
-    font: $font-body-sm;
-    color: $color-steel;
-    margin-left: 0;
-    margin-top: $spacing-xs;
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.add-device-options {
-  display: flex;
-  margin-top: $spacing-lg;
-  margin-left: 0;
-  align-items: center;
+.agent-section {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      font: $font-heading-sm;
+      color: $color-ink-deep;
+      margin: 0;
+    }
+  }
 }
 
-.add-device-btn {
-  margin-left: $spacing-sm;
-}
+.search-bar {
+  margin-bottom: $spacing-lg;
 
-.search-container {
-  width: 360px;
-}
-
-.search-wrapper {
-  position: relative;
+  .search-wrapper {
+    position: relative;
+    width: 360px;
+  }
 }
 
 .custom-search-input {
   &::v-deep .el-input__inner {
     height: 40px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
+    background: $color-surface-soft;
     border-radius: $rounded-full;
-    border: 1px solid $color-glass-border;
-    box-shadow: none;
+    border: none;
+    padding-left: 16px;
+    padding-right: 36px;
   }
 
   &::v-deep .el-input__suffix {
@@ -418,11 +410,12 @@ export default {
     display: flex;
     align-items: center;
     height: 100%;
-    cursor: pointer;
   }
 
   .search-icon {
     font-size: 14px;
+    color: $color-steel;
+    cursor: pointer;
   }
 }
 
@@ -495,17 +488,29 @@ export default {
 
 .device-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: $spacing-xl;
   padding: $spacing-xl 0;
 }
 
-.footer {
-  font: $font-caption;
-  margin-top: auto;
-  padding-top: $spacing-section-sm;
-  color: $color-stone;
-  text-align: center;
+.primary-btn {
+  height: 40px;
+  padding: 0 $spacing-lg;
+  border-radius: $rounded-full;
+  background: $color-ink-button;
+  color: $color-on-primary;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: $font-body-sm-bold;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 /* 骨架屏 */
@@ -516,14 +521,13 @@ export default {
 }
 
 .skeleton-item {
-  background: $color-glass-bg;
-  border: 1px solid $color-glass-border;
+  background: $color-canvas;
+  border: 1px solid $color-hairline-soft;
   border-radius: $rounded-xl;
   padding: $spacing-xl;
   height: 120px;
   position: relative;
   overflow: hidden;
-  margin-bottom: $spacing-xl;
 }
 
 .skeleton-image {
