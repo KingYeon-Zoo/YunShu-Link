@@ -17,7 +17,7 @@ main/manager-web/src/
 ├── styles/
 │   ├── _tokens.scss             # 新增：颜色、字体、间距、圆角、阴影、玻璃 token
 │   ├── _element-override.scss   # 新增：Element UI SCSS 变量与全局覆盖
-│   ├── _global.scss             # 新增/迁移：全局工具、滚动条、autofill、动画
+│   ├── _globals.scss            # 新增：全局工具、滚动条、autofill、动画（避免与 legacy global.scss 同名）
 │   └── index.scss               # 新增：样式统一入口
 ├── components/
 │   ├── DynamicBackground.vue    # 新增：登录页/管理页极光背景
@@ -31,7 +31,7 @@ main/manager-web/src/
 │   └── *.vue                    # 只读验证：表格页继承全局样式
 ├── App.vue                      # 修改：全局字体、背景
 ├── main.js                      # 修改：引入 styles/index.scss
-├── styles/global.scss           # 修改：合并/迁移到 _global.scss
+├── styles/global.scss           # 修改：内容迁移到 _globals.scss 后可删除
 └── public/index.html            # 修改：加载 Inter + Noto Sans SC 字体
 ```
 
@@ -175,15 +175,15 @@ git commit -m "feat: add Meta design token system and style entry"
 ## 任务 2：全局样式与字体加载
 
 **文件：**
-- 创建：`main/manager-web/src/styles/_global.scss`
+- 创建：`main/manager-web/src/styles/_globals.scss`
 - 修改：`main/manager-web/src/App.vue`
 - 修改：`main/manager-web/public/index.html`
 - 修改：`main/manager-web/src/styles/global.scss`
 
-- [ ] **步骤 1：创建 `_global.scss`**
+- [ ] **步骤 1：创建 `_globals.scss`**
 
 ```scss
-// main/manager-web/src/styles/_global.scss
+// main/manager-web/src/styles/_globals.scss
 @import "tokens";
 
 * {
@@ -274,7 +274,7 @@ select:-webkit-autofill:focus {
 
 ```scss
 // main/manager-web/src/styles/global.scss
-// 全局样式已迁移至 styles/_global.scss，通过 styles/index.scss 统一引入。
+// 全局样式已迁移至 styles/_globals.scss，通过 styles/index.scss 统一引入。
 ```
 
 - [ ] **步骤 3：修改 `App.vue` 移除默认样式并设置全局字体**
@@ -309,7 +309,7 @@ select:-webkit-autofill:focus {
 - [ ] **步骤 6：Commit**
 
 ```bash
-git add main/manager-web/src/styles/_global.scss main/manager-web/src/styles/global.scss main/manager-web/src/App.vue main/manager-web/public/index.html
+git add main/manager-web/src/styles/_globals.scss main/manager-web/src/styles/global.scss main/manager-web/src/App.vue main/manager-web/public/index.html
 git commit -m "feat: add global styles, scrollbar, glass utility and font loading"
 ```
 
