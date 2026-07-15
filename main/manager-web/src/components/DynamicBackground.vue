@@ -1,5 +1,5 @@
 <template>
-  <div class="dynamic-background" :class="`dynamic-background--${variant}`">
+  <div class="dynamic-background" :class="`dynamic-background--${variant}`" aria-hidden="true">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
@@ -28,10 +28,13 @@ export default {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  will-change: background-position;
 
   .blob {
     position: absolute;
     border-radius: 50%;
+    filter: blur(60px);
+    will-change: transform;
   }
 }
 
@@ -39,10 +42,6 @@ export default {
   background: linear-gradient(135deg, #e0e6fd, #cce7ff, #d3d3fe, #e0e6fd);
   background-size: 400% 400%;
   animation: aurora-flow 20s ease infinite;
-
-  .blob {
-    filter: blur(60px);
-  }
 
   .blob-1 {
     width: 40vw;
@@ -102,10 +101,6 @@ export default {
   background-size: 300% 300%;
   animation: aurora-flow 20s ease infinite;
 
-  .blob {
-    filter: blur(60px);
-  }
-
   .blob-1 {
     width: 45vw;
     height: 45vw;
@@ -161,6 +156,7 @@ export default {
   .dynamic-background,
   .dynamic-background .blob {
     animation: none;
+    will-change: auto;
   }
 }
 </style>
