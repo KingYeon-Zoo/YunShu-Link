@@ -3,8 +3,7 @@
     <div class="header-container">
       <!-- 左侧元素 -->
       <div class="header-left" @click="handleRouter('home')">
-        <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" class="logo-img" />
-        <img loading="lazy" alt="" :src="xiaozhiAiIcon" class="brand-img" />
+        <img loading="lazy" alt="云枢 YunShu Link" src="@/assets/brand/yunshu-link-logo.png" class="brand-img" />
       </div>
 
       <!-- 中间导航菜单 -->
@@ -256,26 +255,6 @@ export default {
           return this.$t("language.zhCN");
       }
     },
-    // 根据当前语言获取对应的xiaozhi-ai图标
-    xiaozhiAiIcon() {
-      const currentLang = this.currentLanguage;
-      switch (currentLang) {
-        case "zh_CN":
-          return require("@/assets/xiaozhi-ai.png");
-        case "zh_TW":
-          return require("@/assets/xiaozhi-ai_zh_TW.png");
-        case "en":
-          return require("@/assets/xiaozhi-ai_en.png");
-        case "de":
-          return require("@/assets/xiaozhi-ai_de.png");
-        case "vi":
-          return require("@/assets/xiaozhi-ai_vi.png");
-        case "pt_BR":
-          return require("@/assets/xiaozhi-ai_en.png");
-        default:
-          return require("@/assets/xiaozhi-ai.png");
-      }
-    },
     // 用户菜单选项
     userMenuOptions() {
       return [
@@ -517,13 +496,10 @@ export default {
   cursor: pointer;
 }
 
-.logo-img {
-  width: 42px;
-  height: 42px;
-}
-
 .brand-img {
-  height: 20px;
+  width: 146px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .header-center {

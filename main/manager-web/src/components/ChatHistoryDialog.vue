@@ -34,7 +34,7 @@
                             {{ message.content }}
                         </div>
                         <div v-else class="message-item" :class="{ 'user-message': message.chatType === 1, 'tool-message': message.chatType === 3 }">
-                            <img :src="message.chatType === 1 ? getUserAvatar(currentSessionId) : require('@/assets/xiaozhi-logo.png')"
+                            <img :src="message.chatType === 1 ? getUserAvatar(currentSessionId) : require('@/assets/brand/yunshu-link-icon.png')"
                                 class="avatar" />
                             <div class="message-content">
                                 <template v-if="Array.isArray(extractContentFromString(message.content))">

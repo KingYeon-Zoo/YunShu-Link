@@ -49,7 +49,7 @@ export default {
   },
   async created() {
     try {
-      this.logoUrl = require('@/assets/xiaozhi-logo.png');
+      this.logoUrl = require('@/assets/brand/yunshu-link-icon.png');
     } catch (error) {
       this.logoUrl = null;
     }

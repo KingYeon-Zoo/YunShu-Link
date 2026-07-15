@@ -5,8 +5,7 @@
     <div class="login-page__container">
       <section class="login-page__visual">
         <div class="brand">
-          <img class="brand__logo" :src="xiaozhiAiIcon" alt="logo" />
-          <span class="brand__name">{{ $t('login.brandName') || '云枢' }}</span>
+          <img class="brand__logo" src="@/assets/brand/yunshu-link-logo.png" alt="云枢 YunShu Link" />
         </div>
         <h1 class="brand__title">{{ $t('login.brandTitle') }}</h1>
         <p class="brand__slogan">{{ $t('login.brandSlogan') }}</p>
@@ -148,21 +147,6 @@ export default {
           return this.$t("language.ptBR");
         default:
           return this.$t("language.zhCN");
-      }
-    },
-    xiaozhiAiIcon() {
-      const currentLang = this.currentLanguage;
-      switch (currentLang) {
-        case "zh_TW":
-          return require("@/assets/xiaozhi-ai_zh_TW.png");
-        case "en":
-          return require("@/assets/xiaozhi-ai_en.png");
-        case "de":
-          return require("@/assets/xiaozhi-ai_de.png");
-        case "vi":
-          return require("@/assets/xiaozhi-ai_vi.png");
-        default:
-          return require("@/assets/xiaozhi-ai.png");
       }
     },
   },
@@ -394,14 +378,9 @@ export default {
   margin-bottom: $spacing-xl;
 
   &__logo {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-  }
-
-  &__name {
-    font-size: 24px;
-    font-weight: 700;
+    width: min(320px, 72%);
+    height: auto;
+    object-fit: contain;
   }
 
   &__title {
