@@ -54,9 +54,15 @@ export default {
       this.logoUrl = null;
     }
 
-    await featureManager.waitForInitialization();
-    this.featureStatus = featureManager.getConfig();
-    this.initialized = true;
+    try {
+      await featureManager.waitForInitialization();
+      this.featureStatus = featureManager.getConfig();
+    } catch (error) {
+      console.warn('SidebarNav: featureManager initialization failed', error);
+      this.featureStatus = {};
+    } finally {
+      this.initialized = true;
+    }
   },
   methods: {
     isVisible(item) {
