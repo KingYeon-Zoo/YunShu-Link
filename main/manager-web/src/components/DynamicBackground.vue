@@ -36,14 +36,7 @@ export default {
 }
 
 .dynamic-background--login {
-  background: linear-gradient(
-    135deg,
-    #e0e6fd 0%,
-    #cce7ff 25%,
-    #d3d3fe 50%,
-    #e0e6fd 75%,
-    #cce7ff 100%
-  );
+  background: linear-gradient(135deg, #e0e6fd, #cce7ff, #d3d3fe, #e0e6fd);
   background-size: 400% 400%;
   animation: aurora-flow 20s ease infinite;
 
