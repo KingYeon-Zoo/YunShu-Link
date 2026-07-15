@@ -1,18 +1,5 @@
 @import "tokens";
 
-.glass-card {
-  background: $color-glass-bg;
-  backdrop-filter: blur($glass-blur);
-  -webkit-backdrop-filter: blur($glass-blur);
-  border: 1px solid $color-glass-border;
-  border-radius: $rounded-xxxl;
-  box-shadow: $shadow-dialog;
-
-  @supports not (backdrop-filter: blur(1px)) {
-    background: $color-canvas;
-  }
-}
-
 .surface-card {
   background: $color-canvas;
   border-radius: $rounded-xl;
