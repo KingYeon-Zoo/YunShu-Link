@@ -1,7 +1,9 @@
 #!/bin/sh
 set -eu
 
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ "${DOCKER_DEV_SOURCE_ONLY:-0}" != 1 ] || [ -z "${ROOT_DIR:-}" ]; then
+  ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+fi
 COMPOSE_FILE=${COMPOSE_FILE:-$ROOT_DIR/docker-compose.dev.yml}
 DOCKER_BIN=${DOCKER_BIN:-docker}
 MODEL_DIR=$ROOT_DIR/main/xiaozhi-server/models/SenseVoiceSmall
@@ -185,7 +187,7 @@ start_services() {
   prepare_config "$secret"
 
   info '正在构建并启动 Python 核心服务……'
-  compose up -d --build server
+  compose up -d --build --no-deps server
 
   info '正在等待 Python 核心服务就绪……'
   if ! wait_for_server; then

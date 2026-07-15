@@ -27,9 +27,20 @@ test_compose_config() {
   pass '开发 Compose 使用本地源码镜像'
 }
 
+test_dockerignore_runtime_data() {
+  dockerignore=$ROOT_DIR/.dockerignore
+  grep -Fxq 'main/xiaozhi-server/data' "$dockerignore" || fail '.dockerignore 应排除运行配置'
+  grep -Fxq 'main/xiaozhi-server/models/SenseVoiceSmall/model.pt' "$dockerignore" || fail '.dockerignore 应排除大模型'
+  grep -Fxq 'main/xiaozhi-server/mysql' "$dockerignore" || fail '.dockerignore 应排除 MySQL 数据'
+  grep -Fxq 'main/xiaozhi-server/uploadfile' "$dockerignore" || fail '.dockerignore 应排除上传文件'
+  grep -Fxq 'main/manager-web/node_modules' "$dockerignore" || fail '.dockerignore 应排除前端依赖目录'
+  pass 'Docker 构建上下文排除运行时和私有数据'
+}
+
 test_config_update() {
   tmp_dir=$(mktemp -d)
   config=$tmp_dir/.config.yaml
+  expected_root=$ROOT_DIR
   printf '%s\n' \
     'server:' \
     '  port: 8000' \
@@ -39,6 +50,7 @@ test_config_update() {
     'prompt_template: agent-base-prompt.txt' >"$config"
 
   DOCKER_DEV_SOURCE_ONLY=1 . "$ROOT_DIR/start-dev.sh"
+  [ "$ROOT_DIR" = "$expected_root" ] || fail '加载启动器时不应覆盖调用者提供的 ROOT_DIR'
   update_manager_config "$config" 'http://xiaozhi-esp32-server-web:8002/xiaozhi' 'new-secret'
 
   grep -q '^  url: http://xiaozhi-esp32-server-web:8002/xiaozhi$' "$config" || fail '应更新 manager-api.url'
@@ -81,8 +93,24 @@ test_dispatch() {
   pass '命令分发行为正确'
 }
 
+test_server_start_keeps_manager_running() {
+  grep -q 'compose up -d --build --no-deps server' "$ROOT_DIR/start-dev.sh" || \
+    fail '启动 server 时不应重建已就绪的 manager 依赖'
+  pass '启动 Python 服务不会重启 manager'
+}
+
+test_readme_usage() {
+  grep -q './start-dev.sh' "$ROOT_DIR/README.md" || fail 'README 应说明启动命令'
+  grep -q 'http://localhost:8002' "$ROOT_DIR/README.md" || fail 'README 应说明控制台地址'
+  grep -q './start-dev.sh logs' "$ROOT_DIR/README.md" || fail 'README 应说明日志命令'
+  pass 'README 包含开发启动说明'
+}
+
 test_compose_config
+test_dockerignore_runtime_data
 test_config_update
 test_invalid_config_is_preserved
 test_dispatch
+test_server_start_keeps_manager_running
+test_readme_usage
 printf '共通过 %s 项测试。\n' "$TEST_COUNT"

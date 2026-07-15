@@ -113,6 +113,26 @@ pnpm dev:h5                      # 或 pnpm dev:mp-weixin / pnpm dev:app
 
 根目录提供 `docker-setup.sh` 交互式脚本；`main/xiaozhi-server/` 下有 `docker-compose.yml`（仅服务）与 `docker-compose_all.yml`（服务 + Web + MySQL + Redis）。
 
+### Docker 全源码开发
+
+宿主机只需安装并启动 Docker Desktop，无需安装 Java、Maven、Node.js、Python 或 FFmpeg。在项目根目录执行：
+
+```bash
+./start-dev.sh
+```
+
+首次运行会构建当前工作区的前端、Java 后端和 Python 服务镜像，并下载缺失的语音识别模型。修改任一端源码后再次运行同一命令，即可利用 Docker 缓存重建并启动最新代码。
+
+- 控制台：`http://localhost:8002`
+- WebSocket：`ws://localhost:8000/xiaozhi/v1/`
+- HTTP/Vision：`http://localhost:8003`
+- 查看日志：`./start-dev.sh logs`
+- 查看状态：`./start-dev.sh status`
+- 重建重启：`./start-dev.sh restart`
+- 停止服务：`./start-dev.sh stop`
+
+停止服务不会删除 MySQL 数据、模型文件、运行配置或上传文件。
+
 ---
 
 ## 支持的模型与平台
