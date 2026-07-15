@@ -67,6 +67,7 @@ services:
     ports:
       - "8001:8001"
     environment:
+      VUE_APP_API_BASE_URL: /xiaozhi
       VUE_APP_DEV_PROXY_TARGET: http://manager:8002
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"

@@ -40,6 +40,7 @@ grep -q 'compose -f .*docker-compose.dev.yml restart web-dev' "$DOCKER_LOG"
 compose_config=$(docker compose -f "$ROOT_DIR/docker-compose.dev.yml" config)
 printf '%s\n' "$compose_config" | grep -q 'web-dev:'
 printf '%s\n' "$compose_config" | grep -q 'image: node:20'
+printf '%s\n' "$compose_config" | grep -q 'VUE_APP_API_BASE_URL: /xiaozhi'
 printf '%s\n' "$compose_config" | grep -q 'VUE_APP_DEV_PROXY_TARGET: http://manager:8002'
 printf '%s\n' "$compose_config" | grep -q 'target: /app/node_modules'
 
