@@ -181,8 +181,10 @@
   height: 48px;
   border-radius: $rounded-md;
   cursor: pointer;
-  object-fit: cover;
+  object-fit: contain;
+  background: $color-canvas;
   border: 1px solid $color-hairline;
+  flex-shrink: 0;
 }
 
 .login-actions {
