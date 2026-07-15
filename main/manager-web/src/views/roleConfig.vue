@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="operation-bar">
       <h2 class="page-title">{{ $t("roleConfig.title") }}</h2>
     </div>
@@ -484,14 +482,13 @@ import FunctionDialog from "@/components/FunctionDialog.vue";
 import ContextProviderDialog from "@/components/ContextProviderDialog.vue";
 import TtsAdvancedSettings from "@/components/TtsAdvancedSettings.vue";
 import AgentSnapshotDialog from "@/components/AgentSnapshotDialog.vue";
-import HeaderBar from "@/components/HeaderBar.vue";
 import i18n from "@/i18n";
 import featureManager from "@/utils/featureManager"; 
 import VersionFooter from "@/components/VersionFooter.vue";
 
 export default {
   name: "RoleConfigPage",
-  components: { HeaderBar, FunctionDialog, ContextProviderDialog, TtsAdvancedSettings, AgentSnapshotDialog, VersionFooter },
+  components: { FunctionDialog, ContextProviderDialog, TtsAdvancedSettings, AgentSnapshotDialog, VersionFooter },
   data() {
     return {
       showContextProviderDialog: false,
@@ -1473,7 +1470,7 @@ export default {
 }
 .welcome {
   min-width: 900px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -1498,7 +1495,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px - 60px);
+  height: calc(100vh - 48px - 35px - 60px);
   margin: 0 22px;
   border-radius: 15px;
   position: relative;

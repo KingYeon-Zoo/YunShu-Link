@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="operation-bar">
       <h2 class="page-title">{{ $t('templateQuickConfig.title') }}</h2>
     </div>
@@ -60,7 +58,6 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar.vue";
 import agentApi from '@/apis/module/agent';
 import VersionFooter from "@/components/VersionFooter.vue";
 
@@ -77,7 +74,7 @@ const DEFAULT_MODEL_CONFIG = {
 
 export default {
   name: 'TemplateQuickConfig',
-  components: { HeaderBar, VersionFooter },
+  components: { VersionFooter },
   data() {
     return {
       form: {
@@ -265,7 +262,7 @@ export default {
 <style scoped>
 .welcome {
   min-width: 900px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -290,7 +287,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px - 60px);
+  height: calc(100vh - 48px - 35px - 60px);
   margin: 0 22px;
   border-radius: 15px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);

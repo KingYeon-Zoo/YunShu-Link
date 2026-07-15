@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <el-card class="main-card" shadow="never">
         <div class="operation-header">
@@ -96,14 +95,12 @@
 import dictApi from '@/apis/module/dict'
 import DictDataDialog from '@/components/DictDataDialog.vue'
 import DictTypeDialog from '@/components/DictTypeDialog.vue'
-import HeaderBar from '@/components/HeaderBar.vue'
 import VersionFooter from '@/components/VersionFooter.vue'
 import CustomButton from '@/components/CustomButton.vue'
 import CustomTable from '@/components/CustomTable.vue'
 export default {
   name: 'DictManagement',
   components: {
-    HeaderBar,
     DictTypeDialog,
     DictDataDialog,
     VersionFooter,
@@ -385,7 +382,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -397,7 +394,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   padding: 20px 22px 0;
   position: relative;
   display: flex;

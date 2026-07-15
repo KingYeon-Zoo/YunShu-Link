@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="page-content">
       <!-- 左侧设备列表 -->
       <div class="left-panel">
@@ -201,7 +199,6 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import Api from "@/apis/api.js";
 import AddressBookApi from "@/apis/module/addressBook.js";
@@ -210,7 +207,7 @@ import CustomButton from "@/components/CustomButton.vue";
 
 export default {
   name: "AddressBookManagement",
-  components: { HeaderBar, VersionFooter, MacAddressMask, CustomButton },
+  components: { VersionFooter, MacAddressMask, CustomButton },
   data() {
     return {
       searchKeyword: "",
@@ -582,7 +579,7 @@ export default {
 .welcome {
   min-width: 1200px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
   background-size: cover;

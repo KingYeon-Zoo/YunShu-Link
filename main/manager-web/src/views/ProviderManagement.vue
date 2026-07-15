@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area">
@@ -93,14 +92,13 @@
 
 <script>
 import Api from "@/apis/api";
-import HeaderBar from "@/components/HeaderBar.vue";
 import ProviderDialog from "@/components/ProviderDialog.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomTable from "@/components/CustomTable.vue";
 
 export default {
-  components: { HeaderBar, ProviderDialog, VersionFooter, CustomButton, CustomTable },
+  components: { ProviderDialog, VersionFooter, CustomButton, CustomTable },
   data() {
     return {
       searchName: "",
@@ -371,7 +369,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -384,7 +382,7 @@ export default {
 
 .main-wrapper {
   // 顶部 63px 底部 35px
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   padding: 20px 22px 0;
   position: relative;
   display: flex;

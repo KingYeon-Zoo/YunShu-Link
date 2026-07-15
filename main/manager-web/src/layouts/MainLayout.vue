@@ -6,7 +6,7 @@
     <main class="main-layout__content">
       <router-view />
     </main>
-    <ChangePasswordDialog :value.sync="showChangePasswordDialog" />
+    <ChangePasswordDialog v-model="showChangePasswordDialog" />
   </div>
 </template>
 
