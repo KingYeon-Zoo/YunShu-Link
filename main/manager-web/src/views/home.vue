@@ -16,13 +16,8 @@
     <section class="agent-section">
       <div class="agent-section__header">
         <h3>{{ $t('home.myAgents') }}</h3>
-        <button class="primary-btn" @click="showAddDialog">
-          <i class="el-icon-plus"></i> {{ $t('home.addAgent') }}
-        </button>
-      </div>
-
-      <div class="search-bar">
-        <div class="search-wrapper">
+        <div class="agent-section__tools">
+          <div class="search-wrapper">
           <el-input
             v-model="search"
             :placeholder="$t('header.searchPlaceholder')"
@@ -51,6 +46,10 @@
               </div>
             </div>
           </div>
+          </div>
+          <button class="primary-btn" @click="showAddDialog">
+            <i class="el-icon-plus"></i> {{ $t('home.addAgent') }}
+          </button>
         </div>
       </div>
 
@@ -353,15 +352,15 @@ export default {
 @import "@/styles/tokens";
 
 .home-page {
-  max-width: 1440px;
+  max-width: 1460px;
   margin: 0 auto;
 }
 
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-xl;
-  margin-bottom: $spacing-xl;
+  gap: 14px;
+  margin-bottom: 16px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -369,18 +368,26 @@ export default {
 }
 
 .agent-section {
+  padding: 18px;
+  border: 1px solid $color-hairline-soft;
+  border-radius: 12px;
+  background: rgba(6, 15, 29, .74);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, .2);
+
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: $spacing-lg;
+    margin-bottom: 14px;
 
     h3 {
-      font: $font-heading-sm;
+      font: 600 18px/1.3 $font-family-base;
       color: $color-ink-deep;
       margin: 0;
     }
   }
+
+  &__tools { display: flex; align-items: center; gap: 10px; }
 }
 
 .search-bar {
@@ -394,10 +401,10 @@ export default {
 
 .custom-search-input {
   &::v-deep .el-input__inner {
-    height: 40px;
-    background: $color-surface-soft;
-    border-radius: $rounded-full;
-    border: none;
+    height: 38px;
+    background: rgba(7, 17, 32, .88);
+    border-radius: 7px;
+    border: 1px solid $color-hairline-soft;
     padding-left: 16px;
     padding-right: 36px;
   }
@@ -424,7 +431,7 @@ export default {
   top: 100%;
   left: 0;
   right: 0;
-  background: $color-canvas;
+  background: rgba(7, 17, 32, .98);
   border: 1px solid $color-hairline-soft;
   border-radius: $rounded-xl;
   box-shadow: $shadow-dialog;
@@ -488,16 +495,16 @@ export default {
 
 .device-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: $spacing-xl;
-  padding: $spacing-xl 0;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0;
 }
 
 .primary-btn {
   height: 40px;
   padding: 0 $spacing-lg;
-  border-radius: $rounded-full;
-  background: $color-ink-button;
+  border-radius: 7px;
+  background: linear-gradient(100deg, #267dff, #4f5cff 65%, #4f5cff);
   color: $color-on-primary;
   border: none;
   cursor: pointer;
@@ -509,7 +516,7 @@ export default {
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgba(33, 93, 255, .28);
   }
 }
 
@@ -579,5 +586,12 @@ export default {
   .skeleton-item::after {
     animation: none;
   }
+}
+
+@media (max-width: 760px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .agent-section__header { align-items: flex-start; gap: 12px; }
+  .agent-section__tools { width: 100%; flex-wrap: wrap; }
+  .search-wrapper { width: 100%; }
 }
 </style>

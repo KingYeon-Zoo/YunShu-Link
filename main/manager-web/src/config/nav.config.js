@@ -69,7 +69,7 @@ export const navItems = [
   {
     key: 'systemManagement',
     icon: 'el-icon-setting',
-    titleKey: 'sidebar.systemManagement',
+    titleKey: 'sidebar.system',
     routeName: undefined,
     requiresSuperAdmin: true,
     featureKey: undefined,

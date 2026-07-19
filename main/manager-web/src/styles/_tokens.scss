@@ -1,46 +1,47 @@
-// 设计 Token — Meta 设计语言视觉重构
+// 设计 Token — 云枢深空指挥舱视觉系统
 // 颜色 / 字体 / 间距 / 圆角 / 阴影
 
-// 品牌主色（保留现有蓝色，向 Meta 钴蓝靠近）
-$color-primary: #3375fd;
-$color-primary-soft: #5778ff;
-$color-primary-deep: #0064e0;
+// 品牌主色：A「深空电蓝」
+$color-primary: #267dff;
+$color-primary-soft: #4f5cff;
+$color-primary-deep: #1a61d7;
 $color-on-primary: #ffffff;
 
 // 强调与按钮
-$color-ink-button: #000000;
+$color-ink-button: #267dff;
 $color-on-ink-button: #ffffff;
 
 // 背景与表面
-$color-canvas: #ffffff;
-$color-surface-soft: #f1f4f7;
+$color-canvas: #07101e;
+$color-surface-soft: #0d192a;
 
 // 玻璃亚克力
-$color-glass-bg: rgba(255, 255, 255, 0.72);
-$color-glass-bg-hover: rgba(255, 255, 255, 0.85);
-$color-glass-border: rgba(255, 255, 255, 0.6);
-$color-glass-border-strong: rgba(255, 255, 255, 0.85);
-$glass-blur: 16px;
+$color-glass-bg: rgba(8, 18, 35, 0.82);
+$color-glass-bg-hover: rgba(12, 27, 49, 0.9);
+$color-glass-border: rgba(99, 139, 199, 0.18);
+$color-glass-border-strong: rgba(89, 142, 221, 0.28);
+$glass-blur: 20px;
 
 // 文字
-$color-ink-deep: #0a1317;
-$color-ink: #1c1e21;
-$color-charcoal: #444950;
-$color-slate: #4b4c4f;
-$color-steel: #5d6c7b;
-$color-stone: #8595a4;
+$color-ink-deep: #f4f8ff;
+$color-ink: #e7effd;
+$color-charcoal: #b7c4d8;
+$color-slate: #a1afc5;
+$color-steel: #8190a9;
+$color-stone: #65738b;
 
 // 边框与分隔
-$color-hairline: #ced0d4;
-$color-hairline-soft: #dee3e9;
-$color-disabled-text: #bcc0c4;
+$color-hairline: rgba(104, 139, 190, 0.28);
+$color-hairline-soft: rgba(96, 132, 187, 0.16);
+$color-disabled-text: #536078;
+$color-disabled-bg: #18243a;
 
 // 语义色
-$color-success: #31a24c;
+$color-success: #17b890;
 $color-attention: #f2a918;
 $color-warning: #f7b928;
-$color-critical: #e41e3f;
-$color-critical-strong: #f0284a;
+$color-critical: #e35d78;
+$color-critical-strong: #ed6b84;
 
 // 字体
 $font-family-base: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

@@ -265,6 +265,6 @@ export default {
 }
 .copy-button {
   font-size: 14px;
-  color: #5778ff;
+  color: #267dff;
 }
 </style>

@@ -211,8 +211,8 @@ export default {
 }
 
 .drawer-close-btn:hover {
-  color: #409eff;
-  border-color: #409eff;
+  color: #267dff;
+  border-color: #267dff;
 }
 
 .drawer-content {
@@ -275,11 +275,11 @@ export default {
   font-size: 14px;
 }
 .replacement-label i:hover {
-  color: #409eff;
+  color: #267dff;
 }
 .replacement-word-select ::v-deep .el-tag {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-size: 12px;
   font-weight: normal;
@@ -287,7 +287,7 @@ export default {
 }
 
 .replacement-word-select ::v-deep .el-tag__close {
-  color: #5778ff;
+  color: #267dff;
 }
 .replacement-word-select ::v-deep .el-icon-close {
   background: #fff;
@@ -322,8 +322,8 @@ export default {
 }
 
 .replacement-tag {
-  background-color: #409eff;
-  border-color: #409eff;
+  background-color: #267dff;
+  border-color: #267dff;
   color: #fff;
 }
 

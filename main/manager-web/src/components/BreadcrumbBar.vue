@@ -91,19 +91,26 @@ export default {
 .breadcrumb-bar {
   position: fixed;
   top: 0;
-  left: 56px;
+  left: var(--sidebar-width, 220px);
   right: 0;
   height: 48px;
-  background: $color-canvas;
+  background: rgba(4, 11, 23, .9);
   border-bottom: 1px solid $color-hairline-soft;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 $spacing-xl;
+  padding: 0 26px;
   z-index: 9;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, .14);
+  transition: left 300ms $ease-out-expo;
 
   &__crumb {
-    font-size: 14px;
+    font-size: 12px;
+
+    ::v-deep .el-breadcrumb__inner { color: $color-steel; font-weight: 400; }
+    ::v-deep .el-breadcrumb__item:last-child .el-breadcrumb__inner { color: $color-charcoal; }
+    ::v-deep .el-breadcrumb__separator { color: #3e4d65; }
   }
 
   &__right {
@@ -117,7 +124,7 @@ export default {
       transition: background-color 150ms ease;
 
       &:hover {
-        background: $color-surface-soft;
+        background: rgba($color-primary, .1);
       }
     }
 
@@ -126,5 +133,9 @@ export default {
       color: $color-ink-deep;
     }
   }
+}
+
+@media (max-width: 920px) {
+  .breadcrumb-bar { left: 68px; }
 }
 </style>

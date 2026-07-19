@@ -60,7 +60,7 @@
                             v-model="kb.status"
                             :active-value="1"
                             :inactive-value="0"
-                            active-color="#5778ff"
+                            active-color="#267dff"
                             inactive-color="#DCDFE6"
                             @click.native.stop
                             @change="handleStatusChange(kb)"
@@ -1132,7 +1132,7 @@ export default {
     flex: 1;
 
     .el-icon-document {
-      color: #409eff;
+      color: #267dff;
       margin-right: 8px;
       font-size: 16px;
     }
@@ -1188,7 +1188,7 @@ export default {
 
       .chunk-similarity {
         // font-size: 12px;
-        color: #409eff;
+        color: #267dff;
         white-space: nowrap;
 
         .similarity-label {

@@ -403,7 +403,7 @@ export default {
 }
 
 .btn-search {
-  background: linear-gradient(135deg, #6b8cff, #a966ff);
+  background: linear-gradient(135deg, #267dff, #4f5cff);
   border: none;
   color: white;
 }
@@ -450,10 +450,10 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa !important;
+  color: #5f98ff !important;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5 !important;
+  color: #82b4ff !important;
 }
 </style>

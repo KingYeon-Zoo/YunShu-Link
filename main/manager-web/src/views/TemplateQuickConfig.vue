@@ -398,7 +398,7 @@ export default {
 .header-icon {
   width: 37px;
   height: 37px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -439,8 +439,8 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
+  color: #267dff;
+  border-color: #267dff;
 }
 
 .header-actions {
@@ -451,7 +451,7 @@ export default {
 }
 
 .header-actions .save-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
   border: none;
   border-radius: 18px;
@@ -461,9 +461,9 @@ export default {
 }
 
 .header-actions .reset-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 8px 16px;
   height: 32px;

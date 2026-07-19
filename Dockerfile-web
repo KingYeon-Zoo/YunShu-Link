@@ -1,5 +1,5 @@
 # 第一阶段：构建Vue前端
-FROM node:18 AS web-builder
+FROM node:20 AS web-builder
 WORKDIR /app
 COPY main/manager-web/package*.json ./
 RUN npm install

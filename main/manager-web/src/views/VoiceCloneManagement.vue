@@ -464,7 +464,7 @@ export default {
 
 .status-success {
   background-color: #f6ffed;
-  color: #52c41a;
+  color: #17b890;
   border: 1px solid #b7eb8f;
 }
 
@@ -630,11 +630,11 @@ export default {
   }
 
   ::v-deep .el-button--text {
-    color: #7079aa;
+    color: #5f98ff;
   }
 
   ::v-deep .el-button--text:hover {
-    color: #5a64b5;
+    color: #82b4ff;
   }
 }
 

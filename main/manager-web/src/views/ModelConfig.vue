@@ -27,7 +27,6 @@
           :default-active="activeTab"
           class="nav-panel"
           @select="handleMenuSelect"
-          style="background-size: cover; background-position: center"
         >
           <el-menu-item index="vad">
             <span class="menu-text">{{ $t("modelConfig.vad") }}</span>
@@ -64,7 +63,7 @@
               v-loading="loading"
               :element-loading-text="$t('modelConfig.loading')"
               element-loading-spinner="el-icon-loading"
-              element-loading-background="rgba(255, 255, 255, 0.7)"
+              element-loading-background="rgba(5, 14, 27, 0.82)"
               :header-cell-style="{ background: 'transparent' }"
               :data="modelList"
               class="transparent-table"
@@ -103,7 +102,7 @@
                   > 
                     <el-switch
                       v-model="scope.row.isEnabled"
-                      active-color="#5778ff"
+                      active-color="#267dff"
                       inactive-color="#DCDFE6"
                       :active-value="1"
                       :inactive-value="0"
@@ -114,7 +113,7 @@
                   <el-switch
                     v-else
                     v-model="scope.row.isEnabled"
-                    active-color="#5778ff"
+                    active-color="#267dff"
                     inactive-color="#DCDFE6"
                     :active-value="1"
                     :inactive-value="0"
@@ -126,7 +125,7 @@
                 <template slot-scope="scope">
                   <el-switch
                     v-model="scope.row.isDefault"
-                    active-color="#5778ff"
+                    active-color="#267dff"
                     inactive-color="#DCDFE6"
                     :active-value="1"
                     :inactive-value="0"
@@ -573,7 +572,7 @@ export default {
   position: relative;
   flex-direction: column;
   background-size: cover;
-  background: #eff4ff;
+  background: transparent;
   -webkit-background-size: cover;
   -o-background-size: cover;
 }
@@ -608,17 +607,11 @@ export default {
 }
 
 .nav-panel {
-  min-width: 242px;
+  min-width: 176px;
   height: 100%;
-  border-right: 1px solid #ebeef5;
-  background: linear-gradient(
-      120deg,
-      rgba(107, 140, 255, 0.3) 0%,
-      rgba(169, 102, 255, 0.3) 25%,
-      transparent 60%
-    ),
-    url("../assets/model/model.png") no-repeat center / cover;
-  padding: 16px 0;
+  border-right: 1px solid rgba(96, 132, 187, .16);
+  background: rgba(5, 14, 28, .76);
+  padding: 14px 10px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -626,43 +619,29 @@ export default {
 
 .nav-panel .el-menu-item {
   height: 50px;
-  background: #e9f0ff;
+  background: transparent;
   line-height: 50px;
-  border-radius: 4px 0 0 4px !important;
+  border-radius: 8px !important;
   transition: all 0.3s;
   display: flex !important;
-  justify-content: flex-end;
-  padding-right: 12px !important;
-  width: fit-content;
-  margin: 8px 0 8px auto;
-  min-width: unset;
+  justify-content: flex-start;
+  padding: 0 14px !important;
+  width: 100%;
+  margin: 0 0 6px;
 }
 
 .nav-panel .el-menu-item.is-active {
-  background: #5778ff;
+  background: rgba(39, 140, 255, .16);
   position: relative;
-  padding-left: 40px !important;
-}
-
-.nav-panel .el-menu-item.is-active::before {
-  content: "";
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 13px;
-  height: 13px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 0 4px rgba(64, 158, 255, 0.5);
+  padding-left: 14px !important;
+  box-shadow: inset 2px 0 #31b7ff;
 }
 
 .menu-text {
   font-size: 14px;
-  color: #606266;
-  text-align: right;
+  color: #8190a9;
+  text-align: left;
   width: 100%;
-  padding-right: 8px;
 }
 
 .content-area {
@@ -671,7 +650,7 @@ export default {
   height: 100%;
   min-width: 600px;
   overflow: hidden;
-  background-color: white;
+  background-color: rgba(5, 14, 28, .78);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -693,7 +672,7 @@ export default {
 }
 
 .btn-search {
-  background: linear-gradient(135deg, #6b8cff, #a966ff);
+  background: linear-gradient(135deg, #267dff, #4f5cff);
   border: none;
   color: white;
 }
@@ -704,14 +683,20 @@ export default {
 }
 
 ::v-deep .search-input .el-input__inner {
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  background-color: white;
-  transition: border-color 0.2s;
+  border-radius: 8px;
+  border: 1px solid rgba(104, 139, 190, .28);
+  background: rgba(7, 17, 32, .9);
+  color: #e7effd;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+::v-deep .search-input .el-input__inner::placeholder {
+  color: #65738b;
 }
 
 ::v-deep .search-input .el-input__inner:focus {
-  border-color: #6b8cff;
+  border-color: #267dff;
+  box-shadow: 0 0 0 3px rgba(38, 125, 255, .12);
   outline: none;
 }
 
@@ -739,7 +724,8 @@ export default {
   width: 100%;
   flex-shrink: 0;
   min-height: 60px;
-  background: white;
+  background: rgba(7, 17, 32, .94);
+  border-top: 1px solid rgba(96, 132, 187, .16);
 }
 
 // .batch-actions {
@@ -766,12 +752,12 @@ export default {
 // }
 
 // .batch-actions .el-button--primary {
-//   background: #5f70f3 !important;
+//   background: #267dff !important;
 //   color: white;
 // }
 
 // .batch-actions .el-button--success {
-//   background: #5bc98c;
+//   background: #17b890;
 //   color: white;
 // }
 
@@ -781,7 +767,7 @@ export default {
 // }
 
 // .batch-actions .el-button:first-child {
-//   background: linear-gradient(135deg, #409eff, #6b8cff);
+//   background: linear-gradient(135deg, #267dff, #267dff);
 //   border: none;
 //   color: white;
 // }
@@ -808,7 +794,7 @@ export default {
   text-align: center;
   line-height: 32px;
   /* 设置合适的行高，确保文本完整显示 */
-  color: black;
+  color: #dbe8fb;
   margin-top: 0;
   /* 移除可能导致偏移的上边距 */
   height: 32px;
@@ -831,7 +817,7 @@ export default {
 }
 
 ::v-deep .el-table thead th:not(:first-child) .cell {
-  color: #303133 !important;
+  color: #dbe8fb !important;
 }
 
 ::v-deep .nav-panel .el-menu-item.is-active .menu-text {
@@ -852,13 +838,14 @@ export default {
 }
 
 ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
-  background-color: #5f70f3;
-  border-color: #5f70f3;
+  background-color: #267dff;
+  border-color: #267dff;
 }
 
 .voice-management-btn {
-  background: #9db3ea;
-  color: white;
+  background: rgba(38, 125, 255, .13);
+  border: 1px solid rgba(83, 151, 255, .38);
+  color: #79aaff;
   min-width: 68px;
   line-height: 14px;
   white-space: nowrap;
@@ -867,9 +854,10 @@ export default {
 }
 
 .voice-management-btn:hover {
-  background: #8aa2e0;
-  /* 悬停时颜色加深 */
-  transform: scale(1.05);
+  background: rgba(38, 125, 255, .2);
+  border-color: rgba(83, 151, 255, .58);
+  color: #9bc0ff;
+  transform: none;
 }
 
 ::v-deep .el-table .el-table-column--selection .cell {
@@ -883,7 +871,7 @@ export default {
 .edit-btn,
 .delete-btn {
   margin: 0 8px;
-  color: #7079aa !important;
+  color: #5f98ff !important;
 }
 
 ::v-deep .el-table .cell {
@@ -892,7 +880,7 @@ export default {
 }
 
 .model-card {
-  background: white;
+  background: rgba(7, 17, 32, .76);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -909,7 +897,7 @@ export default {
   overflow: hidden;
 }
 :deep(.transparent-table) {
-    background: white;
+    background: transparent;
     flex: 1;
     width: 100%;
     display: flex;
@@ -926,30 +914,31 @@ export default {
     }
 
     .el-table__header th {
-        background: white !important;
-        color: black;
+        background: rgba(13, 29, 51, .96) !important;
+        color: #dbe8fb;
         font-weight: 600;
         height: 40px;
         padding: 8px 0;
         font-size: 14px;
-        border-bottom: 1px solid #e4e7ed;
+        border-bottom: 1px solid rgba(96, 132, 187, .2);
     }
 
     .el-table__body tr {
-        background-color: white;
+        background-color: transparent;
 
         td {
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            background: rgba(7, 16, 30, .68);
+            border-top: 1px solid rgba(96, 132, 187, .08);
+            border-bottom: 1px solid rgba(96, 132, 187, .16);
             padding: 8px 0;
             height: 40px;
-            color: #606266;
+            color: #aebed5;
             font-size: 14px;
         }
     }
 
     .el-table__row:hover>td {
-        background-color: #f5f7fa !important;
+        background-color: rgba(18, 39, 68, .88) !important;
     }
 
     &::before {
@@ -959,8 +948,21 @@ export default {
 
 
 ::v-deep .el-loading-mask {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+  background-color: rgba(5, 14, 27, .82) !important;
   backdrop-filter: blur(2px);
+}
+
+::v-deep .el-table__body-wrapper::-webkit-scrollbar {
+  width: 7px;
+}
+
+::v-deep .el-table__body-wrapper::-webkit-scrollbar-track {
+  background: rgba(6, 15, 29, .92);
+}
+
+::v-deep .el-table__body-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(83, 151, 255, .28);
+  border-radius: 999px;
 }
 
 ::v-deep .el-loading-spinner .circular {
@@ -969,11 +971,11 @@ export default {
 }
 
 ::v-deep .el-loading-spinner .path {
-  stroke: #6b8cff;
+  stroke: #267dff;
 }
 
 ::v-deep .el-loading-text {
-  color: #6b8cff !important;
+  color: #267dff !important;
   font-size: 14px;
   margin-top: 8px;
 }

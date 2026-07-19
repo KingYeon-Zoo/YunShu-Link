@@ -554,11 +554,11 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: #5f98ff;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 
 :deep(.el-checkbox__inner) {
@@ -571,7 +571,7 @@ export default {
 }
 
 :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: #5f70f3 !important;
-  border-color: #5f70f3 !important;
+  background-color: #267dff !important;
+  border-color: #267dff !important;
 }
 </style>

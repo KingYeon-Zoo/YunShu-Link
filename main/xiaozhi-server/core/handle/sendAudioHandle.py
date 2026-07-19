@@ -280,6 +280,17 @@ async def send_tts_message(conn: "ConnectionHandler", state, text=None):
     """发送 TTS 状态消息"""
     if text is None and state == "sentence_start":
         return
+
+    # 工具直接返回文本等路径可能绕过 LLM 流处理。首句播放前由服务端统一
+    # 兜底下发一次情绪消息，保证固件始终先收到 type=llm 再收到 TTS 文本。
+    if (
+        state == "sentence_start"
+        and (conn.features or {}).get("emoji", True)
+        and getattr(conn, "emotion_sent_sentence_id", None) != conn.sentence_id
+    ):
+        conn.emotion_sent_sentence_id = conn.sentence_id
+        await textUtils.get_emotion(conn, text)
+
     message = {"type": "tts", "state": state, "session_id": conn.session_id}
     if text is not None:
         message["text"] = textUtils.check_emoji(text)

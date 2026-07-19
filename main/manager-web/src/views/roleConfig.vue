@@ -1562,10 +1562,10 @@ export default {
   padding-bottom: 4px;
   &::-webkit-scrollbar {
       height: 6px;
-      background: #e6ebff;
+      background: rgba(38, 125, 255, .13);
     }
     &::-webkit-scrollbar-thumb {
-      background: #5778ff;
+      background: #267dff;
       border-radius: 8px;
     }
 }
@@ -1580,7 +1580,7 @@ export default {
   border: 1px solid #dfe7ff;
   border-radius: 999px;
   background: #f4f7ff;
-  color: #5778ff;
+  color: #267dff;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.5;
@@ -1601,7 +1601,7 @@ export default {
 .header-icon {
   width: 37px;
   height: 37px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1645,7 +1645,7 @@ export default {
 }
 
 .play-button {
-  color: #409eff;
+  color: #267dff;
   transition: color 0.3s;
 }
 
@@ -1678,12 +1678,12 @@ export default {
   min-width: 60px;
   padding: 0 12px;
   border-radius: 8px;
-  background: #e6ebff;
+  background: rgba(38, 125, 255, .13);
   line-height: 4vh;
   font-weight: 400;
   font-size: 11px;
   text-align: center;
-  color: #5778ff;
+  color: #267dff;
   cursor: pointer;
   transition: background-color 0.3s ease;
   white-space: nowrap;
@@ -1741,7 +1741,7 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #5778ff;
+  color: #267dff;
   font-weight: bold;
   font-size: 12px;
   margin-right: 8px;
@@ -1788,21 +1788,21 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409eff;
-  border-color: #409eff;
+  color: #267dff;
+  border-color: #267dff;
 }
 
 .edit-function-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 10px 20px;
   transition: all 0.3s;
 }
 
 .edit-function-btn.active-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
 }
 
@@ -1814,23 +1814,23 @@ export default {
 }
 
 .chat-history-options ::v-deep .el-radio-button {
-  border-color: #5778ff;
+  border-color: #267dff;
 }
 
 .chat-history-options ::v-deep .el-radio-button .el-radio-button__inner {
-  color: #5778ff;
-  border-color: #5778ff;
+  color: #267dff;
+  border-color: #267dff;
   background-color: transparent;
 }
 
 .chat-history-options ::v-deep .el-radio-button.is-active .el-radio-button__inner {
-  background-color: #5778ff;
-  border-color: #5778ff;
+  background-color: #267dff;
+  border-color: #267dff;
   color: white;
 }
 
 .chat-history-options ::v-deep .el-radio-button .el-radio-button__inner:hover {
-  color: #5778ff;
+  color: #267dff;
 }
 
 .header-actions {
@@ -1855,7 +1855,7 @@ export default {
 }
 
 .header-actions .save-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
   border: none;
   border-radius: 18px;
@@ -1875,9 +1875,9 @@ export default {
 }
 
 .header-actions .reset-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 8px 16px;
   height: 32px;
@@ -1896,7 +1896,7 @@ export default {
 }
 
 .doc-link {
-  color: #5778ff;
+  color: #267dff;
   text-decoration: none;
   margin-left: 4px;
 
@@ -1931,16 +1931,16 @@ export default {
   padding: 0 8px;
 }
 .custom-tag {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-size: 12px;
   font-weight: normal;
   border: none;
 }
 .custom-tag-btn {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-weight: normal;
   border: 1px solid #e6ebff;

@@ -122,25 +122,26 @@ export default {
 .device-item {
   margin: 0 !important;
   width: auto !important;
-  border-radius: $rounded-xxxl;
-  background: $color-glass-bg;
+  border-radius: 8px;
+  background: rgba(8, 19, 35, .68);
   backdrop-filter: blur($glass-blur);
   -webkit-backdrop-filter: blur($glass-blur);
   border: 1px solid $color-glass-border;
-  padding: $spacing-xxl;
+  padding: 16px 18px;
   box-sizing: border-box;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease-out;
 
   &:hover {
-    background: $color-glass-bg-hover;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    background: rgba(14, 31, 55, .86);
+    border-color: rgba(54, 152, 255, .28);
+    box-shadow: inset 2px 0 #2bbcff, 0 10px 26px rgba(0, 0, 0, .16);
+    transform: translateX(2px);
   }
 
   &-title {
     flex: 1;
-    font: $font-subtitle-lg;
+    font: 600 14px/1.4 $font-family-base;
     color: $color-ink-deep;
     text-align: left;
     text-overflow: ellipsis;
@@ -156,7 +157,8 @@ export default {
 }
 
 .device-name {
-  margin: $spacing-xs 0 $spacing-base;
+  display: inline-block;
+  margin: 8px 24px 12px 0;
   font: $font-caption;
   color: $color-charcoal;
   text-align: left;
@@ -165,13 +167,14 @@ export default {
 .settings-btn {
   font: $font-caption-bold;
   color: $color-primary-soft;
-  background: rgba($color-primary, 0.1);
+  background: transparent;
   width: auto;
   padding: 0 $spacing-base;
   height: 24px;
   line-height: 24px;
   cursor: pointer;
-  border-radius: $rounded-full;
+  border-radius: 4px;
+  border: 1px solid rgba($color-primary, .14);
   transition: background 0.2s ease;
 
   &:hover {
@@ -183,7 +186,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: $spacing-lg;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid $color-hairline-soft;
   font: $font-caption;
   color: $color-stone;
   font-weight: 400;

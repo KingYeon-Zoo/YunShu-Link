@@ -393,7 +393,7 @@ export default {
 .header-icon {
   width: 40px;
   height: 40px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -522,12 +522,12 @@ export default {
 }
 
 .feature-checkbox ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
-  background-color: #5778ff;
-  border-color: #5778ff;
+  background-color: #267dff;
+  border-color: #267dff;
 }
 
 .feature-checkbox ::v-deep .el-checkbox__input.is-checked + .el-checkbox__label {
-  color: #5778ff;
+  color: #267dff;
 }
 
 .feature-name {
@@ -604,7 +604,7 @@ export default {
   margin-left: 13px;
   font-size: 12px;
   background: #ebebfe;
-  color: #5778ff;
+  color: #267dff;
   padding: 2px 10px;
   border-radius: 10px;
 }

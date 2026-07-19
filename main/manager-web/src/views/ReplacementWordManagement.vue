@@ -464,11 +464,11 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: #5f98ff;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 
 :deep(.el-table .cell) {
@@ -482,8 +482,8 @@ export default {
 }
 
 .custom-tag {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-size: 12px;
   font-weight: normal;

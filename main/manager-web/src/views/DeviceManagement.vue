@@ -527,19 +527,19 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: #5f98ff;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 
 :deep(.el-icon-edit) {
-  color: #7079aa;
+  color: #5f98ff;
   cursor: pointer;
 }
 
 :deep(.el-icon-edit:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 </style>

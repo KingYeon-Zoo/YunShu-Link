@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <router-view />
+    <transition name="app-route" mode="out-in">
+      <router-view :key="routeViewKey" />
+    </transition>
     <cache-viewer v-if="isCDNEnabled" :visible.sync="showCacheViewer" />
   </div>
 </template>
@@ -16,6 +18,23 @@
   color: $color-ink;
 }
 
+.app-route-enter-active,
+.app-route-leave-active {
+  transition: opacity 320ms $ease-out-expo, transform 380ms $ease-out-expo, filter 300ms ease;
+}
+
+.app-route-enter {
+  opacity: 0;
+  transform: translateX(18px) scale(0.992);
+  filter: blur(8px);
+}
+
+.app-route-leave-to {
+  opacity: 0;
+  transform: translateX(-12px) scale(0.996);
+  filter: blur(5px);
+}
+
 .copyright {
   padding: 0 !important;
   font-size: 12px;
@@ -27,6 +46,19 @@
   justify-content: center;
   align-items: center;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-route-enter-active,
+  .app-route-leave-active {
+    transition: opacity 1ms linear;
+  }
+
+  .app-route-enter,
+  .app-route-leave-to {
+    transform: none;
+    filter: none;
+  }
+}
 </style>
 <script>
 import CacheViewer from '@/components/CacheViewer.vue';
@@ -36,6 +68,13 @@ export default {
   name: 'App',
   components: {
     CacheViewer
+  },
+  computed: {
+    routeViewKey() {
+      return ['/login', '/', '/register', '/retrieve-password'].includes(this.$route.path)
+        ? this.$route.path
+        : 'management-shell';
+    }
   },
   data() {
     return {
@@ -69,7 +108,7 @@ export default {
       // 在控制台输出提示信息
       console.info(
         '%c[' + this.$t('system.name') + '] ' + this.$t('cache.cdnEnabled'),
-        'color: #409EFF; font-weight: bold;'
+        'color: #267dff; font-weight: bold;'
       );
       console.info(
         '按下 Alt+C 组合键或在控制台运行 checkCDNCacheStatus() 可以查看CDN缓存状态'

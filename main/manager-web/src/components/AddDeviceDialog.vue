@@ -3,7 +3,7 @@
     <div
       style="margin: 0 10px 10px;display: flex;align-items: center;gap: 10px;font-weight: 700;font-size: 20px;text-align: left;color: #3d4566;">
       <div
-        style="width: 40px;height: 40px;border-radius: 50%;background: #5778ff;display: flex;align-items: center;justify-content: center;">
+        style="width: 40px;height: 40px;border-radius: 50%;background: #267dff;display: flex;align-items: center;justify-content: center;">
         <img src="@/assets/home/equipment.png" alt="" style="width: 18px;height: 15px;" />
       </div>
       {{ $t('device.dialogTitle') }}
@@ -22,7 +22,7 @@
       <div class="dialog-btn" @click="confirm">
         {{ $t('device.confirmButton') }}
       </div>
-      <div class="dialog-btn" style="background: #e6ebff;border: 1px solid #adbdff;color: #5778ff;" @click="cancel">
+      <div class="dialog-btn" style="background: rgba(38, 125, 255, .13);border: 1px solid rgba(83, 151, 255, .38);color: #267dff;" @click="cancel">
         {{ $t('device.cancelButton') }}
       </div>
     </div>
@@ -98,7 +98,7 @@ export default {
   cursor: pointer;
   flex: 1;
   border-radius: 23px;
-  background: #5778ff;
+  background: #267dff;
   height: 40px;
   font-weight: 500;
   font-size: 12px;
