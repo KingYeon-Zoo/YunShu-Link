@@ -33,7 +33,7 @@ export const navItems = [
   {
     key: 'voiceCloneManagement',
     icon: 'el-icon-microphone',
-    titleKey: 'sidebar.voiceCloneManagement',
+    titleKey: 'sidebar.voiceClone',
     routeName: 'VoiceCloneManagement',
     requiresSuperAdmin: false,
     featureKey: 'voiceClone',
@@ -51,7 +51,7 @@ export const navItems = [
   {
     key: 'knowledgeBaseManagement',
     icon: 'el-icon-notebook-2',
-    titleKey: 'sidebar.knowledgeBaseManagement',
+    titleKey: 'sidebar.knowledgeBase',
     routeName: 'KnowledgeBaseManagement',
     requiresSuperAdmin: false,
     featureKey: 'knowledgeBase',
@@ -60,7 +60,7 @@ export const navItems = [
   {
     key: 'addressBookManagement',
     icon: 'el-icon-phone-outline',
-    titleKey: 'sidebar.addressBookManagement',
+    titleKey: 'sidebar.addressBook',
     routeName: 'AddressBookManagement',
     requiresSuperAdmin: false,
     featureKey: 'addressBook',
@@ -77,7 +77,7 @@ export const navItems = [
       {
         key: 'paramsManagement',
         icon: 'el-icon-s-tools',
-        titleKey: 'sidebar.paramsManagement',
+        titleKey: 'sidebar.params',
         routeName: 'ParamsManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -86,7 +86,7 @@ export const navItems = [
       {
         key: 'userManagement',
         icon: 'el-icon-user-solid',
-        titleKey: 'sidebar.userManagement',
+        titleKey: 'sidebar.users',
         routeName: 'UserManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -95,7 +95,7 @@ export const navItems = [
       {
         key: 'otaManagement',
         icon: 'el-icon-refresh',
-        titleKey: 'sidebar.otaManagement',
+        titleKey: 'sidebar.ota',
         routeName: 'OtaManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -104,7 +104,7 @@ export const navItems = [
       {
         key: 'dictManagement',
         icon: 'el-icon-reading',
-        titleKey: 'sidebar.dictManagement',
+        titleKey: 'sidebar.dict',
         routeName: 'DictManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -113,7 +113,7 @@ export const navItems = [
       {
         key: 'providerManagement',
         icon: 'el-icon-office-building',
-        titleKey: 'sidebar.providerManagement',
+        titleKey: 'sidebar.provider',
         routeName: 'ProviderManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -122,7 +122,7 @@ export const navItems = [
       {
         key: 'agentTemplateManagement',
         icon: 'el-icon-s-custom',
-        titleKey: 'sidebar.agentTemplateManagement',
+        titleKey: 'sidebar.roleTemplate',
         routeName: 'AgentTemplateManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -131,7 +131,7 @@ export const navItems = [
       {
         key: 'replacementWordManagement',
         icon: 'el-icon-refresh-left',
-        titleKey: 'sidebar.replacementWordManagement',
+        titleKey: 'sidebar.replacement',
         routeName: 'ReplacementWordManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -140,7 +140,7 @@ export const navItems = [
       {
         key: 'serverSideManagement',
         icon: 'el-icon-s-platform',
-        titleKey: 'sidebar.serverSideManagement',
+        titleKey: 'sidebar.server',
         routeName: 'ServerSideManager',
         requiresSuperAdmin: true,
         featureKey: undefined,
@@ -149,7 +149,7 @@ export const navItems = [
       {
         key: 'featureManagement',
         icon: 'el-icon-s-operation',
-        titleKey: 'sidebar.featureManagement',
+        titleKey: 'sidebar.feature',
         routeName: 'FeatureManagement',
         requiresSuperAdmin: true,
         featureKey: undefined,

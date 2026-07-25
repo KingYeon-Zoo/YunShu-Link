@@ -60,17 +60,10 @@
 <script>
 import agentApi from '@/apis/module/agent';
 import VersionFooter from "@/components/VersionFooter.vue";
+import { DEMO_MODEL_CONFIG } from "@/config/demoModels";
 
 // 默认模型配置常量
-const DEFAULT_MODEL_CONFIG = {
-  ttsModelId: "TTS_EdgeTTS",
-  vadModelId: "VAD_SileroVAD",
-  asrModelId: "ASR_FunASR",
-  llmModelId: "LLM_ChatGLMLLM",
-  vllmModelId: "VLLM_ChatGLMVLLM",
-  memModelId: "Memory_nomem",
-  intentModelId: "Intent_function_call"
-};
+const DEFAULT_MODEL_CONFIG = DEMO_MODEL_CONFIG;
 
 export default {
   name: 'TemplateQuickConfig',
@@ -203,7 +196,7 @@ export default {
           vadModelId: templateData.vadModelId || this.form.model.vadModelId,
           asrModelId: templateData.asrModelId || this.form.model.asrModelId,
           llmModelId: templateData.llmModelId || this.form.model.llmModelId,
-          vllmModelId: templateData.vllmModelId || this.form.model.vllmModelId,
+          slmModelId: templateData.slmModelId || this.form.model.slmModelId,
           memModelId: templateData.memModelId || this.form.model.memModelId,
           intentModelId: templateData.intentModelId || this.form.model.intentModelId
         }

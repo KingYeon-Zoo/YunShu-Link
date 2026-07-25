@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="title" :visible="dialogVisible" width="600px" class="address-book-dialog" @close="handleClose">
+  <el-dialog :title="title" :visible="dialogVisible" width="600px" class="address-book-dialog" @close="handleClose" append-to-body>
     <el-form ref="addressBookForm" :model="form" :rules="rules" label-width="100px" size="medium">
       <el-form-item :label="$t('addressBookDialog.name')" prop="name">
         <el-input v-model="form.name" :placeholder="$t('addressBookDialog.namePlaceholder')" clearable></el-input>

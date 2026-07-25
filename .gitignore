@@ -111,6 +111,7 @@ celerybeat.pid
 
 # Environments
 .env
+.demo-db-backups/
 .venv
 env/
 venv/
@@ -193,3 +194,4 @@ main/digital-human/wakeword_runtime/models
 main/digital-human/wakeword_runtime/sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01
 sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2
 .worktrees/
+.dev/

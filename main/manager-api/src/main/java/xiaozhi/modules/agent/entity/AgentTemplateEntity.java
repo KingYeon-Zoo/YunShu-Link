@@ -51,6 +51,11 @@ public class AgentTemplateEntity implements Serializable {
     private String llmModelId;
 
     /**
+     * 小参数模型标识
+     */
+    private String slmModelId;
+
+    /**
      * VLLM模型标识
      */
     private String vllmModelId;

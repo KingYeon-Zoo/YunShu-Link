@@ -28,6 +28,9 @@
           class="nav-panel"
           @select="handleMenuSelect"
         >
+          <el-menu-item index="intent">
+            <span class="menu-text">{{ $t("modelConfig.intent") }}</span>
+          </el-menu-item>
           <el-menu-item index="vad">
             <span class="menu-text">{{ $t("modelConfig.vad") }}</span>
           </el-menu-item>
@@ -36,12 +39,6 @@
           </el-menu-item>
           <el-menu-item index="llm">
             <span class="menu-text">{{ $t("modelConfig.llm") }}</span>
-          </el-menu-item>
-          <el-menu-item index="vllm">
-            <span class="menu-text">{{ $t("modelConfig.vllm") }}</span>
-          </el-menu-item>
-          <el-menu-item index="intent">
-            <span class="menu-text">{{ $t("modelConfig.intent") }}</span>
           </el-menu-item>
           <el-menu-item index="tts">
             <span class="menu-text">{{ $t("modelConfig.tts") }}</span>
@@ -252,7 +249,7 @@ export default {
   data() {
     return {
       addDialogVisible: false,
-      activeTab: "llm",
+      activeTab: "intent",
       search: "",
       editDialogVisible: false,
       editModelData: {},
@@ -511,7 +508,9 @@ export default {
       Api.model.getModelList(params, ({ data }) => {
         this.loading = false; // 结束加载
         if (data.code === 0) {
-          this.modelList = data.data.list;
+          const list = data.data.list || [];
+          list.sort((a, b) => (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0));
+          this.modelList = list;
           this.total = data.data.total;
         } else {
           this.$message.error(data.msg || this.$t("modelConfig.fetchModelsFailed"));

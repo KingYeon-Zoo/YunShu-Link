@@ -113,42 +113,37 @@ pnpm dev:h5                      # 或 pnpm dev:mp-weixin / pnpm dev:app
 
 根目录提供 `docker-setup.sh` 交互式脚本；`main/xiaozhi-server/` 下有 `docker-compose.yml`（仅服务）与 `docker-compose_all.yml`（服务 + Web + MySQL + Redis）。
 
-### Docker 全源码开发
+### 一键混合开发环境
 
-宿主机只需安装并启动 Docker Desktop，无需安装 Java、Maven、Node.js、Python 或 FFmpeg。在项目根目录执行：
+频繁修改前端和 Python 模型接口时，推荐在项目根目录运行：
 
 ```bash
 ./start-dev.sh
 ```
 
-首次运行会构建当前工作区的前端、Java 后端和 Python 服务镜像，并下载缺失的语音识别模型。修改任一端源码后再次运行同一命令，即可利用 Docker 缓存重建并启动最新代码。
+启动器采用混合模式：
 
-- 控制台：`http://localhost:8002`
-- WebSocket：`ws://localhost:8000/xiaozhi/v1/`
-- HTTP/Vision：`http://localhost:8003`
-- 查看日志：`./start-dev.sh logs`
-- 查看状态：`./start-dev.sh status`
-- 重建重启：`./start-dev.sh restart`
-- 停止服务：`./start-dev.sh stop`
+- MySQL、Redis：Docker 常驻并持久化，日常启动不会重启或清空数据库。
+- manager-api：在 Maven + Java 21 容器中运行，避免污染宿主机 Java 环境。
+- manager-web：在宿主机运行并热更新，依赖隔离在项目自己的 `node_modules`。
+- xiaozhi-server：在宿主机独立的 Python 3.10 环境中运行；优先用 Conda 同时隔离 FFmpeg，也支持 uv。
 
-停止服务不会删除 MySQL 数据、模型文件、运行配置或上传文件。
+启动后会显示中文数字菜单。输入 `1` 可保留数据库并启动开发环境；输入 `2`
+会先备份旧数据，再初始化固定的演示账号、豆包模型、音色和角色配置。
+旧数据库会备份到 `main/xiaozhi-server/mysql/backups/` 或
+`.demo-db-backups/`，不会直接删除。
 
-### 前端热更新轻量开发
+首次启动需要下载 Maven、npm、Python 依赖和缺失的 SenseVoice 模型，耗时会较长。后续依赖文件没有变化时会自动跳过安装。
 
-频繁修改 `manager-web` 时，推荐使用独立的 Docker 前端开发容器。它直接挂载本地源码并负责热更新，宿主机无需运行 Node 后台进程。首次使用前需完成一次全量构建：
+启动、演示初始化、状态、日志、单项重启、停止和环境检查都在菜单中完成，
+不需要记忆额外命令。
 
-```bash
-./start-fast-dev.sh rebuild
-```
+开发地址：
 
-日常访问 `http://localhost:8001`。保存 `.vue`、JavaScript、样式或图片后，`web-dev` 容器会自动重新编译；前端依赖保存在独立 Docker 卷中。`http://localhost:8002` 仍是 Docker 镜像中的静态前端与 Java API。
-
-- 快速启动：`./start-fast-dev.sh start`
-- 仅重启前端：`./start-fast-dev.sh restart-web`
-- 查看状态：`./start-fast-dev.sh status`
-- 查看前端日志：`./start-fast-dev.sh logs`
-- 停止全部开发服务：`./start-fast-dev.sh stop`
-- 源码或依赖变化后全量重建：`./start-fast-dev.sh rebuild`
+- 前端热更新：`http://127.0.0.1:8001`
+- 管理 API：`http://127.0.0.1:8002/xiaozhi`
+- WebSocket：`ws://127.0.0.1:8000/xiaozhi/v1/`
+- HTTP/Vision：`http://127.0.0.1:8003`
 
 ---
 

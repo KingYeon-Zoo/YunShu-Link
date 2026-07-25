@@ -40,4 +40,5 @@ PyJWT==2.10.1
 psutil==7.1.3
 portalocker==3.2.0
 Jinja2==3.1.6
-vosk==0.3.45
+# Vosk 仅供可选的本地 ASR Provider 使用；macOS ARM 没有 0.3.45 可安装包。
+vosk==0.3.45; sys_platform != "darwin" or platform_machine != "arm64"

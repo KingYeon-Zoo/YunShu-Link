@@ -105,12 +105,11 @@ export default {
       searchModelType: "",
       providersList: [],
       modelTypes: [
+        { value: "Intent", labelKey: 'providerManagement.modelType.Intent' },
+        { value: "Memory", labelKey: 'providerManagement.modelType.Memory' },
         { value: "ASR", labelKey: 'providerManagement.modelType.ASR' },
         { value: "TTS", labelKey: 'providerManagement.modelType.TTS' },
         { value: "LLM", labelKey: 'providerManagement.modelType.LLM' },
-        { value: "VLLM", labelKey: 'providerManagement.modelType.VLLM' },
-        { value: "Intent", labelKey: 'providerManagement.modelType.Intent' },
-        { value: "Memory", labelKey: 'providerManagement.modelType.Memory' },
         { value: "VAD", labelKey: 'providerManagement.modelType.VAD' },
         { value: "Plugin", labelKey: 'providerManagement.modelType.Plugin' },
         { value: "RAG", labelKey: 'providerManagement.modelType.RAG' }

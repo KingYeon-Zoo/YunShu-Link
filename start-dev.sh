@@ -1,39 +1,205 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env bash
 
-if [ "${DOCKER_DEV_SOURCE_ONLY:-0}" != 1 ] || [ -z "${ROOT_DIR:-}" ]; then
-  ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+set -Eeuo pipefail
+
+if [[ "${DEV_START_SOURCE_ONLY:-0}" != "1" || -z "${ROOT_DIR:-}" ]]; then
+  ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 fi
-COMPOSE_FILE=${COMPOSE_FILE:-$ROOT_DIR/docker-compose.dev.yml}
-DOCKER_BIN=${DOCKER_BIN:-docker}
-MODEL_DIR=$ROOT_DIR/main/xiaozhi-server/models/SenseVoiceSmall
-MODEL_FILE=$MODEL_DIR/model.pt
-MODEL_URL=https://modelscope.cn/models/iic/SenseVoiceSmall/resolve/master/model.pt
-DATA_DIR=$ROOT_DIR/main/xiaozhi-server/data
-CONFIG_FILE=$DATA_DIR/.config.yaml
-CONFIG_TEMPLATE=$ROOT_DIR/main/xiaozhi-server/config_from_api.yaml
-UPLOAD_DIR=$ROOT_DIR/main/xiaozhi-server/uploadfile
-MYSQL_DIR=$ROOT_DIR/main/xiaozhi-server/mysql/data
-API_URL=http://xiaozhi-esp32-server-web:8002/xiaozhi
+
+COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/docker-compose.dev.yml}"
+DOCKER_BIN="${DOCKER_BIN:-docker}"
+RUNTIME_DIR="$ROOT_DIR/.dev"
+LOG_DIR="$RUNTIME_DIR/logs"
+PID_DIR="$RUNTIME_DIR/pids"
+PYTHON_DIR="$ROOT_DIR/main/xiaozhi-server"
+PYTHON_ENV="$PYTHON_DIR/.venv"
+PYTHON_REQUIREMENTS="$PYTHON_DIR/requirements.txt"
+PYTHON_LOG="$LOG_DIR/xiaozhi-server.log"
+PYTHON_PID="$PID_DIR/xiaozhi-server.pid"
+MODEL_DIR="$PYTHON_DIR/models/SenseVoiceSmall"
+MODEL_FILE="$MODEL_DIR/model.pt"
+MODEL_URL="https://modelscope.cn/models/iic/SenseVoiceSmall/resolve/master/model.pt"
+WEB_DIR="$ROOT_DIR/main/manager-web"
+WEB_LOG="$LOG_DIR/manager-web.log"
+WEB_PID="$PID_DIR/manager-web.pid"
+DATA_DIR="$PYTHON_DIR/data"
+CONFIG_FILE="$DATA_DIR/.config.yaml"
+CONFIG_TEMPLATE="$PYTHON_DIR/config_from_api.yaml"
+MYSQL_ROOT="$PYTHON_DIR/mysql"
+MYSQL_DATA="$MYSQL_ROOT/data"
+MYSQL_BACKUPS="$MYSQL_ROOT/backups"
+UPLOAD_DIR="$PYTHON_DIR/uploadfile"
+MANAGER_URL="http://127.0.0.1:8002/xiaozhi"
 
 info() {
-  printf '[信息] %s\n' "$1"
+  printf '\033[1;34m[信息]\033[0m %s\n' "$*"
+}
+
+success() {
+  printf '\033[1;32m[完成]\033[0m %s\n' "$*"
+}
+
+warn() {
+  printf '\033[1;33m[注意]\033[0m %s\n' "$*" >&2
 }
 
 error() {
-  printf '[错误] %s\n' "$1" >&2
+  printf '\033[1;31m[错误]\033[0m %s\n' "$*" >&2
 }
 
 compose() {
   "$DOCKER_BIN" compose -f "$COMPOSE_FILE" "$@"
 }
 
+is_macos() {
+  [[ "$(uname -s)" == "Darwin" ]]
+}
+
+ensure_directories() {
+  mkdir -p "$LOG_DIR" "$PID_DIR" "$DATA_DIR" "$MYSQL_DATA" "$MYSQL_BACKUPS" "$UPLOAD_DIR" "$MODEL_DIR"
+}
+
+ensure_docker() {
+  if ! command -v "$DOCKER_BIN" >/dev/null 2>&1; then
+    error "未找到 Docker，请先安装 Docker Desktop。"
+    return 1
+  fi
+  if ! "$DOCKER_BIN" compose version >/dev/null 2>&1; then
+    error "当前 Docker 不包含 Compose 插件。"
+    return 1
+  fi
+  if "$DOCKER_BIN" info >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if is_macos && command -v open >/dev/null 2>&1; then
+    info "Docker Desktop 尚未运行，正在启动……"
+    open -a Docker >/dev/null 2>&1 || true
+    local attempt
+    for attempt in {1..60}; do
+      if "$DOCKER_BIN" info >/dev/null 2>&1; then
+        success "Docker Desktop 已就绪。"
+        return 0
+      fi
+      sleep 2
+    done
+  fi
+
+  error "Docker 服务未运行，请先启动 Docker Desktop。"
+  return 1
+}
+
+database_initialized() {
+  [[ -d "$MYSQL_DATA/mysql" ]] && find "$MYSQL_DATA/mysql" -mindepth 1 -print -quit 2>/dev/null | grep -q .
+}
+
+choose_database_mode() {
+  local requested_mode="${1:-ask}"
+  case "$requested_mode" in
+    keep|init)
+      printf '%s\n' "$requested_mode"
+      return
+      ;;
+    ask) ;;
+    *)
+      error "未知数据库模式：$requested_mode"
+      return 2
+      ;;
+  esac
+
+  if [[ ! -t 0 ]]; then
+    printf '%s\n' "keep"
+    return
+  fi
+
+  if database_initialized; then
+    printf '检测到已有开发数据库。是否备份旧数据并重新初始化？[y/N] ' >&2
+    local answer
+    read -r answer
+    case "$answer" in
+      y|Y|yes|YES) printf '%s\n' "init" ;;
+      *) printf '%s\n' "keep" ;;
+    esac
+  else
+    printf '未检测到数据库，首次启动将自动初始化。按回车继续，输入 n 取消：[Y/n] ' >&2
+    local answer
+    read -r answer
+    case "$answer" in
+      n|N|no|NO) return 1 ;;
+      *) printf '%s\n' "keep" ;;
+    esac
+  fi
+}
+
+initialize_database() {
+  if database_initialized; then
+    local backup_dir="$MYSQL_BACKUPS/data-$(date '+%Y%m%d-%H%M%S')"
+    info "正在停止会访问数据库的容器……"
+    compose stop manager-api mysql >/dev/null 2>&1 || true
+    info "正在备份旧数据库到 $backup_dir"
+    mv "$MYSQL_DATA" "$backup_dir"
+    mkdir -p "$MYSQL_DATA"
+    success "旧数据库已备份，可随时手动恢复。"
+  else
+    info "未发现旧数据库，将执行首次初始化。"
+  fi
+}
+
+wait_for_container_health() {
+  local service="$1"
+  local max_attempts="${2:-60}"
+  local attempt status container_id
+
+  for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+    container_id="$(compose ps -q "$service" 2>/dev/null || true)"
+    if [[ -n "$container_id" ]]; then
+      status="$("$DOCKER_BIN" inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container_id" 2>/dev/null || true)"
+      if [[ "$status" == "healthy" || "$status" == "running" ]]; then
+        return 0
+      fi
+      if [[ "$status" == "unhealthy" || "$status" == "exited" || "$status" == "dead" ]]; then
+        error "$service 容器状态异常：$status"
+        return 1
+      fi
+    fi
+    sleep 2
+  done
+  error "等待 $service 就绪超时。"
+  return 1
+}
+
+start_docker_services() {
+  info "正在确保 MySQL、Redis 和 manager-api 运行（已运行的数据库不会重启）……"
+  compose up -d --remove-orphans mysql redis manager-api
+  wait_for_container_health mysql 60
+  wait_for_container_health redis 30
+}
+
+wait_for_manager() {
+  local attempt
+  for attempt in {1..90}; do
+    if curl -fsS --max-time 2 "$MANAGER_URL/doc.html" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 2
+  done
+  error "manager-api 在 180 秒内未就绪。"
+  compose logs --tail=120 manager-api >&2 || true
+  return 1
+}
+
+read_server_secret() {
+  compose exec -T mysql mysql \
+    -uroot -p123456 -N -s xiaozhi_esp32_server \
+    -e "SELECT param_value FROM sys_params WHERE param_code='server.secret' LIMIT 1;" \
+    2>/dev/null | tr -d '\r\n'
+}
+
 update_manager_config() {
-  config_file=$1
-  api_url=$2
-  secret=$3
-  tmp_file=$config_file.tmp.$$
-  backup_file=$config_file.bak
+  local config_file="$1"
+  local api_url="$2"
+  local secret="$3"
+  local tmp_file="$config_file.tmp.$$"
 
   if ! awk -v api_url="$api_url" -v secret="$secret" '
     BEGIN { in_manager=0; manager=0; url=0; key=0 }
@@ -48,201 +214,586 @@ update_manager_config() {
     return 1
   fi
 
-  cp "$config_file" "$backup_file"
+  cp "$config_file" "$config_file.bak"
   mv "$tmp_file" "$config_file"
 }
 
-check_docker() {
-  if ! command -v "$DOCKER_BIN" >/dev/null 2>&1; then
-    error '未找到 Docker。请先安装并启动 Docker Desktop。'
+prepare_server_config() {
+  local secret
+  secret="$(read_server_secret)"
+  if [[ -z "$secret" || "$secret" == "null" ]]; then
+    error "manager-api 尚未生成 server.secret，请查看 manager-api 日志。"
     return 1
   fi
 
-  if ! "$DOCKER_BIN" compose version >/dev/null 2>&1; then
-    error '当前 Docker 不包含 Compose。请升级 Docker Desktop。'
-    return 1
+  if [[ ! -f "$CONFIG_FILE" ]]; then
+    cp "$CONFIG_TEMPLATE" "$CONFIG_FILE"
+    info "已创建 API 模式配置：main/xiaozhi-server/data/.config.yaml"
   fi
 
-  if ! "$DOCKER_BIN" info >/dev/null 2>&1; then
-    error 'Docker 服务未运行，请先启动 Docker Desktop。'
+  if ! update_manager_config "$CONFIG_FILE" "$MANAGER_URL" "$secret"; then
+    error "现有 data/.config.yaml 不是 API 模式配置，已保持原样。"
+    error "请确认它包含 manager-api.url 和 manager-api.secret。"
     return 1
+  fi
+  success "已同步本地 Python 服务所需的 manager-api 地址与密钥。"
+}
+
+file_hash() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$@" | shasum -a 256 | awk '{print $1}'
+  else
+    sha256sum "$@" | sha256sum | awk '{print $1}'
   fi
 }
 
-prepare_directories() {
-  mkdir -p "$MODEL_DIR" "$DATA_DIR" "$UPLOAD_DIR" "$MYSQL_DIR"
+prepare_python_environment() {
+  local python_bin="$PYTHON_ENV/bin/python"
+  local ffmpeg_dir=""
+
+  if [[ ! -x "$python_bin" ]]; then
+    if command -v conda >/dev/null 2>&1; then
+      info "首次运行：正在创建隔离的 Python 3.10 + FFmpeg 环境……"
+      conda create --prefix "$PYTHON_ENV" --yes python=3.10 ffmpeg pip
+    elif command -v uv >/dev/null 2>&1; then
+      info "首次运行：正在用 uv 创建隔离的 Python 3.10 环境……"
+      uv venv --python 3.10 "$PYTHON_ENV"
+    else
+      error "未找到 Conda 或 uv，无法自动创建 Python 3.10 隔离环境。"
+      return 1
+    fi
+  fi
+
+  if ! "$python_bin" -c 'import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 10) else 1)'; then
+    error "$PYTHON_ENV 不是 Python 3.10 环境，请移走该目录后重试。"
+    return 1
+  fi
+
+  if [[ -x "$PYTHON_ENV/bin/ffmpeg" ]]; then
+    ffmpeg_dir="$PYTHON_ENV/bin"
+  elif command -v ffmpeg >/dev/null 2>&1; then
+    ffmpeg_dir="$(dirname -- "$(command -v ffmpeg)")"
+  else
+    error "Python 环境已创建，但未找到 FFmpeg。建议安装 Conda 后移走 $PYTHON_ENV 再运行。"
+    return 1
+  fi
+
+  local requirements_hash marker
+  requirements_hash="$(file_hash "$PYTHON_REQUIREMENTS")"
+  marker="$PYTHON_ENV/.requirements.sha256"
+  if [[ ! -f "$marker" || "$(<"$marker")" != "$requirements_hash" ]]; then
+    info "正在安装或更新 Python 依赖……"
+    if command -v uv >/dev/null 2>&1; then
+      if ! uv pip install --python "$python_bin" --requirement "$PYTHON_REQUIREMENTS"; then
+        unlink "$marker" 2>/dev/null || true
+        error "Python 依赖安装失败，未写入成功标记。"
+        return 1
+      fi
+    else
+      if ! "$python_bin" -m pip install --requirement "$PYTHON_REQUIREMENTS"; then
+        unlink "$marker" 2>/dev/null || true
+        error "Python 依赖安装失败，未写入成功标记。"
+        return 1
+      fi
+    fi
+    if ! "$python_bin" -c 'import aioconsole, openai, requests, websockets, yaml'; then
+      unlink "$marker" 2>/dev/null || true
+      error "Python 核心依赖自检失败，未写入成功标记。"
+      return 1
+    fi
+    printf '%s\n' "$requirements_hash" >"$marker"
+  else
+    info "Python 依赖未变化，跳过安装。"
+  fi
+
+  PYTHON_BIN="$python_bin"
+  PYTHON_PATH_PREFIX="$ffmpeg_dir"
 }
 
-download_model() {
-  if [ -s "$MODEL_FILE" ]; then
-    info 'SenseVoice 模型已存在，跳过下载。'
+prepare_sensevoice_model() {
+  if [[ -s "$MODEL_FILE" ]]; then
+    info "SenseVoice 模型已存在，跳过下载。"
+    return
+  fi
+
+  info "首次运行：正在下载 SenseVoice 模型（约 900 MB，支持断点续传）……"
+  if ! curl -fL --retry 3 --connect-timeout 20 -C - \
+    --output "$MODEL_FILE.part" "$MODEL_URL"; then
+    error "SenseVoice 模型下载失败，保留临时文件供下次续传。"
+    return 1
+  fi
+  if [[ ! -s "$MODEL_FILE.part" ]]; then
+    error "下载的 SenseVoice 模型为空。"
+    return 1
+  fi
+  mv "$MODEL_FILE.part" "$MODEL_FILE"
+  success "SenseVoice 模型下载完成。"
+}
+
+prepare_frontend_environment() {
+  if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+    error "未找到 Node.js/npm。manager-web 需要 Node.js 18 或更高版本。"
+    return 1
+  fi
+
+  local node_major
+  node_major="$(node -p 'Number(process.versions.node.split(".")[0])')"
+  if ((node_major < 18)); then
+    error "当前 Node.js 版本过低：$(node --version)，需要 18 或更高版本。"
+    return 1
+  fi
+
+  local dependency_hash marker
+  dependency_hash="$(file_hash "$WEB_DIR/package.json" "$WEB_DIR/package-lock.json")"
+  marker="$WEB_DIR/node_modules/.yunshu-dependencies.sha256"
+  if [[ ! -x "$WEB_DIR/node_modules/.bin/vue-cli-service" || ! -f "$marker" || "$(<"$marker")" != "$dependency_hash" ]]; then
+    info "正在安装或更新前端依赖……"
+    (cd "$WEB_DIR" && npm ci)
+    printf '%s\n' "$dependency_hash" >"$marker"
+  else
+    info "前端依赖未变化，跳过安装。"
+  fi
+}
+
+pid_is_running() {
+  local pid_file="$1"
+  [[ -f "$pid_file" ]] || return 1
+  local pid command_line
+  pid="$(<"$pid_file")"
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null || return 1
+  command_line="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+  case "$pid_file" in
+    "$PYTHON_PID") [[ "$command_line" == *"app.py"* ]] ;;
+    "$WEB_PID") [[ "$command_line" == *"npm"*"run"*"serve"* || "$command_line" == *"vue-cli-service"*"serve"* ]] ;;
+    *) [[ -n "$command_line" ]] ;;
+  esac
+}
+
+port_is_listening() {
+  local port="$1"
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
+  else
+    (echo >/dev/tcp/127.0.0.1/"$port") >/dev/null 2>&1
+  fi
+}
+
+ensure_port_available() {
+  local port="$1"
+  local service_name="$2"
+  local pid_file="$3"
+  if pid_is_running "$pid_file"; then
     return 0
   fi
-
-  info '首次运行需要下载 SenseVoice 模型，请耐心等待。'
-  rm -f "$MODEL_FILE.part"
-  if ! "$DOCKER_BIN" run --rm \
-    -v "$MODEL_DIR:/download" \
-    curlimages/curl:8.10.1 \
-    -fL --retry 3 --connect-timeout 20 \
-    -o /download/model.pt.part "$MODEL_URL"; then
-    rm -f "$MODEL_FILE.part"
-    error 'SenseVoice 模型下载失败，请检查网络后重试。'
+  rm -f "$pid_file"
+  if port_is_listening "$port"; then
+    error "端口 $port 已被其他进程占用，无法启动 $service_name。"
     return 1
   fi
-
-  if [ ! -s "$MODEL_FILE.part" ]; then
-    rm -f "$MODEL_FILE.part"
-    error '下载的 SenseVoice 模型为空，请检查网络后重试。'
-    return 1
-  fi
-
-  mv "$MODEL_FILE.part" "$MODEL_FILE"
-  info 'SenseVoice 模型下载完成。'
 }
 
-wait_for_manager() {
-  attempts=0
-  while [ "$attempts" -lt 90 ]; do
-    if compose exec -T manager \
-      wget -q -O /dev/null http://127.0.0.1:8002/xiaozhi/doc.html >/dev/null 2>&1; then
+wait_for_port() {
+  local port="$1"
+  local pid_file="$2"
+  local service_name="$3"
+  local attempt missing_checks=0
+  for attempt in {1..60}; do
+    if port_is_listening "$port"; then
       return 0
     fi
-    attempts=$((attempts + 1))
+    if pid_is_running "$pid_file"; then
+      missing_checks=0
+    else
+      missing_checks=$((missing_checks + 1))
+      # npm/nohup 启动时命令行会短暂切换，连续多次无法识别才判定退出。
+      if ((missing_checks >= 3)); then
+        error "$service_name 启动进程已退出，最近日志如下："
+        return 1
+      fi
+    fi
     sleep 2
   done
-
+  error "等待 $service_name 监听端口 $port 超时。"
   return 1
 }
 
-read_server_secret() {
-  compose exec -T mysql mysql \
-    -uroot -p123456 -N -s xiaozhi_esp32_server \
-    -e "SELECT param_value FROM sys_params WHERE param_code='server.secret' LIMIT 1;" \
-    2>/dev/null | tr -d '\r\n'
-}
-
-prepare_config() {
-  secret=$1
-
-  if [ -z "$secret" ] || [ "$secret" = null ]; then
-    error 'manager-api 尚未生成 server.secret。'
+start_python() {
+  if pid_is_running "$PYTHON_PID"; then
+    info "xiaozhi-server 已在运行，跳过重启。"
+    return 0
+  fi
+  ensure_port_available 8000 "xiaozhi-server" "$PYTHON_PID"
+  ensure_port_available 8003 "xiaozhi-server HTTP" "$PYTHON_PID"
+  : >"$PYTHON_LOG"
+  (
+    cd "$PYTHON_DIR"
+    nohup env PATH="$PYTHON_PATH_PREFIX:$PATH" "$PYTHON_BIN" app.py </dev/null >>"$PYTHON_LOG" 2>&1 &
+    printf '%s\n' "$!" >"$PYTHON_PID"
+  )
+  if ! wait_for_port 8000 "$PYTHON_PID" "xiaozhi-server"; then
+    tail -n 80 "$PYTHON_LOG" >&2 || true
     return 1
   fi
-
-  if [ ! -f "$CONFIG_FILE" ]; then
-    cp "$CONFIG_TEMPLATE" "$CONFIG_FILE"
-    info '已从 API 模式模板创建 data/.config.yaml。'
-  fi
-
-  if ! update_manager_config "$CONFIG_FILE" "$API_URL" "$secret"; then
-    error 'data/.config.yaml 不是可安全更新的 API 模式配置，已保留原文件。'
-    error '请确认其中包含 manager-api.url 和 manager-api.secret。'
-    return 1
-  fi
-
-  info '已同步 manager-api 地址和 server.secret。'
+  success "xiaozhi-server 已启动。"
 }
 
-wait_for_server() {
-  attempts=0
-  while [ "$attempts" -lt 60 ]; do
-    if compose exec -T server python -c \
-      "import socket; a=socket.create_connection(('127.0.0.1',8000),2); a.close(); b=socket.create_connection(('127.0.0.1',8003),2); b.close()" \
-      >/dev/null 2>&1; then
-      return 0
-    fi
-    attempts=$((attempts + 1))
-    sleep 2
+start_frontend() {
+  if pid_is_running "$WEB_PID"; then
+    info "manager-web 已在运行，跳过重启。"
+    return 0
+  fi
+  ensure_port_available 8001 "manager-web" "$WEB_PID"
+  : >"$WEB_LOG"
+  (
+    cd "$WEB_DIR"
+    nohup env VUE_APP_DEV_PROXY_TARGET="http://127.0.0.1:8002" \
+      npm run serve -- --host 127.0.0.1 </dev/null >>"$WEB_LOG" 2>&1 &
+    printf '%s\n' "$!" >"$WEB_PID"
+  )
+  if ! wait_for_port 8001 "$WEB_PID" "manager-web"; then
+    tail -n 80 "$WEB_LOG" >&2 || true
+    return 1
+  fi
+  success "manager-web 热更新服务已启动。"
+}
+
+terminate_tree() {
+  local pid="$1"
+  local child
+  if command -v pgrep >/dev/null 2>&1; then
+    while read -r child; do
+      [[ -n "$child" ]] && terminate_tree "$child"
+    done < <(pgrep -P "$pid" 2>/dev/null || true)
+  fi
+  kill -TERM "$pid" 2>/dev/null || true
+}
+
+stop_local_service() {
+  local pid_file="$1"
+  local service_name="$2"
+  if ! pid_is_running "$pid_file"; then
+    rm -f "$pid_file"
+    info "$service_name 未运行。"
+    return
+  fi
+
+  local pid
+  pid="$(<"$pid_file")"
+  terminate_tree "$pid"
+  local attempt
+  for attempt in {1..20}; do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 0.25
   done
-
-  return 1
-}
-
-show_failure_logs() {
-  compose ps >&2 || true
-  compose logs --tail=120 manager mysql redis server >&2 || true
+  kill -KILL "$pid" 2>/dev/null || true
+  rm -f "$pid_file"
+  success "$service_name 已停止。"
 }
 
 start_services() {
-  check_docker
-  prepare_directories
-  download_model
-
-  info '正在构建并启动 MySQL、Redis、前端和 Java 后端……'
-  compose up -d --build mysql redis manager
-
-  info '正在等待 manager-api 初始化……'
-  if ! wait_for_manager; then
-    error 'manager-api 在 180 秒内未就绪。'
-    show_failure_logs
-    return 1
+  local database_mode="${1:-ask}"
+  ensure_directories || return 1
+  ensure_docker || return 1
+  database_mode="$(choose_database_mode "$database_mode")" || return 1
+  if [[ "$database_mode" == "init" ]]; then
+    initialize_database || return 1
+  else
+    info "保留现有数据库；不会清空数据。"
   fi
 
-  secret=$(read_server_secret) || {
-    error '无法从 MySQL 读取 server.secret。'
-    show_failure_logs
-    return 1
-  }
-  prepare_config "$secret"
+  start_docker_services || return 1
+  info "正在等待 manager-api 完成编译和 Liquibase 迁移……"
+  wait_for_manager || return 1
+  prepare_server_config || return 1
+  prepare_python_environment || return 1
+  prepare_sensevoice_model || return 1
+  prepare_frontend_environment || return 1
+  start_python || return 1
+  start_frontend || return 1
 
-  info '正在构建并启动 Python 核心服务……'
-  compose up -d --build --no-deps server
-
-  info '正在等待 Python 核心服务就绪……'
-  if ! wait_for_server; then
-    error 'Python 核心服务在 120 秒内未就绪。'
-    show_failure_logs
-    return 1
-  fi
-
-  printf '\n完整开发环境已启动：\n'
-  printf '  控制台：  http://localhost:8002\n'
-  printf '  WebSocket：ws://localhost:8000/xiaozhi/v1/\n'
-  printf '  HTTP：     http://localhost:8003\n\n'
-  printf '查看日志：./start-dev.sh logs\n'
-  printf '停止服务：./start-dev.sh stop\n'
+  printf '\n'
+  success "开发环境已启动。"
+  printf '  前端热更新：  http://127.0.0.1:8001\n'
+  printf '  管理 API：    http://127.0.0.1:8002/xiaozhi\n'
+  printf '  WebSocket：   ws://127.0.0.1:8000/xiaozhi/v1/\n'
+  printf '  Vision/HTTP： http://127.0.0.1:8003\n'
+  printf '  日志目录：    %s\n\n' "$LOG_DIR"
+  printf '返回启动器菜单后，可直接选择查看状态、日志、重启或停止服务。\n'
 }
 
 stop_services() {
-  check_docker
-  info '正在停止开发环境（不会删除持久化数据）……'
+  stop_local_service "$WEB_PID" "manager-web"
+  stop_local_service "$PYTHON_PID" "xiaozhi-server"
+  if "$DOCKER_BIN" info >/dev/null 2>&1; then
+    info "正在停止 manager-api；MySQL 和 Redis 继续常驻。"
+    compose stop manager-api
+  else
+    warn "Docker 未运行，已跳过 manager-api。"
+  fi
+}
+
+down_services() {
+  stop_local_service "$WEB_PID" "manager-web"
+  stop_local_service "$PYTHON_PID" "xiaozhi-server"
+  ensure_docker
+  info "正在停止全部开发容器；不会删除数据库、Redis 数据或 Maven 缓存。"
   compose down --remove-orphans
 }
 
-restart_services() {
-  stop_services
-  start_services
+restart_python() {
+  ensure_directories || return 1
+  ensure_docker || return 1
+  start_docker_services || return 1
+  wait_for_manager || return 1
+  prepare_server_config || return 1
+  prepare_python_environment || return 1
+  prepare_sensevoice_model || return 1
+  stop_local_service "$PYTHON_PID" "xiaozhi-server"
+  start_python || return 1
+}
+
+restart_web() {
+  ensure_directories || return 1
+  prepare_frontend_environment || return 1
+  stop_local_service "$WEB_PID" "manager-web"
+  start_frontend || return 1
+}
+
+restart_manager() {
+  ensure_docker || return 1
+  info "正在重新创建 manager-api 容器并重新编译 Java 源码；数据库保持运行。"
+  compose up -d --force-recreate manager-api || return 1
+  wait_for_manager || return 1
+  prepare_server_config || return 1
 }
 
 show_status() {
-  check_docker
-  compose ps
+  printf '本地服务：\n'
+  if pid_is_running "$WEB_PID"; then
+    printf '  manager-web      运行中 (PID %s)\n' "$(<"$WEB_PID")"
+  else
+    printf '  manager-web      未运行\n'
+  fi
+  if pid_is_running "$PYTHON_PID"; then
+    printf '  xiaozhi-server   运行中 (PID %s)\n' "$(<"$PYTHON_PID")"
+  else
+    printf '  xiaozhi-server   未运行\n'
+  fi
+
+  printf '\nDocker 服务：\n'
+  if "$DOCKER_BIN" info >/dev/null 2>&1; then
+    compose ps
+  else
+    printf '  Docker 未运行\n'
+  fi
 }
 
 follow_logs() {
-  check_docker
-  compose logs --tail=200 -f
+  ensure_directories
+  touch "$WEB_LOG" "$PYTHON_LOG"
+  info "正在跟踪本地日志；manager-api 日志可用 ./start-dev.sh logs-manager 查看。"
+  tail -n 100 -F "$PYTHON_LOG" "$WEB_LOG"
+}
+
+follow_manager_logs() {
+  ensure_docker
+  compose logs --tail=200 -f manager-api
+}
+
+doctor() {
+  local failed=0
+  printf '开发环境检查：\n'
+  for command_name in "$DOCKER_BIN" curl node npm; do
+    if command -v "$command_name" >/dev/null 2>&1; then
+      printf '  [通过] %-10s %s\n' "$command_name" "$(command -v "$command_name")"
+    else
+      printf '  [缺少] %s\n' "$command_name"
+      failed=1
+    fi
+  done
+  if command -v conda >/dev/null 2>&1 || command -v uv >/dev/null 2>&1; then
+    printf '  [通过] Python 环境工具（Conda 或 uv）\n'
+  else
+    printf '  [缺少] Conda 或 uv\n'
+    failed=1
+  fi
+  if "$DOCKER_BIN" compose -f "$COMPOSE_FILE" config -q >/dev/null 2>&1; then
+    printf '  [通过] docker-compose.dev.yml\n'
+  else
+    printf '  [失败] docker-compose.dev.yml 无法解析\n'
+    failed=1
+  fi
+  return "$failed"
+}
+
+menu_header() {
+  printf '\033[2J\033[H'
+  printf '\033[1;36m'
+  printf '╔══════════════════════════════════════════════╗\n'
+  printf '║          YunShu-Link 图形化启动器            ║\n'
+  printf '╚══════════════════════════════════════════════╝\n'
+  printf '\033[0m\n'
+  printf '  1. 一键启动开发环境（保留现有数据库）\n'
+  printf '  2. 一键准备演示环境（备份并初始化演示数据）\n'
+  printf '  3. 查看服务状态\n'
+  printf '  4. 重启语音服务\n'
+  printf '  5. 重启前端界面\n'
+  printf '  6. 重启管理后端\n'
+  printf '  7. 查看运行日志\n'
+  printf '  8. 停止应用服务（保留数据库）\n'
+  printf '  9. 检查开发环境\n'
+  printf '  0. 退出\n\n'
+}
+
+menu_pause() {
+  printf '\n按回车键返回主菜单……'
+  read -r _ || true
+}
+
+run_menu_action() {
+  local label="$1"
+  shift
+  printf '\n'
+  info "$label"
+  if "$@"; then
+    success "$label 完成。"
+  else
+    error "$label 未完成，请根据上方提示处理。"
+  fi
+  menu_pause
+}
+
+prepare_demo_from_menu() {
+  printf '\n演示初始化会先备份现有数据库，再清空业务数据并写入固定演示配置。\n'
+  printf '  1. 确认继续\n'
+  printf '  2. 取消并返回\n\n'
+  printf '请选择 [1-2]：'
+  local confirmation
+  read -r confirmation
+  if [[ "$confirmation" != "1" ]]; then
+    warn "已取消演示数据库初始化。"
+    return 0
+  fi
+
+  info "先启动当前源码，确保模型和界面都是最新版本。"
+  if ! start_services keep; then
+    error "开发环境启动失败，未修改演示数据库。"
+    return 1
+  fi
+  "$ROOT_DIR/scripts/demo/reset-demo-db.sh" --yes
+}
+
+show_logs_menu() {
+  printf '\n  1. 查看语音服务和前端日志\n'
+  printf '  2. 查看管理后端日志\n'
+  printf '  0. 返回\n\n'
+  printf '请选择 [0-2]：'
+  local choice
+  read -r choice
+  case "$choice" in
+    1) follow_logs ;;
+    2) follow_manager_logs ;;
+    0) return 0 ;;
+    *) warn "无效选项：$choice" ;;
+  esac
+}
+
+interactive_menu() {
+  local choice
+  while true; do
+    menu_header
+    printf '请输入数字 [0-9]：'
+    read -r choice || return 0
+    case "$choice" in
+      1) run_menu_action "启动开发环境" start_services keep ;;
+      2) run_menu_action "准备演示环境" prepare_demo_from_menu ;;
+      3) run_menu_action "查看服务状态" show_status ;;
+      4) run_menu_action "重启语音服务" restart_python ;;
+      5) run_menu_action "重启前端界面" restart_web ;;
+      6) run_menu_action "重启管理后端" restart_manager ;;
+      7) run_menu_action "查看运行日志" show_logs_menu ;;
+      8) run_menu_action "停止应用服务" stop_services ;;
+      9) run_menu_action "检查开发环境" doctor ;;
+      0)
+        printf '\n已退出启动器。\n'
+        return 0
+        ;;
+      *)
+        warn "无效选项：$choice，请输入 0 到 9。"
+        menu_pause
+        ;;
+    esac
+  done
 }
 
 print_usage() {
-  printf '用法：%s [start|stop|restart|status|logs]\n' "$0" >&2
+  cat <<'EOF'
+YunShu-Link 图形化启动器
+
+日常使用只需要运行：
+  ./start-dev.sh                     打开中文数字菜单
+
+以下参数仅供自动化脚本和开发调试使用，无需记忆：
+  ./start-dev.sh start
+  ./start-dev.sh start --keep-db     保留数据库并启动（适合日常开发）
+  ./start-dev.sh start --init-db     备份旧数据库后重新初始化
+  ./start-dev.sh restart-python      仅重启本地 Python 服务
+  ./start-dev.sh restart-web         仅重启本地前端
+  ./start-dev.sh restart-manager     仅重编译并重启 Docker 中的 Java API
+  ./start-dev.sh stop                停止前端、Python、Java；保留 MySQL/Redis 常驻
+  ./start-dev.sh down                停止全部服务，但不删除任何持久化数据
+  ./start-dev.sh status              查看状态
+  ./start-dev.sh logs                跟踪前端和 Python 日志
+  ./start-dev.sh logs-manager        跟踪 Java API 日志
+  ./start-dev.sh doctor              检查开发环境
+EOF
 }
 
 dispatch() {
-  case ${1:-start} in
-    ''|start) start_services ;;
+  if (($# == 0)); then
+    if [[ -t 0 && -t 1 ]]; then
+      interactive_menu
+    else
+      start_services keep
+    fi
+    return
+  fi
+
+  local action="$1"
+  shift
+  case "$action" in
+    start)
+      local mode="ask"
+      case "${1:-}" in
+        "") ;;
+        --keep-db) mode="keep" ;;
+        --init-db) mode="init" ;;
+        *)
+          error "start 不支持参数：$1"
+          print_usage
+          return 2
+          ;;
+      esac
+      start_services "$mode"
+      ;;
+    restart-python) restart_python ;;
+    restart-web) restart_web ;;
+    restart-manager) restart_manager ;;
     stop) stop_services ;;
-    restart) restart_services ;;
+    down) down_services ;;
     status) show_status ;;
     logs) follow_logs ;;
+    logs-manager) follow_manager_logs ;;
+    doctor) doctor ;;
+    help|-h|--help) print_usage ;;
     *)
+      error "未知命令：$action"
       print_usage
       return 2
       ;;
   esac
 }
 
-if [ "${DOCKER_DEV_SOURCE_ONLY:-0}" != 1 ]; then
-  dispatch "${1:-start}"
+if [[ "${DEV_START_SOURCE_ONLY:-0}" != "1" ]]; then
+  dispatch "$@"
 fi

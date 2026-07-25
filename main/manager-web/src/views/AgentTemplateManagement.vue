@@ -109,16 +109,9 @@ import VersionFooter from "@/components/VersionFooter.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomTable from "@/components/CustomTable.vue";
 import CustomDialog from "@/components/CustomDialog.vue";
+import { DEMO_MODEL_CONFIG } from "@/config/demoModels";
 
-const DEFAULT_MODEL_CONFIG = {
-  ttsModelId: "TTS_EdgeTTS",
-  vadModelId: "VAD_SileroVAD",
-  asrModelId: "ASR_FunASR",
-  llmModelId: "LLM_ChatGLMLLM",
-  vllmModelId: "VLLM_ChatGLMVLLM",
-  memModelId: "Memory_nomem",
-  intentModelId: "Intent_function_call"
-};
+const DEFAULT_MODEL_CONFIG = DEMO_MODEL_CONFIG;
 
 export default {
   name: "AgentTemplateManagement",
@@ -255,7 +248,7 @@ export default {
               vadModelId: template.vadModelId || DEFAULT_MODEL_CONFIG.vadModelId,
               asrModelId: template.asrModelId || DEFAULT_MODEL_CONFIG.asrModelId,
               llmModelId: template.llmModelId || DEFAULT_MODEL_CONFIG.llmModelId,
-              vllmModelId: template.vllmModelId || DEFAULT_MODEL_CONFIG.vllmModelId,
+              slmModelId: template.slmModelId || DEFAULT_MODEL_CONFIG.slmModelId,
               memModelId: template.memModelId || DEFAULT_MODEL_CONFIG.memModelId,
               intentModelId: template.intentModelId || DEFAULT_MODEL_CONFIG.intentModelId
             }

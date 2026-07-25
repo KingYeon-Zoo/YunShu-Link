@@ -131,6 +131,13 @@ public class TimbreServiceImpl extends BaseServiceImpl<TimbreDao, TimbreEntity> 
                     dto.setVoiceDemo(entity.getVoiceDemo());
                     dto.setLanguages(entity.getLanguages()); // 设置语言类型
                     dto.setIsClone(false); // 设置为普通音色
+                    dto.setDescription(entity.getRemark());
+                    String voiceCode = entity.getTtsVoice();
+                    if (voiceCode != null && voiceCode.contains("_female_")) {
+                        dto.setGender("female");
+                    } else if (voiceCode != null && voiceCode.contains("_male_")) {
+                        dto.setGender("male");
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());

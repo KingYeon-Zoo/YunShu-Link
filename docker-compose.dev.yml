@@ -1,43 +1,58 @@
 name: yunshu-link-dev
 
+# 开发环境只把基础设施和不常改的 Java 管理 API 放进 Docker。
+# manager-web 与 xiaozhi-server 由根目录 start-dev.sh 在宿主机隔离运行。
 services:
-  server:
-    image: yunshu-link/xiaozhi-server:dev
-    build:
-      context: .
-      dockerfile: Dockerfile-server
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      manager:
-        condition: service_started
+  mysql:
+    image: mysql:latest
     restart: unless-stopped
     ports:
-      - "8000:8000"
-      - "8003:8003"
-    security_opt:
-      - seccomp:unconfined
+      - "127.0.0.1:3306:3306"
     environment:
       TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: xiaozhi_esp32_server
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p123456"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
     volumes:
-      - ./main/xiaozhi-server/data:/opt/xiaozhi-esp32-server/data
-      - ./main/xiaozhi-server/models/SenseVoiceSmall/model.pt:/opt/xiaozhi-esp32-server/models/SenseVoiceSmall/model.pt
+      # 使用已有目录，兼容项目之前的开发数据；start-dev.sh 初始化前会备份它。
+      - ./main/xiaozhi-server/mysql/data:/var/lib/mysql
 
-  manager:
-    image: yunshu-link/manager-web-api:dev
-    build:
-      context: .
-      dockerfile: Dockerfile-web
+  redis:
+    image: redis:8.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - manager_redis_data:/data
+
+  manager-api:
+    image: maven:3.9.9-eclipse-temurin-21
+    working_dir: /workspace
+    restart: unless-stopped
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
-    restart: unless-stopped
+    command:
+      - mvn
+      - -Dmaven.repo.local=/root/.m2/repository
+      - -DskipTests
+      - spring-boot:run
     ports:
-      - "8002:8002"
+      - "127.0.0.1:8002:8002"
     environment:
       TZ: Asia/Shanghai
       SPRING_DATASOURCE_DRUID_URL: jdbc:mysql://mysql:3306/xiaozhi_esp32_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true&connectTimeout=30000&socketTimeout=30000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
@@ -47,57 +62,11 @@ services:
       SPRING_DATA_REDIS_PASSWORD: ""
       SPRING_DATA_REDIS_PORT: "6379"
     volumes:
+      # Java 源码和 Maven 缓存均与宿主机环境隔离。
+      - ./main/manager-api:/workspace
+      - manager_maven_cache:/root/.m2
       - ./main/xiaozhi-server/uploadfile:/uploadfile
-    networks:
-      default:
-        aliases:
-          - xiaozhi-esp32-server-web
-
-  web-dev:
-    image: node:20
-    working_dir: /app
-    command:
-      - sh
-      - -c
-      - if [ ! -x node_modules/.bin/vue-cli-service ]; then npm install; fi; npm run serve -- --host 0.0.0.0 --port 8001
-    depends_on:
-      manager:
-        condition: service_started
-    restart: unless-stopped
-    ports:
-      - "8001:8001"
-    environment:
-      VUE_APP_API_BASE_URL: /xiaozhi
-      VUE_APP_DEV_PROXY_TARGET: http://manager:8002
-      CHOKIDAR_USEPOLLING: "true"
-      WATCHPACK_POLLING: "true"
-    volumes:
-      - ./main/manager-web:/app
-      - manager_web_node_modules:/app/node_modules
-
-  mysql:
-    image: mysql:latest
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p123456"]
-      timeout: 5s
-      interval: 5s
-      retries: 20
-    environment:
-      TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: "123456"
-      MYSQL_DATABASE: xiaozhi_esp32_server
-    volumes:
-      - ./main/xiaozhi-server/mysql/data:/var/lib/mysql
-
-  redis:
-    image: redis:8.0
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
 volumes:
-  manager_web_node_modules:
+  manager_maven_cache:
+  manager_redis_data:

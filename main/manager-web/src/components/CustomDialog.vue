@@ -8,6 +8,8 @@
     :show-close="showClose"
     :destroy-on-close="destroyOnClose"
     :custom-class="customClass"
+    :append-to-body="appendToBody"
+    :modal-append-to-body="modalAppendToBody"
     class="custom-dialog"
     @close="handleClose"
     @open="handleOpen"
@@ -87,6 +89,14 @@ export default {
     confirmText: {
       type: String,
       default: "确认保存"
+    },
+    appendToBody: {
+      type: Boolean,
+      default: true
+    },
+    modalAppendToBody: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
