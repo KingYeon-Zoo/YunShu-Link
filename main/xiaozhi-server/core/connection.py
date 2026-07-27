@@ -1610,6 +1610,13 @@ class ConnectionHandler:
                         f"清理工具处理器时出错: {cleanup_error}"
                     )
 
+            # 释放ASR侧的上游连接（流式/端到端ASR各自持有websocket）
+            if self.asr:
+                try:
+                    await self.asr.close()
+                except Exception as asr_error:
+                    self.logger.bind(tag=TAG).error(f"关闭ASR连接时出错: {asr_error}")
+
             # 触发停止事件
             if self.stop_event:
                 self.stop_event.set()
