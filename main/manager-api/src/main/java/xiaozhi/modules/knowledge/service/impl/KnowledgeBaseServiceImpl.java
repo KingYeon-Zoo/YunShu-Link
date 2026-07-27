@@ -81,6 +81,10 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
     }
 
     private void enrichDocumentCount(KnowledgeBaseDTO dto) {
+        // 先用本地影子表兜底：DTO 的 documentCount 是 Integer 而实体是 Long，
+        // BeanUtils 拷贝会静默跳过该属性，不补这一笔则未同步的知识库恒显示 0。
+        dto.setDocumentCount(Math.toIntExact(documentDao.selectCount(
+                new QueryWrapper<DocumentEntity>().eq("dataset_id", dto.getDatasetId()))));
         syncDatasetFromRAG(dto);
     }
 
@@ -145,8 +149,8 @@ public class KnowledgeBaseServiceImpl extends BaseServiceImpl<KnowledgeBaseDao, 
             }
 
         } catch (Exception e) {
+            // 保留 enrichDocumentCount 已写入的本地计数，远端不可用时仍显示影子表里的真实篇数
             log.error("同步数据集信息失败 {}: {}", dto.getName(), e.getMessage());
-            dto.setDocumentCount(0);
             dto.setErrorMessage(e.getMessage());
         }
     }

@@ -195,3 +195,12 @@ main/digital-human/wakeword_runtime/sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2
 sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2
 .worktrees/
 .dev/
+
+# Local demo media and generated competition assets
+# The final video is published as a GitHub Release asset because it exceeds
+# GitHub's 100 MB per-file repository limit.
+/演示视频.mp4
+/演示视频草稿/
+/assets/competition-v2/
+/assets/competition-final/
+/main/xiaozhi-server/config/assets/wakeup_words/

@@ -7,79 +7,81 @@
         :close-on-click-modal="false"
         custom-class="chat-history-dialog">
         <template v-slot:title>
-            <span style="font-size: 18px;">
+            <span class="dialog-title-header">
                 {{ $t('chatHistory.with') + agentName + $t('chatHistory.dialogTitle') }}
                 <template v-if="currentMacAddress">
-                    [<MacAddressMask :macAddress="currentMacAddress" />]
+                    <span class="mac-badge">[<MacAddressMask :macAddress="currentMacAddress" />]</span>
                 </template>
             </span>
         </template>
-        <div class="chat-container">
-            <div class="session-list" @scroll="handleScroll">
-                <div v-for="session in sessions" :key="session.sessionId" class="session-item"
-                    :class="{ active: currentSessionId === session.sessionId }" @click="selectSession(session)">
-                    <img :src="getUserAvatar(session.sessionId)" class="avatar" />
-                    <div class="session-info">
-                        <div class="session-time">{{ session.title || formatTime(session.createdAt) }}</div>
-                        <div class="message-count">{{ session.chatCount > 99 ? '99' : session.chatCount }}</div>
-                    </div>
-                </div>
-                <div v-if="loading" class="loading">{{ $t('chatHistory.loading') }}</div>
-                <div v-if="!hasMore" class="no-more">{{ $t('chatHistory.noMoreRecords') }}</div>
-            </div>
-            <div class="chat-content">
-                <div v-if="currentSessionId" class="messages">
-                    <div v-for="(message, index) in messagesWithTime" :key="message.id">
-                        <div v-if="message.type === 'time'" class="time-divider">
-                            {{ message.content }}
+        <div class="chat-dialog-body">
+            <div class="chat-container">
+                <div class="session-list" @scroll="handleScroll">
+                    <div v-for="session in sessions" :key="session.sessionId" class="session-item"
+                        :class="{ active: currentSessionId === session.sessionId }" @click="selectSession(session)">
+                        <img :src="getUserAvatar(session.sessionId)" class="avatar" />
+                        <div class="session-info">
+                            <div class="session-time">{{ session.title || formatTime(session.createdAt) }}</div>
+                            <div class="message-count">{{ session.chatCount > 99 ? '99' : session.chatCount }}</div>
                         </div>
-                        <div v-else class="message-item" :class="{ 'user-message': message.chatType === 1, 'tool-message': message.chatType === 3 }">
-                            <img :src="message.chatType === 1 ? getUserAvatar(currentSessionId) : require('@/assets/brand/yunshu-link-icon.png')"
-                                class="avatar" />
-                            <div class="message-content">
-                                <template v-if="Array.isArray(extractContentFromString(message.content))">
-                                    <div class="content-wrapper">
-                                        <div v-for="(item, idx) in extractContentFromString(message.content)" :key="idx">
-                                            <div v-if="item.type === 'text'" class="text-content">{{ item.text }}</div>
-                                            <div v-else-if="item.type === 'tool'" class="tool-call-text">{{ item.text }}</div>
-                                            <div v-else-if="item.type === 'tool_result'" class="tool-call-text">
-                                                <div v-if="item.text && item.text.length > 80" class="tool-result-wrapper">
-                                                    <div v-if="isToolResultCollapsed(index, idx)" class="tool-result-collapsed">
-                                                        {{ getFirstLineText(item.text) }}
+                    </div>
+                    <div v-if="loading" class="loading">{{ $t('chatHistory.loading') }}</div>
+                    <div v-if="!hasMore" class="no-more">{{ $t('chatHistory.noMoreRecords') }}</div>
+                </div>
+                <div class="chat-content">
+                    <div v-if="currentSessionId" class="messages">
+                        <div v-for="(message, index) in messagesWithTime" :key="message.id">
+                            <div v-if="message.type === 'time'" class="time-divider">
+                                {{ message.content }}
+                            </div>
+                            <div v-else class="message-item" :class="{ 'user-message': message.chatType === 1, 'tool-message': message.chatType === 3 }">
+                                <img :src="message.chatType === 1 ? getUserAvatar(currentSessionId) : require('@/assets/brand/yunshu-link-icon.png')"
+                                    class="avatar" />
+                                <div class="message-content">
+                                    <template v-if="Array.isArray(extractContentFromString(message.content))">
+                                        <div class="content-wrapper">
+                                            <div v-for="(item, idx) in extractContentFromString(message.content)" :key="idx">
+                                                <div v-if="item.type === 'text'" class="text-content">{{ item.text }}</div>
+                                                <div v-else-if="item.type === 'tool'" class="tool-call-text">{{ item.text }}</div>
+                                                <div v-else-if="item.type === 'tool_result'" class="tool-call-text">
+                                                    <div v-if="item.text && item.text.length > 80" class="tool-result-wrapper">
+                                                        <div v-if="isToolResultCollapsed(index, idx)" class="tool-result-collapsed">
+                                                            {{ getFirstLineText(item.text) }}
+                                                        </div>
+                                                        <div v-else class="tool-result-expanded">
+                                                            {{ item.text }}
+                                                        </div>
+                                                        <span class="tool-toggle-btn" @click="toggleToolResult(index, idx)">
+                                                            <i :class="isToolResultCollapsed(index, idx) ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+                                                        </span>
                                                     </div>
-                                                    <div v-else class="tool-result-expanded">
-                                                        {{ item.text }}
-                                                    </div>
-                                                    <span class="tool-toggle-btn" @click="toggleToolResult(index, idx)">
-                                                        <i :class="isToolResultCollapsed(index, idx) ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
-                                                    </span>
+                                                    <div v-else>{{ item.text }}</div>
                                                 </div>
-                                                <div v-else>{{ item.text }}</div>
                                             </div>
                                         </div>
-                                    </div>
-                                </template>
-                                <template v-else>
-                                    {{ extractContentFromString(message.content) }}
-                                </template>
-                                <i v-if="message.audioId" :class="getAudioIconClass(message)"
-                                    @click="playAudio(message)" class="audio-icon"></i>
+                                    </template>
+                                    <template v-else>
+                                        {{ extractContentFromString(message.content) }}
+                                    </template>
+                                    <i v-if="message.audioId" :class="getAudioIconClass(message)"
+                                        @click="playAudio(message)" class="audio-icon"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div v-else class="no-session-selected">
-                    {{ $t('chatHistory.selectSession') }}
+                    <div v-else class="no-session-selected">
+                        {{ $t('chatHistory.selectSession') }}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div v-if="currentSessionId" class="download-buttons">
-            <el-button type="primary" plain size="small" @click="downloadCurrentSessionWithPrevious">
-                {{ $t('chatHistory.downloadCurrentWithPreviousSessions') }}
-            </el-button>
-            <el-button type="primary" plain size="small" @click="downloadCurrentSession">
-                {{ $t('chatHistory.downloadCurrentSession') }}
-            </el-button>
+            <div v-if="currentSessionId" class="download-buttons">
+                <el-button type="primary" plain size="small" @click="downloadCurrentSessionWithPrevious">
+                    {{ $t('chatHistory.downloadCurrentWithPreviousSessions') }}
+                </el-button>
+                <el-button type="primary" plain size="small" @click="downloadCurrentSession">
+                    {{ $t('chatHistory.downloadCurrentSession') }}
+                </el-button>
+            </div>
         </div>
     </CustomDialog>
 </template>
@@ -186,51 +188,35 @@ export default {
         }
     },
     methods: {
-        /**
-         * 从 content 字段中提取聊天内容
-         * 如果 content 是 JSON 格式（如 {"speaker": "未知说话人", "content": "现在几点了。"}），则提取 content 字段
-         * 如果 content 是普通字符串，则直接返回
-         * 
-         * @param {string} content 原始内容
-         * @returns {string} 提取的聊天内容
-         */
         extractContentFromString(content) {
             if (!content || content.trim() === '') {
                 return content;
             }
 
-            // 尝试解析为 JSON
             try {
                 const jsonObj = JSON.parse(content);
 
-                // 如果是数组格式（包含 text 和 tool）
                 if (Array.isArray(jsonObj)) {
                     return jsonObj;
                 }
 
-                // 如果是对象且有 content 字段
                 if (jsonObj && typeof jsonObj === 'object' && jsonObj.content) {
                     return jsonObj.content;
                 }
             } catch (e) {
-                // 如果不是有效的 JSON，直接返回原内容
+                // 原字串
             }
 
-            // 如果不是 JSON 格式或没有 content 字段，直接返回原内容
             return content;
         },
-        // 切换工具结果的展开/折叠状态
         toggleToolResult(messageIndex, itemIndex) {
             const key = `${messageIndex}-${itemIndex}`;
             this.$set(this.expandedToolResults, key, !this.expandedToolResults[key]);
         },
-        // 判断工具结果是否处于折叠状态
         isToolResultCollapsed(messageIndex, itemIndex) {
             const key = `${messageIndex}-${itemIndex}`;
-            // 默认折叠（true表示折叠）
             return !this.expandedToolResults[key];
         },
-        // 获取截断的文本（只显示第一行）
         getFirstLineText(text) {
             if (!text) return '';
             const firstLine = text.split('\n')[0];
@@ -282,7 +268,6 @@ export default {
                     if (this.messages.length > 0 && this.messages[0].macAddress) {
                         this.currentMacAddress = this.messages[0].macAddress;
                     }
-                    // 更新会话列表中的聊天记录数量
                     this.sessions = this.sessions.map(item => {
                         if (item.sessionId === session.sessionId) {
                             item.chatCount = this.messages.length;
@@ -299,7 +284,6 @@ export default {
 
             this.scrollTimer = setTimeout(() => {
                 const { scrollTop, scrollHeight, clientHeight } = e.target;
-                // 当滚动到底部时加载更多
                 if (scrollHeight - scrollTop <= clientHeight + 50) {
                     this.loadSessions();
                 }
@@ -334,7 +318,6 @@ export default {
         },
         playAudio: debounce(function(message) {
             if (this.playingAudioId === message.audioId) {
-                // 如果正在播放当前音频，则停止播放
                 if (this.audioElement) {
                     this.audioElement.pause();
                     this.audioElement = null;
@@ -343,13 +326,11 @@ export default {
                 return;
             }
 
-            // 停止当前正在播放的音频
             if (this.audioElement) {
                 this.audioElement.pause();
                 this.audioElement = null;
             }
 
-            // 先获取音频下载ID
             this.playingAudioId = message.audioId;
             Api.agent.getAudioId(message.audioId, (res) => {
                 if (res.data && res.data.data) {
@@ -357,7 +338,6 @@ export default {
                         this.audioElement = new Audio();
                     }
                     
-                    // 使用获取到的下载ID播放音频
                     this.audioElement.src = Api.getServiceUrl() + `/agent/play/${res.data.data}`;
                     this.audioElement.onended = () => {
                         this.playingAudioId = null;
@@ -369,21 +349,14 @@ export default {
             });
         }, 300),
         getUserAvatar(sessionId) {
-            // 从 sessionId 中提取所有数字
             const numbers = sessionId.match(/\d+/g);
             if (!numbers) return require('@/assets/user-avatar1.png');
 
-            // 将所有数字相加
             const sum = numbers.reduce((acc, num) => acc + parseInt(num), 0);
-
-            // 计算模5并加1，得到1-5之间的数字
             const avatarIndex = (sum % 5) + 1;
 
-            // 返回对应的头像图片
             return require(`@/assets/user-avatar${avatarIndex}.png`);
         },
-
-        // 下载本会话聊天记录
         downloadCurrentSession() {
             Api.agent.getDownloadUrl(this.agentId, this.currentSessionId, (res) => {
                 if (res && res.data && res.data.code === 0 && res.data.data) {
@@ -394,8 +367,6 @@ export default {
                 }
             });
         },
-
-        // 下载本会话及前20条会话聊天记录
         downloadCurrentSessionWithPrevious() {
             Api.agent.getDownloadUrl(this.agentId, this.currentSessionId, (res) => {
                 if (res && res.data && res.data.code === 0 && res.data.data) {
@@ -411,81 +382,125 @@ export default {
 </script>
 
 <style scoped>
-.chat-container {
-    display: flex;
-    height: 100%;
+.dialog-title-header {
+    font-size: 17px;
+    font-weight: 600;
+    color: #f8fafc;
+    display: inline-flex;
+    align-items: center;
 }
 
+.mac-badge {
+    color: #60a5fa;
+    font-size: 14px;
+    margin-left: 8px;
+    font-family: monospace;
+}
+
+.chat-dialog-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background-color: #0b1329;
+}
+
+.chat-container {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* 左侧会话列表 */
 .session-list {
-    width: 250px;
-    border-right: 1px solid #eee;
+    width: 260px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     overflow-y: auto;
-    padding: 10px;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.4);
 }
 
 .session-item {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 10px 12px;
     cursor: pointer;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
 }
 
 .session-item:hover {
-    background-color: #f5f5f5;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .session-item.active {
-    background-color: #e6f7ff;
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     margin-right: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
 }
 
 .session-info {
-    width: calc(100% - 50px);
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .session-time {
-    font-size: 14px;
-    color: #272727;
-    float: left;
-    height: 30px;
-    line-height: 30px;
-    width: calc(100% - 30px);
-    /* 为消息数量留出空间 */
+    font-size: 13px;
+    color: rgba(241, 245, 249, 0.85);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 20px;
+    font-weight: 400;
+}
+
+.session-item.active .session-time {
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .message-count {
-    font-size: 14px;
-    color: #fff;
-    background-color: #b4b4b4;
-    border-radius: 20px;
-    float: left;
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    margin-top: 5px;
-    margin-left: 5px;
+    font-size: 11px;
+    color: #93c5fd;
+    background-color: rgba(37, 99, 235, 0.3);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 10px;
+    padding: 0 6px;
+    min-width: 20px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: 500;
+    margin-left: 6px;
 }
 
+/* 右侧聊天内容 */
 .chat-content {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    background: rgba(11, 23, 42, 0.2);
 }
 
 .message-item {
     display: flex;
     margin-bottom: 20px;
+    align-items: flex-start;
 }
 
 .message-item.user-message {
@@ -493,33 +508,54 @@ export default {
 }
 
 .message-content {
-    max-width: 60%;
-    padding: 10px 15px;
-    border-radius: 8px;
-    background-color: #f0f0f0;
-    margin: 0 10px;
-    text-align: left;
-    line-height: 20px;
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border-top-left-radius: 2px;
+    background-color: rgba(30, 41, 59, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f1f5f9;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    margin: 0 12px;
+    line-height: 1.5;
+    font-size: 14px;
     position: relative;
     display: flex;
     align-items: center;
+    word-break: break-word;
+}
+
+.user-message .message-content {
+    border-top-left-radius: 14px;
+    border-top-right-radius: 2px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    flex-direction: row-reverse;
+}
+
+.tool-message .message-content {
+    background-color: rgba(15, 23, 42, 0.85);
+    border: 1px dashed rgba(56, 189, 248, 0.4);
+    color: #e2e8f0;
 }
 
 .audio-icon {
     font-size: 20px;
     cursor: pointer;
-    margin: 0 5px;
-    color: #1890ff;
+    margin: 0 6px;
+    color: #60a5fa;
+    transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.user-message .message-content {
-    background-color: #1890ff;
-    color: white;
-    flex-direction: row-reverse;
+.audio-icon:hover {
+    transform: scale(1.15);
+    color: #93c5fd;
 }
 
 .user-message .audio-icon {
-    color: white;
+    color: #ffffff;
 }
 
 .content-wrapper {
@@ -532,25 +568,26 @@ export default {
 }
 
 .tool-call-text {
-    color: #1890ff;
-    font-family: 'Courier New', monospace;
+    color: #38bdf8;
+    font-family: 'Fira Code', Consolas, Monaco, monospace;
     font-weight: 500;
     font-size: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+    word-break: break-all;
     display: block;
-    margin-top: 4px;
 }
 
 .user-message .tool-call-text {
-    color: #e6f7ff;
-}
-
-.tool-message .message-content {
-    background-color: #f0f0f0;
+    color: #e0f2fe;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .tool-result-wrapper {
     position: relative;
-    padding-right: 20px;
+    padding-right: 22px;
 }
 
 .tool-result-collapsed {
@@ -564,19 +601,21 @@ export default {
     right: 0;
     top: 0;
     cursor: pointer;
-    color: #1890ff;
-    font-size: 12px;
+    color: #38bdf8;
+    font-size: 13px;
+    transition: color 0.2s ease;
 }
 
 .tool-toggle-btn:hover {
-    color: #40a9ff;
+    color: #7dd3fc;
 }
 
 .loading,
 .no-more {
     text-align: center;
-    padding: 10px 10px 30px 10px;
-    color: #999;
+    padding: 12px 10px 24px 10px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
 }
 
 .no-session-selected {
@@ -584,13 +623,14 @@ export default {
     justify-content: center;
     align-items: center;
     height: 100%;
-    color: #999;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 14px;
 }
 
 .time-divider {
     text-align: center;
-    margin: 10px 0;
-    color: #999;
+    margin: 16px 0;
+    color: rgba(255, 255, 255, 0.45);
     font-size: 12px;
 }
 
@@ -598,31 +638,77 @@ export default {
 .time-divider::after {
     content: '';
     display: inline-block;
-    width: 30%;
+    width: 25%;
     height: 1px;
-    background-color: #eee;
+    background-color: rgba(255, 255, 255, 0.08);
     vertical-align: middle;
-    margin: 0 10px;
+    margin: 0 12px;
 }
 
+/* 底部下载按钮区 */
 .download-buttons {
-    padding: 20px;
+    padding: 12px 20px;
     display: flex;
-    gap: 10px;
-    border-top: 1px solid #eee;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: white;
+    gap: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .download-buttons .el-button {
     flex: 1;
+    height: 38px;
+    border-radius: 8px;
+    font-weight: 500;
+    background: rgba(30, 41, 59, 0.8) !important;
+    border: 1px solid rgba(59, 130, 246, 0.35) !important;
+    color: #60a5fa !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.download-buttons .el-button:hover {
+    background: rgba(37, 99, 235, 0.25) !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* 滚动条细致优化 */
+.session-list::-webkit-scrollbar,
+.chat-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.session-list::-webkit-scrollbar-thumb,
+.chat-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.session-list::-webkit-scrollbar-thumb:hover,
+.chat-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 </style>
 
 <style>
+.dialog-fade-enter-active .chat-history-dialog {
+    animation: chat-history-dialog-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+@keyframes chat-history-dialog-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
 .chat-history-dialog {
     display: flex;
     flex-direction: column;
@@ -632,16 +718,26 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    height: 98vh;
+    height: 90vh;
+    max-height: 850px;
     max-width: 85vw;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
+    background-color: #0b1329 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+.chat-history-dialog .el-dialog__header {
+    background: rgba(15, 23, 42, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 16px 24px;
 }
 
 .chat-history-dialog .el-dialog__body {
     padding: 0;
     overflow: hidden;
-    height: calc(90vh - 54px);
-    /* 减去标题栏的高度 */
+    flex: 1;
+    height: calc(100% - 54px);
 }
 </style>

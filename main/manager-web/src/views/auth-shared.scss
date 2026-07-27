@@ -242,10 +242,24 @@
       background: transparent !important;
       box-shadow: none !important;
       color: #eaf2ff !important;
+      -webkit-text-fill-color: #eaf2ff !important;
       font-size: 13px;
       caret-color: #36c9ff;
 
-      &::placeholder { color: #6f7e99; }
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus,
+      &:-webkit-autofill:active {
+        -webkit-text-fill-color: #eaf2ff !important;
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+        transition: background-color 50000s ease-in-out 0s !important;
+        background-color: transparent !important;
+      }
+
+      &::placeholder {
+        color: #6f7e99 !important;
+        -webkit-text-fill-color: #6f7e99 !important;
+      }
     }
     .el-input__suffix { right: 0; color: #6f7e99; }
   }

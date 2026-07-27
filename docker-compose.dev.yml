@@ -52,7 +52,7 @@ services:
       - -DskipTests
       - spring-boot:run
     ports:
-      - "127.0.0.1:8002:8002"
+      - "0.0.0.0:8002:8002"
     environment:
       TZ: Asia/Shanghai
       SPRING_DATASOURCE_DRUID_URL: jdbc:mysql://mysql:3306/xiaozhi_esp32_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true&connectTimeout=30000&socketTimeout=30000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10

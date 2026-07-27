@@ -96,7 +96,7 @@ database_initialized() {
 choose_database_mode() {
   local requested_mode="${1:-ask}"
   case "$requested_mode" in
-    keep|init)
+    keep|init|demo)
       printf '%s\n' "$requested_mode"
       return
       ;;
@@ -129,6 +129,126 @@ choose_database_mode() {
       *) printf '%s\n' "keep" ;;
     esac
   fi
+}
+
+demo_reset_script() {
+  printf '%s\n' "$ROOT_DIR/scripts/demo/reset-demo-db.sh"
+}
+
+# 空表结构和演示基线的区别在这里：Liquibase 只建表，登录账号和模型配置来自这个脚本。
+write_demo_baseline() {
+  local script
+  script="$(demo_reset_script)"
+  if [[ ! -x "$script" ]]; then
+    error "缺少可执行的 scripts/demo/reset-demo-db.sh，无法写入演示基线。"
+    return 1
+  fi
+  info "正在写入演示数据库基线（演示账号、豆包模型、音色、角色模板）……"
+  "$script" --yes || return 1
+  verify_demo_baseline || return 1
+  apply_lan_access_params || return 1
+}
+
+detect_lan_ip() {
+  local ip=""
+  local iface
+  for iface in en0 en1 en2; do
+    ip="$(ipconfig getifaddr "$iface" 2>/dev/null || true)"
+    [[ -n "$ip" ]] && break
+  done
+  # 虚拟网卡（198.18/16 是常见的代理软件网段）设备连不上，宁可留空让人工确认。
+  if [[ "$ip" == 198.18.* || "$ip" == 169.254.* ]]; then
+    ip=""
+  fi
+  printf '%s' "$ip"
+}
+
+# reset-demo-db.sh 不管这三个参数，重置后它们是 Liquibase 的 null；
+# 为 null 时 manager-api 会自动探测，可能下发旧网络的残留 IP，设备直接连不上。
+apply_lan_access_params() {
+  local lan_ip
+  lan_ip="$(detect_lan_ip)"
+  if [[ -z "$lan_ip" ]]; then
+    warn "未能探测到局域网 IP；server.websocket / server.ota 仍为 null。"
+    warn "烧录设备前请登录控制台，在参数管理里手动填写这两项。"
+    return 0
+  fi
+
+  local db_user db_password db_name project mysql_container redis_container
+  db_user="${DEMO_DB_USER:-root}"
+  db_password="${DEMO_DB_PASSWORD:-123456}"
+  db_name="${DEMO_DB_NAME:-xiaozhi_esp32_server}"
+  project="${DEMO_COMPOSE_PROJECT:-yunshu-link-dev}"
+  mysql_container="${project}-mysql-1"
+  redis_container="${project}-redis-1"
+
+  info "正在把设备接入地址指向本机局域网 IP $lan_ip ……"
+  if ! "$DOCKER_BIN" exec "$mysql_container" mysql -u"$db_user" -p"$db_password" "$db_name" -e "
+    UPDATE sys_params SET param_value='ws://${lan_ip}:8000/xiaozhi/v1/' WHERE param_code='server.websocket';
+    UPDATE sys_params SET param_value='http://${lan_ip}:8002/xiaozhi/ota/' WHERE param_code='server.ota';
+    UPDATE sys_params SET param_value='http://${lan_ip}:8001' WHERE param_code='server.fronted_url';
+  " 2>/dev/null; then
+    warn "写入接入地址失败；烧录前请在控制台参数管理里手动确认。"
+    return 0
+  fi
+
+  # 参数走 Redis 缓存，不清理的话新值不生效。
+  "$DOCKER_BIN" exec "$redis_container" redis-cli FLUSHALL >/dev/null 2>&1 || true
+  success "接入地址已写入：ws://${lan_ip}:8000 / http://${lan_ip}:8002"
+  warn "换 Wi-Fi 或换机后 IP 会变，需重新执行演示初始化或手动更新这两项。"
+}
+
+# 基线写入后做一次结构性抽查：账号和三类模型缺任何一项，登录页或语音链路就是坏的。
+verify_demo_baseline() {
+  local db_user db_password db_name project mysql_container
+  db_user="${DEMO_DB_USER:-root}"
+  db_password="${DEMO_DB_PASSWORD:-123456}"
+  db_name="${DEMO_DB_NAME:-xiaozhi_esp32_server}"
+  project="${DEMO_COMPOSE_PROJECT:-yunshu-link-dev}"
+  mysql_container="${project}-mysql-1"
+
+  # 先单独探活：连不上可以宽容，但"连上了却查不到基线表"正是要拦的故障形态，不能混为一谈。
+  if ! "$DOCKER_BIN" exec "$mysql_container" mysql -u"$db_user" -p"$db_password" -N -B -e "SELECT 1;" >/dev/null 2>&1; then
+    warn "无法连接数据库校验演示基线，已跳过该检查。"
+    warn "开始演示前请自行确认能用演示账号登录 Web 端。"
+    return 0
+  fi
+
+  local counts
+  counts="$("$DOCKER_BIN" exec "$mysql_container" mysql -u"$db_user" -p"$db_password" "$db_name" -N -B -e "
+    SELECT
+      (SELECT COUNT(*) FROM sys_user),
+      (SELECT COUNT(*) FROM ai_agent),
+      (SELECT COUNT(*) FROM ai_model_config WHERE id IN ('LLM_DoubaoCharacter','TTS_DoubaoSeedTTS','ASR_DoubaoStreamASRV2') AND is_enabled = 1);
+  " 2>/dev/null || true)"
+
+  if [[ -z "$counts" ]]; then
+    error "数据库连接正常，但读不到演示基线表（sys_user / ai_agent / ai_model_config）。"
+    error "通常意味着只建了空表结构而没写基线；请执行 ./start-dev.sh start --demo。"
+    return 1
+  fi
+
+  local users agents models
+  users="$(printf '%s' "$counts" | awk '{print $1}')"
+  agents="$(printf '%s' "$counts" | awk '{print $2}')"
+  models="$(printf '%s' "$counts" | awk '{print $3}')"
+
+  local problems=()
+  [[ "${users:-0}" -ge 1 ]] || problems+=("没有登录账号（sys_user 为空），Web 端无法登录")
+  [[ "${agents:-0}" -ge 1 ]] || problems+=("没有智能体（ai_agent 为空）")
+  [[ "${models:-0}" -eq 3 ]] || problems+=("豆包 LLM/TTS/ASR 模型配置不全（已启用 ${models:-0}/3）")
+
+  if ((${#problems[@]} > 0)); then
+    error "演示基线校验未通过："
+    local problem
+    for problem in "${problems[@]}"; do
+      printf '  - %s\n' "$problem" >&2
+    done
+    error "请检查 scripts/demo/reset-demo-db.sh 的输出，不要在这个状态下开始演示或烧录。"
+    return 1
+  fi
+
+  success "演示基线校验通过：账号、智能体、豆包三类模型齐备。"
 }
 
 initialize_database() {
@@ -495,11 +615,19 @@ start_services() {
   ensure_directories || return 1
   ensure_docker || return 1
   database_mode="$(choose_database_mode "$database_mode")" || return 1
-  if [[ "$database_mode" == "init" ]]; then
-    initialize_database || return 1
-  else
-    info "保留现有数据库；不会清空数据。"
-  fi
+  case "$database_mode" in
+    init|demo)
+      initialize_database || return 1
+      # init 只让 Liquibase 建表，库里没有演示账号和模型配置；demo 会在启动后补写基线。
+      if [[ "$database_mode" == "init" ]]; then
+        warn "--init-db 只重建空表结构，不写入演示数据：没有登录账号，也没有 LLM/TTS/ASR 模型配置。"
+        warn "需要可直接登录和演示的环境，请用 ./start-dev.sh start --demo（等价于菜单选项 2）。"
+      fi
+      ;;
+    *)
+      info "保留现有数据库；不会清空数据。"
+      ;;
+  esac
 
   start_docker_services || return 1
   info "正在等待 manager-api 完成编译和 Liquibase 迁移……"
@@ -510,6 +638,23 @@ start_services() {
   prepare_frontend_environment || return 1
   start_python || return 1
   start_frontend || return 1
+
+  if [[ "$database_mode" == "demo" ]]; then
+    printf '\n'
+    write_demo_baseline || return 1
+  fi
+
+  # 失效的密钥在启动日志里看不出来，只会在设备连上时变成 401。这里主动打一遍真实调用。
+  printf '\n'
+  if [[ "$database_mode" == "demo" ]]; then
+    # 重置刚用 .env 重写了全部模型密钥，这是最容易写进失效凭据的时刻，跑完整版（含 ASR 闭环）。
+    if ! diagnose_models; then
+      warn "模型链路自检未通过；设备烧录前请先修复上述问题。"
+    fi
+  elif ! diagnose_models --quick; then
+    warn "模型链路自检未通过；设备烧录前请先修复上述问题。"
+    warn "完整校验（含 ASR 闭环）：./start-dev.sh check-models"
+  fi
 
   printf '\n'
   success "开发环境已启动。"
@@ -550,6 +695,10 @@ restart_python() {
   prepare_sensevoice_model || return 1
   stop_local_service "$PYTHON_PID" "xiaozhi-server"
   start_python || return 1
+  printf '\n'
+  if ! diagnose_models --quick; then
+    warn "模型链路自检未通过；设备烧录前请先修复上述问题。"
+  fi
 }
 
 restart_web() {
@@ -600,6 +749,21 @@ follow_manager_logs() {
   compose logs --tail=200 -f manager-api
 }
 
+diagnose_models() {
+  local script="$ROOT_DIR/scripts/diagnose-models.py"
+  if [[ ! -f "$script" ]]; then
+    warn "缺少 scripts/diagnose-models.py，已跳过模型自检。"
+    return 0
+  fi
+  # 单独调用 check-models 时不会走 prepare_python_environment，退回虚拟环境里的解释器。
+  local python_bin="${PYTHON_BIN:-$PYTHON_DIR/.venv/bin/python}"
+  if [[ ! -x "$python_bin" ]]; then
+    warn "未找到 Python 解释器，已跳过模型自检；请先完整启动一次开发环境。"
+    return 0
+  fi
+  env PATH="${PYTHON_PATH_PREFIX:-}:$PATH" "$python_bin" "$script" "$@"
+}
+
 doctor() {
   local failed=0
   printf '开发环境检查：\n'
@@ -622,6 +786,13 @@ doctor() {
   else
     printf '  [失败] docker-compose.dev.yml 无法解析\n'
     failed=1
+  fi
+
+  if "$DOCKER_BIN" info >/dev/null 2>&1 && port_is_listening 8002; then
+    printf '\n'
+    diagnose_models || failed=1
+  else
+    printf '\n  [跳过] 模型自检需要先启动开发环境\n'
   fi
   return "$failed"
 }
@@ -680,7 +851,14 @@ prepare_demo_from_menu() {
     error "开发环境启动失败，未修改演示数据库。"
     return 1
   fi
-  "$ROOT_DIR/scripts/demo/reset-demo-db.sh" --yes
+  write_demo_baseline || return 1
+
+  # 重置会用 .env 重写全部模型密钥，这是最容易写进失效凭据的时刻，必须实测一遍。
+  printf '\n'
+  if ! diagnose_models; then
+    error "演示数据已写入，但模型自检未通过；设备烧录前必须先修复。"
+    return 1
+  fi
 }
 
 show_logs_menu() {
@@ -736,7 +914,8 @@ YunShu-Link 图形化启动器
 以下参数仅供自动化脚本和开发调试使用，无需记忆：
   ./start-dev.sh start
   ./start-dev.sh start --keep-db     保留数据库并启动（适合日常开发）
-  ./start-dev.sh start --init-db     备份旧数据库后重新初始化
+  ./start-dev.sh start --demo        备份后重建并写入演示基线（等价于菜单选项 2）
+  ./start-dev.sh start --init-db     备份后只重建空表结构，不写演示数据（无账号、无模型）
   ./start-dev.sh restart-python      仅重启本地 Python 服务
   ./start-dev.sh restart-web         仅重启本地前端
   ./start-dev.sh restart-manager     仅重编译并重启 Docker 中的 Java API
@@ -745,7 +924,8 @@ YunShu-Link 图形化启动器
   ./start-dev.sh status              查看状态
   ./start-dev.sh logs                跟踪前端和 Python 日志
   ./start-dev.sh logs-manager        跟踪 Java API 日志
-  ./start-dev.sh doctor              检查开发环境
+  ./start-dev.sh doctor              检查开发环境（含模型自检）
+  ./start-dev.sh check-models        对启用的模型发起真实调用（烧录前建议跑一次）
 EOF
 }
 
@@ -768,6 +948,7 @@ dispatch() {
         "") ;;
         --keep-db) mode="keep" ;;
         --init-db) mode="init" ;;
+        --demo) mode="demo" ;;
         *)
           error "start 不支持参数：$1"
           print_usage
@@ -776,6 +957,7 @@ dispatch() {
       esac
       start_services "$mode"
       ;;
+    check-models) diagnose_models "$@" ;;
     restart-python) restart_python ;;
     restart-web) restart_web ;;
     restart-manager) restart_manager ;;

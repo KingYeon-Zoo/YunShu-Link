@@ -1,9 +1,21 @@
-<h1 align="center">YunShu-Link-Server（云枢）</h1>
+<p align="center">
+  <img src="main/manager-web/src/assets/brand/yunshu-link-logo.png" alt="YunShu-Link 云枢" width="520">
+</p>
+
+<h1 align="center">YunShu-Link（云枢）</h1>
 
 <p align="center">
-面向 ESP32 智能语音硬件的自研后端服务<br/>
-打通「语音识别 → 大模型 → 语音合成」全链路，支持声纹识别、意图理解、工具调用与知识库<br/>
-基于人机共生智能理念，提供 WebSocket、MQTT+UDP、MCP 多协议接入
+面向 ESP32 智能硬件的端—边—云协同 AI 交互平台<br/>
+贯通「实时语音感知 → 大模型推理 → 语音合成 → 设备动作」完整链路<br/>
+支持多智能体、知识库、视觉理解、记忆、工具调用与 Web 控制台
+</p>
+
+<p align="center">
+  <a href="https://github.com/KingYeon-Zoo/YunShu-Link/releases/tag/demo-2026"><strong>观看演示</strong></a>
+  ·
+  <a href="./2026年全国大学生物联网设计竞赛设计文档.docx"><strong>设计文档</strong></a>
+  ·
+  <a href="./乐鑫竞赛命题.pdf"><strong>竞赛命题</strong></a>
 </p>
 
 <p align="center">
@@ -12,17 +24,65 @@
   <img alt="java" src="https://img.shields.io/badge/Java-21-orange">
   <img alt="springboot" src="https://img.shields.io/badge/Spring%20Boot-3.4-green">
   <img alt="vue" src="https://img.shields.io/badge/Vue-2%20%2F%203-42b883">
+  <img alt="esp32" src="https://img.shields.io/badge/Hardware-ESP32-E7352C">
 </p>
 
 ---
 
-## 项目简介
+## 项目概览
 
-**YunShu-Link-Server** 是一套面向 [ESP32](https://github.com/78/xiaozhi-esp32) 智能语音硬件的自研后端服务，为语音终端提供完整的实时对话能力与设备管理能力。
+**YunShu-Link** 是一套面向 [ESP32](https://github.com/78/xiaozhi-esp32) 智能硬件的全栈 AI 交互系统。项目围绕全国大学生物联网设计竞赛场景完成软硬件协同落地：设备可通过语音与视觉理解环境，由大模型规划回复或动作，并在 Web 控制台完成设备、智能体、模型和知识库的统一管理。
 
-项目采用「实时语音管线」与「控制台管理」分层解耦的架构：Python 侧负责低延迟的语音交互链路，Java 侧负责多用户 / 多智能体 / 多设备的配置管理与下发，前端提供 Web 与移动端两套控制台。整体面向**可插拔、可扩展**设计——ASR、LLM、TTS、记忆、意图等每一类能力都以「提供者（Provider）」形式接入，新增一个平台无需改动核心逻辑。
+系统采用「实时 AI 管线」与「控制台管理」分层架构：Python 服务负责低延迟语音与多模态交互，Java 服务负责多用户、多智能体、多设备的配置与下发，Vue 提供 Web 和移动端管理体验。ASR、LLM、TTS、记忆、意图等能力均以 Provider 方式接入，便于替换模型与持续扩展。
 
 > 本项目在开源社区方案的基础上进行了大量二次开发与重构，后端交互逻辑、模块编排、工具调用与配置体系均为独立实现。仅供学习与研究使用，未经安全评测，请勿直接用于生产环境。
+
+---
+
+## 项目展示
+
+### 实物原型
+
+<p align="center">
+  <img src="实物图片/1.jpg" alt="YunShu-Link 实物原型正面" width="24%">
+  <img src="实物图片/2.jpg" alt="YunShu-Link 实物原型侧面" width="24%">
+  <img src="实物图片/3.jpg" alt="YunShu-Link 实物交互演示" width="24%">
+  <img src="实物图片/4.jpg" alt="YunShu-Link 云台结构" width="24%">
+</p>
+
+### 管理控制台
+
+<table>
+  <tr>
+    <td width="50%" align="center"><img src="web%20端图片/首页（控制台界面）.png" alt="数据总览"><br><sub>数据总览与运行状态</sub></td>
+    <td width="50%" align="center"><img src="web%20端图片/角色配置界面.png" alt="智能体配置"><br><sub>智能体角色与能力配置</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><img src="web%20端图片/聊天记录界面.png" alt="聊天记录"><br><sub>多设备会话与聊天记录</sub></td>
+    <td width="50%" align="center"><img src="web%20端图片/知识库界面.png" alt="知识库"><br><sub>知识库与 RAG 内容管理</sub></td>
+  </tr>
+</table>
+
+### 演示与参赛材料
+
+| 材料 | 内容 | 链接 |
+|------|------|------|
+| 项目演示视频 | Web 控制台、实时语音交互、硬件动作与完整业务流程 | [在 GitHub Release 中观看/下载](https://github.com/KingYeon-Zoo/YunShu-Link/releases/tag/demo-2026) |
+| 竞赛设计文档 | 系统方案、软硬件架构、关键算法、实现与测试 | [查看 Word 文档](./2026年全国大学生物联网设计竞赛设计文档.docx) |
+| 乐鑫赛道命题 | 2026 全国大学生物联网设计竞赛乐鑫科技赛道 D | [在线阅读](./乐鑫竞赛命题.md) · [下载 PDF](./乐鑫竞赛命题.pdf) |
+
+> 更多 Web 页面截图见 [`web 端图片/`](./web%20端图片/)，更多原型照片见 [`实物图片/`](./实物图片/)。
+
+---
+
+## 工程亮点
+
+- **端—边—云闭环**：从 ESP32 音频采集、流式识别和大模型推理，到语音播报、MCP 工具调用与舵机动作，形成可运行的完整系统。
+- **低延迟实时交互**：基于 asyncio、WebSocket 与流式 ASR/TTS 构建连接级编排，支持边说边识别、实时打断和会话状态管理。
+- **模型能力可插拔**：统一抽象 ASR、LLM、TTS、VLLM、VAD、Memory、Intent Provider，兼容云端模型与本地推理服务。
+- **可运营的管理平台**：覆盖账号、设备、智能体、模型、音色、知识库、会话记录与系统参数，不止于单次硬件 Demo。
+- **可复现演示环境**：提供 Docker 编排、一键开发启动器、固定演示数据、数据库备份恢复与离线校验脚本。
+- **全栈工程实践**：项目横跨 Python、Java/Spring Boot、Vue、MySQL、Redis、MQTT、Docker 与 ESP32 设备协议。
 
 ---
 
@@ -129,9 +189,14 @@ pnpm dev:h5                      # 或 pnpm dev:mp-weixin / pnpm dev:app
 - xiaozhi-server：在宿主机独立的 Python 3.10 环境中运行；优先用 Conda 同时隔离 FFmpeg，也支持 uv。
 
 启动后会显示中文数字菜单。输入 `1` 可保留数据库并启动开发环境；输入 `2`
-会先备份旧数据，再初始化固定的演示账号、豆包模型、音色和角色配置。
+会先备份旧数据，再初始化固定的演示账号、豆包模型、音色和角色配置，
+并按本机局域网 IP 填好设备接入地址。
 旧数据库会备份到 `main/xiaozhi-server/mysql/backups/` 或
 `.demo-db-backups/`，不会直接删除。
+
+需要在脚本里非交互调用时，菜单 `2` 的等价参数是 `./start-dev.sh start --demo`。
+注意 `--init-db` 不是它的等价物：那个只重建空表结构，不写演示数据，
+建出来的库既无法登录也没有模型配置。
 
 首次启动需要下载 Maven、npm、Python 依赖和缺失的 SenseVoice 模型，耗时会较长。后续依赖文件没有变化时会自动跳过安装。
 
@@ -177,8 +242,11 @@ YunShu-Link/
 │   ├── manager-mobile/     # uni-app 控制台移动端
 │   └── digital-human/      # 音频交互测试工具
 ├── docs/                   # 各能力集成文档
+├── scripts/demo/           # 可复现演示数据与重置工具
+├── web 端图片/             # 管理控制台展示截图
+├── 实物图片/               # 硬件原型照片
 ├── docker-setup.sh         # 一键部署脚本
-└── CLAUDE.md               # 面向开发者的架构说明
+└── start-dev.sh            # 一键混合开发环境
 ```
 
 更多集成细节见 `docs/` 目录（如 `mcp-endpoint-integration.md`、`ragflow-integration.md`、`voiceprint-integration.md` 等）。

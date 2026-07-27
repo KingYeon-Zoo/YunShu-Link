@@ -125,6 +125,70 @@ test_usage_and_docs() {
   pass '图形化菜单、帮助与 README 已覆盖开发工作流'
 }
 
+# --init-db 曾被误当成菜单选项 2 的等价物，结果建出没有账号和模型的空库。
+test_demo_mode_is_distinct_from_init() {
+  local usage
+  usage="$(DEV_START_SOURCE_ONLY=0 "$ROOT_DIR/start-dev.sh" help)"
+  grep -q -- '--demo' <<<"$usage" || fail '帮助应提供写入演示基线的 --demo'
+  grep -q -- '--demo.*菜单选项 2' <<<"$usage" || fail '帮助应说明 --demo 等价于菜单选项 2'
+  grep -qE -- '--init-db.*(不写演示数据|空表)' <<<"$usage" \
+    || fail '帮助应说明 --init-db 不写入演示数据'
+
+  grep -q 'demo) mode="demo"' "$ROOT_DIR/start-dev.sh" || fail 'start 应接受 --demo 参数'
+  grep -q 'keep|init|demo)' "$ROOT_DIR/start-dev.sh" || fail 'choose_database_mode 应接受 demo'
+
+  # 菜单和 --demo 必须共用同一个实现，否则两条路径又会各自漂移。
+  local baseline_calls
+  baseline_calls="$(grep -c 'write_demo_baseline || return 1' "$ROOT_DIR/start-dev.sh")"
+  [[ "$baseline_calls" -ge 2 ]] \
+    || fail '菜单选项 2 与 --demo 应共用 write_demo_baseline'
+  grep -q 'reset-demo-db.sh" --yes' "$ROOT_DIR/start-dev.sh" \
+    && fail '菜单不应再直接调用 reset-demo-db.sh，应统一走 write_demo_baseline'
+
+  pass '--demo 写入演示基线，--init-db 只建空表且已明确告警'
+}
+
+test_baseline_verification_distinguishes_failures() {
+  # 连不上数据库可以宽容跳过，但连上却读不到基线正是要拦的故障，必须失败。
+  local output status
+  set +e
+  output="$(DEMO_COMPOSE_PROJECT=definitely-no-such-project verify_demo_baseline 2>&1)"
+  status=$?
+  set -e
+  [[ "$status" -eq 0 ]] || fail '数据库连不上时应跳过校验而非报错'
+  grep -q '无法连接数据库' <<<"$output" || fail '数据库连不上时应给出提示'
+
+  grep -q '读不到演示基线表' "$ROOT_DIR/start-dev.sh" \
+    || fail '连上数据库但缺基线表时应报错而非静默跳过'
+  grep -q '没有登录账号' "$ROOT_DIR/start-dev.sh" \
+    || fail '校验应明确指出缺少登录账号的后果'
+  pass '演示基线校验区分"连不上"与"连上但没基线"'
+}
+
+# 这三个参数重置后是 null，manager-api 会自动探测并可能下发旧网络的残留 IP。
+test_lan_access_params_are_applied() {
+  grep -q 'apply_lan_access_params' "$ROOT_DIR/start-dev.sh" \
+    || fail '演示初始化后应写入设备接入地址'
+  grep -q "param_code='server.websocket'" "$ROOT_DIR/start-dev.sh" \
+    || fail '应写入 server.websocket'
+  grep -q "param_code='server.ota'" "$ROOT_DIR/start-dev.sh" \
+    || fail '应写入 server.ota'
+  grep -q 'redis-cli FLUSHALL' "$ROOT_DIR/start-dev.sh" \
+    || fail '写完参数应清 Redis 缓存才能生效'
+
+  # 代理软件的虚拟网卡地址设备连不上，探测到也不能用。
+  grep -q '198.18' "$ROOT_DIR/start-dev.sh" \
+    || fail 'detect_lan_ip 应排除虚拟网卡网段'
+
+  local ip
+  ip="$(detect_lan_ip)"
+  if [[ -n "$ip" ]]; then
+    [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "detect_lan_ip 应返回合法 IPv4，实际：$ip"
+    [[ "$ip" != 198.18.* ]] || fail 'detect_lan_ip 不应返回虚拟网卡地址'
+  fi
+  pass '演示初始化会写入设备接入地址并清理缓存'
+}
+
 test_shell_syntax
 test_compose_config
 test_config_update
@@ -132,4 +196,7 @@ test_invalid_config_is_preserved
 test_database_backup
 test_start_does_not_force_restart_database
 test_usage_and_docs
+test_demo_mode_is_distinct_from_init
+test_baseline_verification_distinguishes_failures
+test_lan_access_params_are_applied
 printf '共通过 %s 项测试。\n' "$TEST_COUNT"

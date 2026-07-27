@@ -243,9 +243,17 @@ export default {
       }).catch(() => { });
     },
 
-    handleShowChatHistory({ agentId, agentName }) {
-      this.currentAgentId = agentId;
-      this.currentAgentName = agentName;
+    handleShowChatHistory(payload, legacyAgentName) {
+      const payloadIsObject = payload && typeof payload === 'object';
+      const agentId = payloadIsObject ? payload.agentId : payload;
+      const matchedAgent = this.devices.find(item =>
+        item.agentId === agentId || item.id === agentId
+      );
+
+      this.currentAgentId = agentId || matchedAgent?.agentId || matchedAgent?.id || '';
+      this.currentAgentName = (
+        payloadIsObject ? payload.agentName : legacyAgentName
+      ) || matchedAgent?.agentName || '';
       this.showChatHistory = true;
     },
 

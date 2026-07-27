@@ -4,6 +4,14 @@ set -Eeuo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 SEED_SQL="$ROOT_DIR/scripts/demo/seed-demo.sql"
+# 演示展示数据：多厂商模型目录、五个智能体与设备/聊天记录、知识库语料影子表。
+# 知识库那份由 scripts/demo/fetch-demo-corpus.py 从开源语料生成，已提交进仓库，
+# 因此重置流程本身不需要联网。
+SHOWCASE_SQL_FILES=(
+  "$ROOT_DIR/scripts/demo/seed-demo-models.sql"
+  "$ROOT_DIR/scripts/demo/seed-demo-showcase.sql"
+  "$ROOT_DIR/scripts/demo/seed-demo-knowledge.sql"
+)
 BASELINE_VERIFY_SQL="$ROOT_DIR/scripts/demo/verify-current-baseline.sql"
 BACKUP_DIR="$ROOT_DIR/.demo-db-backups"
 SERVER_CONFIG="$ROOT_DIR/main/xiaozhi-server/data/.config.yaml"
@@ -119,7 +127,10 @@ load_env_file() {
     if [[ "$line" =~ ^X-Api-Key[[:space:]]*= ]]; then
       value="${line#*=}"
       value="$(normalize_env_value "$value")"
+      # 豆包 ASR 与 Seed-TTS 共用同一个火山引擎 X-Api-Key，两者必须一起推导：
+      # 只给 ASR 会让 TTS 回退到其它 .env（如同目录的兄弟项目）里不相干的密钥。
       set_if_empty "DOUBAO_ASR_API_KEY" "$value"
+      set_if_empty "DOUBAO_TTS_API_KEY" "$value"
     elif [[ "$line" =~ ^X-Api-Resource-Id[[:space:]]*= ]]; then
       value="${line#*=}"
       value="$(normalize_env_value "$value")"
@@ -143,7 +154,11 @@ if [[ -n "$ENV_FILE" ]]; then
   load_env_file "$ENV_FILE"
 else
   load_env_file "$ROOT_DIR/.env"
-  load_env_file "$ROOT_DIR/../EduLoom/.env"
+  # 兄弟项目仅作缺失变量的兜底来源，其中的豆包密钥属于另一个账号，可能与本项目不同步。
+  if [[ -f "$ROOT_DIR/../EduLoom/.env" ]]; then
+    warn "将从同级 EduLoom/.env 兜底补齐缺失变量；如遇模型鉴权失败，请优先在本仓库 .env 中显式配置。"
+    load_env_file "$ROOT_DIR/../EduLoom/.env"
+  fi
 fi
 
 set_if_empty "ARK_BASE_URL" "https://ark.cn-beijing.volces.com/api/v3"
@@ -174,6 +189,13 @@ missing=()
 [[ -n "${DOUBAO_ASR_RESOURCE_ID:-}" ]] || missing+=("DOUBAO_ASR_RESOURCE_ID（也兼容 .env 中的 X-Api-Resource-Id）")
 if [[ -z "$DOUBAO_TTS_API_KEY" && ( -z "$DOUBAO_TTS_APP_ID" || -z "$DOUBAO_TTS_ACCESS_TOKEN" ) ]]; then
   missing+=("DOUBAO_TTS_API_KEY（或 DOUBAO_TTS_APP_ID + DOUBAO_TTS_ACCESS_TOKEN）")
+fi
+
+# 两者同属一个火山引擎账号，取值不同通常意味着某一份来自别处且已失效（TTS 会 401）。
+if [[ -n "$DOUBAO_TTS_API_KEY" && -n "${DOUBAO_ASR_API_KEY:-}" \
+      && "$DOUBAO_TTS_API_KEY" != "$DOUBAO_ASR_API_KEY" ]]; then
+  warn "DOUBAO_TTS_API_KEY 与 DOUBAO_ASR_API_KEY 不一致；二者应共用同一个 X-Api-Key。"
+  warn "若 TTS 合成返回 401，请删除多余的 DOUBAO_TTS_API_KEY，改由 .env 的 X-Api-Key 统一推导。"
 fi
 
 if ((${#missing[@]} > 0)); then
@@ -315,6 +337,16 @@ if ! mysql_exec -N -s -e "SELECT 1" >/dev/null 2>&1; then
   exit 1
 fi
 
+for seed_file in "$SEED_SQL" "${SHOWCASE_SQL_FILES[@]}" "$BASELINE_VERIFY_SQL"; do
+  if [[ ! -f "$seed_file" ]]; then
+    error "缺少初始化脚本：$seed_file"
+    if [[ "$seed_file" == *seed-demo-knowledge.sql ]]; then
+      error "该文件由 scripts/demo/fetch-demo-corpus.py 生成，请先运行一次（需联网）。"
+    fi
+    exit 1
+  fi
+done
+
 success "凭据格式、Docker 容器和数据库连接检查通过。"
 if ((CHECK_ONLY == 1)); then
   exit 0
@@ -423,7 +455,7 @@ for key in ARK_API_KEY ARK_BASE_URL DOUBAO_CHARACTER_MODEL DOUBAO_SLM_MODEL \
   reject_control_chars "$key"
 done
 
-info "写入当前已确认的演示数据库基线（2026-07-26）……"
+info "写入当前已确认的演示数据库基线（2026-07-27）……"
 {
   printf "SET SESSION sql_mode = CONCAT_WS(',', @@sql_mode, 'NO_BACKSLASH_ESCAPES');\n"
   printf "SET @demo_user_id = 900000000000000001;\n"
@@ -441,7 +473,13 @@ info "写入当前已确认的演示数据库基线（2026-07-26）……"
   printf "SET @doubao_tts_endpoint = %s;\n" "$(sql_literal "$DOUBAO_TTS_ENDPOINT")"
   printf "SET @doubao_tts_resource_id = %s;\n" "$(sql_literal "$DOUBAO_TTS_RESOURCE_ID")"
   printf "SET @doubao_tts_speaker = %s;\n" "$(sql_literal "$DOUBAO_TTS_SPEAKER")"
-  sed -n '1,$p' "$SEED_SQL"
+  # 基线在同一会话里先跑（内含 START TRANSACTION/COMMIT），随后追加演示展示数据。
+  # 顺序不能改：展示数据引用基线建立的用户、模型与角色模板。
+  for seed_file in "$SEED_SQL" "${SHOWCASE_SQL_FILES[@]}"; do
+    printf -- "-- >>> %s\n" "$(basename "$seed_file")"
+    cat "$seed_file"
+    printf "\n"
+  done
 } | mysql_exec "$DEMO_DB_NAME"
 
 baseline_status="$(
@@ -470,7 +508,7 @@ STOPPED_CONTAINERS=()
 trap - EXIT
 
 success "演示数据库初始化完成。"
-printf '  基线版本：2026-07-26（当前确认版）\n'
+printf '  基线版本：2026-07-27（当前确认版）\n'
 printf '  账号：%s\n' "$DEMO_USERNAME"
 if [[ "$DEMO_PASSWORD" == "Demo@123456" ]]; then
   printf '  默认密码：Demo@123456（可在 .env 中通过 DEMO_PASSWORD 修改）\n'
