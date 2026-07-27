@@ -29,6 +29,12 @@ public class VoiceDTO implements Serializable {
     @Schema(description = "是否为克隆音色")
     private Boolean isClone;
 
+    @Schema(description = "音色特点")
+    private String description;
+
+    @Schema(description = "音色性别")
+    private String gender;
+
     // 添加双参数构造函数，保持向后兼容
     public VoiceDTO(String id, String name) {
         this.id = id;

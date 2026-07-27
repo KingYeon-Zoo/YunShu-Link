@@ -61,7 +61,7 @@ DIRECT_ANSWER_TOOL = {
     "type": "function",
     "function": {
         "name": "direct_answer",
-        "description": "当用户的请求不匹配其他任何工具时，可用此选项直接回复。将回复内容写在response参数里。",
+        "description": "当用户的请求不匹配其他任何工具时，可用此选项直接回复。将回复内容写在response参数里，并遵守系统提示词对普通回复（包括开头emoji）的全部格式要求。",
         "parameters": {
             "type": "object",
             "properties": {
@@ -165,6 +165,8 @@ class ConnectionHandler:
 
         # tts相关变量
         self.sentence_id = None
+        # 记录已经下发情绪消息的句子，防止 LLM 流与 TTS 兜底重复触发表情/舵机。
+        self.emotion_sent_sentence_id = None
         # 处理TTS响应没有文本返回
         self.tts_MessageText = ""
 
@@ -717,7 +719,7 @@ class ConnectionHandler:
             role="assistant",
             tool_calls=[{
                 "id": da_tc_id,
-                "function": {"arguments": '{"response": "好呀，你想听什么类型的呀？童话、冒险还是搞笑的？选一个我给你开讲~"}', "name": "direct_answer"},
+                "function": {"arguments": '{"response": "🙂好呀，你想听什么类型的呀？童话、冒险还是搞笑的？选一个我给你开讲~"}', "name": "direct_answer"},
                 "type": "function", "index": 0,
             }],
             is_temporary=True,
@@ -1146,6 +1148,26 @@ class ConnectionHandler:
         tool_calls_list = []  # 格式: [{"id": "", "name": "", "arguments": ""}]
         content_arguments = ""
         emotion_flag = True
+
+        def send_emotion_once(text):
+            """将本轮首个有效回复同步为设备情绪消息。
+
+            普通文本回复位于 content，function_call 模式下的普通回复则位于
+            direct_answer.response。两条路径必须共用同一个一次性开关，否则
+            direct_answer 会漏发 type=llm，设备端的表情和联动舵机动作都不会触发。
+            """
+            nonlocal emotion_flag
+            if not emotion_flag or text is None or not text.strip():
+                return
+            if (self.features or {}).get("emoji", True):
+                # 先占位，再异步发送，避免 TTS sentence_start 并发兜底时重复下发。
+                self.emotion_sent_sentence_id = current_sentence_id
+                asyncio.run_coroutine_threadsafe(
+                    textUtils.get_emotion(self, text),
+                    self.loop,
+                )
+            emotion_flag = False
+
         try:
             for response in llm_responses:
                 if self.client_abort:
@@ -1172,6 +1194,9 @@ class ConnectionHandler:
                     for tc in tool_calls_list:
                         if tc["name"] == "direct_answer" and tc.get("arguments"):
                             da_text = self._extract_direct_answer_response(tc["arguments"])
+                            # direct_answer 是 function_call 模式下普通回复的主路径。
+                            # 其文本不在 content 中，必须在这里补发设备情绪消息。
+                            send_emotion_once(da_text)
                             sent_len = tc.get("_da_sent", 0)
                             if da_text and len(da_text) > sent_len:
                                 safe_end = max(sent_len, len(da_text) - _DA_STREAM_BUFFER)
@@ -1193,13 +1218,7 @@ class ConnectionHandler:
                     content = response
 
                 # 在llm回复中获取情绪表情，一轮对话只在开头获取一次
-                if emotion_flag and content is not None and content.strip():
-                    if (self.features or {}).get("emoji", True):
-                        asyncio.run_coroutine_threadsafe(
-                            textUtils.get_emotion(self, content),
-                            self.loop,
-                        )
-                    emotion_flag = False
+                send_emotion_once(content)
 
                 if content is not None and len(content) > 0:
                     if not tool_call_flag:
@@ -1273,6 +1292,9 @@ class ConnectionHandler:
                     for tc in direct_answer_calls:
                         da_response = self._extract_direct_answer_response(tc.get("arguments", "{}"))
                         if da_response:
+                            # 某些模型只在最后一个工具调用分片中形成可解析的
+                            # response，流式阶段未发送时在此兜底。
+                            send_emotion_once(da_response)
                             # 刷新流式缓冲区中未发送的部分
                             sent_len = tc.get("_da_sent", 0)
                             remaining = da_response[sent_len:]
@@ -1587,6 +1609,13 @@ class ConnectionHandler:
                     self.logger.bind(tag=TAG).error(
                         f"清理工具处理器时出错: {cleanup_error}"
                     )
+
+            # 释放ASR侧的上游连接（流式/端到端ASR各自持有websocket）
+            if self.asr:
+                try:
+                    await self.asr.close()
+                except Exception as asr_error:
+                    self.logger.bind(tag=TAG).error(f"关闭ASR连接时出错: {asr_error}")
 
             # 触发停止事件
             if self.stop_event:

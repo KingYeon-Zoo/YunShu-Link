@@ -117,17 +117,32 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+@import "@/styles/tokens";
+
 .device-item {
-  width: 342px;
-  border-radius: 20px;
-  background: #fafcfe;
-  padding: 22px 22px 14px;
+  margin: 0 !important;
+  width: auto !important;
+  border-radius: 8px;
+  background: rgba(8, 19, 35, .68);
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $color-glass-border;
+  padding: 16px 18px;
   box-sizing: border-box;
+  box-shadow: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease-out;
+
+  &:hover {
+    background: rgba(14, 31, 55, .86);
+    border-color: rgba(54, 152, 255, .28);
+    box-shadow: inset 2px 0 #2bbcff, 0 10px 26px rgba(0, 0, 0, .16);
+    transform: translateX(2px);
+  }
+
   &-title {
     flex: 1;
-    font-weight: bold;
-    font-size: 18px;
-    color: #3d4566;
+    font: 600 14px/1.4 $font-family-base;
+    color: $color-ink-deep;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -135,37 +150,50 @@ export default {
   }
 }
 
+@supports not (backdrop-filter: blur($glass-blur)) {
+  .device-item {
+    background: $color-canvas;
+  }
+}
+
 .device-name {
-  margin: 7px 0 10px;
-  font-weight: 400;
-  font-size: 11px;
-  color: #3d4566;
+  display: inline-block;
+  margin: 8px 24px 12px 0;
+  font: $font-caption;
+  color: $color-charcoal;
   text-align: left;
 }
 
 .settings-btn {
-  font-weight: 500;
-  font-size: 12px;
-  color: #5778ff;
-  background: #e6ebff;
+  font: $font-caption-bold;
+  color: $color-primary-soft;
+  background: transparent;
   width: auto;
-  padding: 0 12px;
-  height: 21px;
-  line-height: 21px;
+  padding: 0 $spacing-base;
+  height: 24px;
+  line-height: 24px;
   cursor: pointer;
-  border-radius: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba($color-primary, .14);
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba($color-primary, 0.18);
+  }
 }
 
 .version-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
-  font-size: 12px;
-  color: #979db1;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid $color-hairline-soft;
+  font: $font-caption;
+  color: $color-stone;
   font-weight: 400;
   &-scroll {
-    margin-left: 20px;
+    margin-left: $spacing-lg;
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -182,13 +210,17 @@ export default {
 .all-tags-popover {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: $spacing-xs;
 }
 
 .disabled-btn {
-  background: #e6e6e6;
-  color: #999;
+  background: $color-surface-soft;
+  color: $color-stone;
   cursor: not-allowed;
+
+  &:hover {
+    background: $color-surface-soft;
+  }
 }
 </style>
 

@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="operation-bar">
       <h2 class="page-title">{{ $t('templateQuickConfig.title') }}</h2>
     </div>
@@ -60,24 +58,16 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar.vue";
 import agentApi from '@/apis/module/agent';
 import VersionFooter from "@/components/VersionFooter.vue";
+import { DEMO_MODEL_CONFIG } from "@/config/demoModels";
 
 // 默认模型配置常量
-const DEFAULT_MODEL_CONFIG = {
-  ttsModelId: "TTS_EdgeTTS",
-  vadModelId: "VAD_SileroVAD",
-  asrModelId: "ASR_FunASR",
-  llmModelId: "LLM_ChatGLMLLM",
-  vllmModelId: "VLLM_ChatGLMVLLM",
-  memModelId: "Memory_nomem",
-  intentModelId: "Intent_function_call"
-};
+const DEFAULT_MODEL_CONFIG = DEMO_MODEL_CONFIG;
 
 export default {
   name: 'TemplateQuickConfig',
-  components: { HeaderBar, VersionFooter },
+  components: { VersionFooter },
   data() {
     return {
       form: {
@@ -206,7 +196,7 @@ export default {
           vadModelId: templateData.vadModelId || this.form.model.vadModelId,
           asrModelId: templateData.asrModelId || this.form.model.asrModelId,
           llmModelId: templateData.llmModelId || this.form.model.llmModelId,
-          vllmModelId: templateData.vllmModelId || this.form.model.vllmModelId,
+          slmModelId: templateData.slmModelId || this.form.model.slmModelId,
           memModelId: templateData.memModelId || this.form.model.memModelId,
           intentModelId: templateData.intentModelId || this.form.model.intentModelId
         }
@@ -265,7 +255,7 @@ export default {
 <style scoped>
 .welcome {
   min-width: 900px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -290,7 +280,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px - 60px);
+  height: calc(100vh - 48px - 35px - 60px);
   margin: 0 22px;
   border-radius: 15px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -401,7 +391,7 @@ export default {
 .header-icon {
   width: 37px;
   height: 37px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -442,8 +432,8 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409EFF;
-  border-color: #409EFF;
+  color: #267dff;
+  border-color: #267dff;
 }
 
 .header-actions {
@@ -454,7 +444,7 @@ export default {
 }
 
 .header-actions .save-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
   border: none;
   border-radius: 18px;
@@ -464,9 +454,9 @@ export default {
 }
 
 .header-actions .reset-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 8px 16px;
   height: 32px;

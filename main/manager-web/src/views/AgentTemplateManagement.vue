@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area">
@@ -105,27 +104,18 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar";
 import agentApi from "@/apis/module/agent";
 import VersionFooter from "@/components/VersionFooter.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomTable from "@/components/CustomTable.vue";
 import CustomDialog from "@/components/CustomDialog.vue";
+import { DEMO_MODEL_CONFIG } from "@/config/demoModels";
 
-const DEFAULT_MODEL_CONFIG = {
-  ttsModelId: "TTS_EdgeTTS",
-  vadModelId: "VAD_SileroVAD",
-  asrModelId: "ASR_FunASR",
-  llmModelId: "LLM_ChatGLMLLM",
-  vllmModelId: "VLLM_ChatGLMVLLM",
-  memModelId: "Memory_nomem",
-  intentModelId: "Intent_function_call"
-};
+const DEFAULT_MODEL_CONFIG = DEMO_MODEL_CONFIG;
 
 export default {
   name: "AgentTemplateManagement",
   components: {
-    HeaderBar,
     VersionFooter,
     CustomButton,
     CustomTable,
@@ -258,7 +248,7 @@ export default {
               vadModelId: template.vadModelId || DEFAULT_MODEL_CONFIG.vadModelId,
               asrModelId: template.asrModelId || DEFAULT_MODEL_CONFIG.asrModelId,
               llmModelId: template.llmModelId || DEFAULT_MODEL_CONFIG.llmModelId,
-              vllmModelId: template.vllmModelId || DEFAULT_MODEL_CONFIG.vllmModelId,
+              slmModelId: template.slmModelId || DEFAULT_MODEL_CONFIG.slmModelId,
               memModelId: template.memModelId || DEFAULT_MODEL_CONFIG.memModelId,
               intentModelId: template.intentModelId || DEFAULT_MODEL_CONFIG.intentModelId
             }
@@ -397,7 +387,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -407,7 +397,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   padding: 20px 22px 0;
   position: relative;
   display: flex;
@@ -480,10 +470,10 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: #5f98ff;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 </style>

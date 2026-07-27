@@ -277,7 +277,7 @@ export default {
     .format-tip {
       text-align: left;
       font-size: 12px;
-      color: #5778ff;
+      color: #267dff;
     }
 
     .upload-section {

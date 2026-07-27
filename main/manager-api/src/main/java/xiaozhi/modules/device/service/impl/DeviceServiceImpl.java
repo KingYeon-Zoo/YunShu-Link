@@ -245,7 +245,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceDao, DeviceEntity> 
 
         if (StringUtils.isBlank(wsUrl) || wsUrl.equals("null")) {
             log.error("WebSocket地址未配置，请登录智控台，在参数管理找到【server.websocket】配置");
-            wsUrl = "ws://xiaozhi.server.com:8000/xiaozhi/v1/";
+            wsUrl = "ws://192.168.2.140:8000/xiaozhi/v1/";
             websocket.setUrl(wsUrl);
         } else {
             String[] wsUrls = wsUrl.split("\\;");
@@ -254,7 +254,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<DeviceDao, DeviceEntity> 
                 websocket.setUrl(wsUrls[RandomUtil.randomInt(0, wsUrls.length)]);
             } else {
                 log.error("WebSocket地址未配置，请登录智控台，在参数管理找到【server.websocket】配置");
-                websocket.setUrl("ws://xiaozhi.server.com:8000/xiaozhi/v1/");
+                websocket.setUrl("ws://192.168.2.140:8000/xiaozhi/v1/");
             }
         }
 

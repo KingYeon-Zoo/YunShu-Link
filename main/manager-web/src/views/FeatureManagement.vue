@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area">
@@ -115,7 +114,6 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import featureManager from "@/utils/featureManager.js";
 import CustomButton from "@/components/CustomButton.vue";
@@ -131,7 +129,6 @@ import asrIcon from '@/assets/setting/asr.png'
 export default {
   name: "FeatureManagement",
   components: {
-    HeaderBar,
     VersionFooter,
     CustomButton
   },
@@ -362,7 +359,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -396,7 +393,7 @@ export default {
 .header-icon {
   width: 40px;
   height: 40px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -423,7 +420,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   margin: 20px 22px 0;
   border-radius: 15px;
   position: relative;
@@ -525,12 +522,12 @@ export default {
 }
 
 .feature-checkbox ::v-deep .el-checkbox__input.is-checked .el-checkbox__inner {
-  background-color: #5778ff;
-  border-color: #5778ff;
+  background-color: #267dff;
+  border-color: #267dff;
 }
 
 .feature-checkbox ::v-deep .el-checkbox__input.is-checked + .el-checkbox__label {
-  color: #5778ff;
+  color: #267dff;
 }
 
 .feature-name {
@@ -607,7 +604,7 @@ export default {
   margin-left: 13px;
   font-size: 12px;
   background: #ebebfe;
-  color: #5778ff;
+  color: #267dff;
   padding: 2px 10px;
   border-radius: 10px;
 }
