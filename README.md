@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="docs/images/yunshu-link-poster.png" alt="YunShu-Link 云枢——端、边、云协同 AI 交互平台宣传海报" width="100%">
+</p>
+
+<p align="center">
   <img src="main/manager-web/src/assets/brand/yunshu-link-logo.png" alt="YunShu-Link 云枢" width="520">
 </p>
 
