@@ -29,4 +29,4 @@ COPY main/xiaozhi-server/requirements.txt .
 
 # 安装Python依赖
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r requirements.txt --default-timeout=120 --retries 5
+    pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt --default-timeout=120 --retries 5

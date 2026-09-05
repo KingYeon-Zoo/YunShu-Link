@@ -28,7 +28,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push server-base
         uses: docker/build-push-action@v6
@@ -36,7 +36,7 @@ jobs:
           context: .
           file: Dockerfile-server-base
           push: true
-          tags: ghcr.io/${{ github.repository }}:server-base
+          tags: ghcr.io/kingyeon-zoo/yunshu-link:server-base
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha,scope=server-base
           cache-to: type=gha,mode=max,scope=server-base
@@ -46,4 +46,4 @@ jobs:
       - name: Output image info
         run: |
           echo "✅ Base image built and pushed successfully!"
-          echo "📦 Tag: ghcr.io/${{ github.repository }}:server-base"
+          echo "📦 Tag: ghcr.io/kingyeon-zoo/yunshu-link:server-base"

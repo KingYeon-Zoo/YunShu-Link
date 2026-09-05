@@ -22,11 +22,11 @@
         <druid.version>1.2.20</druid.version>
         <mybatisplus.version>3.5.5</mybatisplus.version>
         <hutool.version>5.8.24</hutool.version>
-        <jsoup.version>1.19.1</jsoup.version>
+        <jsoup.version>1.23.1</jsoup.version>
         <knife4j.version>4.6.0</knife4j.version>
         <springdoc.version>2.8.8</springdoc.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
-        <shiro.version>2.0.2</shiro.version>
+        <shiro.version>2.2.1</shiro.version>
         <captcha.version>1.6.2</captcha.version>
         <guava.version>33.0.0-jre</guava.version>
         <liquibase-core.version>4.20.0</liquibase-core.version>
@@ -204,7 +204,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.78</version>
+            <version>1.84</version>
         </dependency>
         <!-- springdoc -->
         <dependency>
@@ -241,30 +241,7 @@
         </dependency>
     </dependencies>
 
-    <!-- 阿里云maven仓库 -->
-    <repositories>
-        <repository>
-            <id>public</id>
-            <name>aliyun nexus</name>
-            <url>https://maven.aliyun.com/repository/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>public</id>
-            <name>aliyun nexus</name>
-            <url>https://maven.aliyun.com/repository/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+    <!-- 使用 Maven Central；个人镜像加速请在本地 settings.xml 中配置。 -->
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>

@@ -1,0 +1,60 @@
+name: 修复回归验证
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/xiaozhi-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y libopus0 ffmpeg
+      - run: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+      - run: pip check
+      - run: mkdir -p data && printf '{}\n' > data/.config.yaml
+      - run: python -m unittest discover -s tests -v
+        env:
+          MEM0_TELEMETRY: 'false'
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      # 数据库集成测试依赖真实 MySQL/Redis，另行运行；这里执行离线单元测试。
+      - run: mvn -B -f main/manager-api/pom.xml -DskipTests=false -Dtest=AgentSnapshotServiceImplTest,ContextProviderListTypeHandlerTest,AgentUpdateDTOTest,AESUtilsTest verify
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/manager-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --legacy-peer-deps
+      - run: npm run test:motion
+      - run: npm run build
+  mobile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: main/manager-mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g pnpm@10.10.0
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run build:h5
+      - run: pnpm run build:mp-weixin

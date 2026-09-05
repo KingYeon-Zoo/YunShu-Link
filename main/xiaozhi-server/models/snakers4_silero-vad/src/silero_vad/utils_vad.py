@@ -136,38 +136,20 @@ class Validator():
 
 def read_audio(path: str,
                sampling_rate: int = 16000):
-    list_backends = torchaudio.list_audio_backends()
-
-    assert len(list_backends) > 0, 'The list of available backends is empty, please install backend manually. \
-                                    \n Recommendations: \n \tSox (UNIX OS) \n \tSoundfile (Windows OS, UNIX OS) \n \tffmpeg (Windows OS, UNIX OS)'
-
-    try:
-        effects = [
-            ['channels', '1'],
-            ['rate', str(sampling_rate)]
-        ]
-
-        wav, sr = torchaudio.sox_effects.apply_effects_file(path, effects=effects)
-    except:
-        wav, sr = torchaudio.load(path)
-
-        if wav.size(0) > 1:
-            wav = wav.mean(dim=0, keepdim=True)
-
-        if sr != sampling_rate:
-            transform = torchaudio.transforms.Resample(orig_freq=sr,
-                                                       new_freq=sampling_rate)
-            wav = transform(wav)
-            sr = sampling_rate
-
-    assert sr == sampling_rate
+    # 新版 TorchAudio 已移除 backend/sox_effects；统一用 SoundFile 读写。
+    import soundfile as sf
+    samples, sr = sf.read(path, dtype="float32", always_2d=True)
+    wav = torch.from_numpy(samples.T.copy()).mean(dim=0, keepdim=True)
+    if sr != sampling_rate:
+        wav = torchaudio.transforms.Resample(sr, sampling_rate)(wav)
     return wav.squeeze(0)
 
 
 def save_audio(path: str,
                tensor: torch.Tensor,
                sampling_rate: int = 16000):
-    torchaudio.save(path, tensor.unsqueeze(0), sampling_rate, bits_per_sample=16)
+    import soundfile as sf
+    sf.write(path, tensor.detach().cpu().numpy(), sampling_rate, subtype="PCM_16")
 
 
 def init_jit_model(model_path: str,

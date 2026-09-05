@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
-#--------- 本项目推荐环境是python3.10，以下暂时不推荐升级的依赖
-torch==2.2.2
-torchaudio==2.2.2
+#--------- Python 3.10+；torchaudio 2.11 官方兼容 torch 2.11 及以后版本
+torch==2.13.0
+torchaudio==2.11.0
 numpy==1.26.4
 #--------- cozepy0.20.0要求websockets<15.0.0，以下暂时不推荐升级的依赖
 websockets==14.2
@@ -15,19 +15,19 @@ openai==2.44.0
 google-generativeai==0.8.6
 edge_tts==7.2.6
 httpx==0.28.1
-aiohttp==3.13.2
+aiohttp==3.14.3
 aiohttp_cors==0.8.1
 ormsgpack==1.12.0
 ruamel.yaml==0.18.16
 loguru==0.7.3
-requests==2.32.5
+requests==2.33.0
 cozepy==0.20.0
-mem0ai==1.0.0
+mem0ai==2.0.0
 powermem>=0.3.1
 bs4==0.0.2
 modelscope==1.32.0
 sherpa_onnx==1.12.29
-mcp==1.22.0
+mcp==1.28.1
 cnlunar==0.2.4
 PySocks==1.7.1
 dashscope==1.25.2
@@ -42,3 +42,5 @@ portalocker==3.2.0
 Jinja2==3.1.6
 # Vosk 仅供可选的本地 ASR Provider 使用；macOS ARM 没有 0.3.45 可安装包。
 vosk==0.3.45; sys_platform != "darwin" or platform_machine != "arm64"
+
+soundfile==0.14.0
