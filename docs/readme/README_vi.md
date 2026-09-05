@@ -1,19 +1,17 @@
-[![Banners](../images/banner1.png)](https://github.com/xinnan-tech/xiaozhi-esp32-server)
+[![Banners](../images/banner1.png)](https://github.com/KingYeon-Zoo/YunShu-Link)
 
-<h1 align="center">Dịch vụ Backend Xiaozhi xiaozhi-esp32-server</h1>
+<h1 align="center">YunShu-Link</h1>
 
 <p align="center">
-Dự án này dựa trên lý thuyết và công nghệ trí tuệ cộng sinh người-máy để phát triển hệ thống phần mềm và phần cứng thiết bị đầu cuối thông minh<br/>Cung cấp dịch vụ backend cho dự án phần cứng thông minh mã nguồn mở
-<a href="https://github.com/78/xiaozhi-esp32">xiaozhi-esp32</a><br/>
-Được triển khai bằng Python, Java, Vue theo <a href="https://ccnphfhqs21z.feishu.cn/wiki/M0XiwldO9iJwHikpXD5cEx71nKh">giao thức truyền thông Xiaozhi</a><br/>
+技术栈：Python、Java、Vue；通信协议：MQTT+UDP、WebSocket、MCP。<br/>
 Hỗ trợ giao thức MQTT+UDP, giao thức Websocket, điểm truy cập MCP, nhận dạng giọng nói và kho tri thức
 </p>
 
 <p align="center">
 <a href="../FAQ.md">Câu hỏi thường gặp</a>
-· <a href="https://github.com/xinnan-tech/xiaozhi-esp32-server/issues">Báo cáo vấn đề</a>
+· <a href="https://github.com/KingYeon-Zoo/YunShu-Link/issues">Báo cáo vấn đề</a>
 · <a href="../../README.md#%E9%83%A8%E7%BD%B2%E6%96%87%E6%A1%A3">Tài liệu triển khai</a>
-· <a href="https://github.com/xinnan-tech/xiaozhi-esp32-server/releases">Nhật ký cập nhật</a>
+· <a href="https://github.com/KingYeon-Zoo/YunShu-Link/releases">Nhật ký cập nhật</a>
 </p>
 
 <p align="center">
@@ -22,14 +20,14 @@ Hỗ trợ giao thức MQTT+UDP, giao thức Websocket, điểm truy cập MCP, 
   <a href="./README_vi.md"><img alt="Tiếng Việt" src="https://img.shields.io/badge/Tiếng Việt-DBEDFA"></a>
   <a href="./README_de.md"><img alt="Deutsch" src="https://img.shields.io/badge/Deutsch-DFE0E5"></a>
   <a href="./README_pt_BR.md"><img alt="Português (Brasil)" src="https://img.shields.io/badge/Português (Brasil)-DFE0E5"></a>
-  <a href="https://github.com/xinnan-tech/xiaozhi-esp32-server/releases">
-    <img alt="GitHub Contributors" src="https://img.shields.io/github/v/release/xinnan-tech/xiaozhi-esp32-server?logo=docker" />
+  <a href="https://github.com/KingYeon-Zoo/YunShu-Link/releases">
+    <img alt="GitHub Contributors" src="https://img.shields.io/github/v/release/KingYeon-Zoo/YunShu-Link?logo=docker" />
   </a>
-  <a href="https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/LICENSE">
+  <a href="https://github.com/KingYeon-Zoo/YunShu-Link/blob/main/LICENSE">
     <img alt="GitHub pull requests" src="https://img.shields.io/badge/license-MIT-white?labelColor=black" />
   </a>
-  <a href="https://github.com/xinnan-tech/xiaozhi-esp32-server">
-    <img alt="stars" src="https://img.shields.io/github/stars/xinnan-tech/xiaozhi-esp32-server?color=ffcb47&labelColor=black" />
+  <a href="https://github.com/KingYeon-Zoo/YunShu-Link">
+    <img alt="stars" src="https://img.shields.io/github/stars/KingYeon-Zoo/YunShu-Link?color=ffcb47&labelColor=black" />
   </a>
 </p>
 
@@ -221,7 +219,7 @@ Dự án này cung cấp các công cụ kiểm tra sau để giúp bạn xác m
 ![请参考-全模块安装架构图](../images/deploy2.png)
 | Module chức năng | Mô tả |
 |:---:|:---|
-| Kiến trúc cốt lõi | Dựa trên [cổng MQTT+UDP](https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/mqtt-gateway-integration.md), WebSocket, máy chủ HTTP, cung cấp hệ thống quản lý bảng điều khiển và xác thực hoàn chỉnh |
+| Kiến trúc cốt lõi | Dựa trên [cổng MQTT+UDP](https://github.com/KingYeon-Zoo/YunShu-Link/blob/main/docs/mqtt-gateway-integration.md), WebSocket, máy chủ HTTP, cung cấp hệ thống quản lý bảng điều khiển và xác thực hoàn chỉnh |
 | Tương tác giọng nói | Hỗ trợ ASR streaming(Nhận dạng giọng nói), TTS streaming(Tổng hợp giọng nói), VAD(Phát hiện hoạt động giọng nói), hỗ trợ nhận dạng đa ngôn ngữ và xử lý giọng nói |
 | Nhận dạng vân giọng | Hỗ trợ đăng ký, quản lý và nhận dạng vân giọng đa người dùng, xử lý song song với ASR, nhận dạng danh tính người nói theo thời gian thực và truyền cho LLM để phản hồi cá nhân hóa |
 | Đối thoại thông minh | Hỗ trợ nhiều LLM(Mô hình ngôn ngữ lớn), thực hiện đối thoại thông minh |
@@ -336,27 +334,3 @@ Trên thực tế, bất kỳ VLLM nào hỗ trợ gọi giao diện openai đ�
 |   Loại   |     Tên nền tảng      | Phương pháp sử dụng |  Mô hình thu phí   |          Ghi chú           |
 |:------:|:-------------:|:----:|:-------:|:---------------------:|
 | Rag |  ragflow   | Gọi giao diện | Thu phí theo token tiêu tốn của phân đoạn, phân từ |    Sử dụng chức năng tăng cường truy xuất của RagFlow, cung cấp phản hồi đối thoại chính xác hơn     |
-
----
-
-## Lời cảm ơn 🙏
-
-| Logo | Dự án/Công ty | Mô tả |
-|:---:|:---:|:---|
-| <img src="../images/logo_bailing.png" width="160"> | [Robot đối thoại giọng nói Bailing](https://github.com/wwbin2017/bailing) | Dự án này được lấy cảm hứng từ [Robot đối thoại giọng nói Bailing](https://github.com/wwbin2017/bailing) và được triển khai trên cơ sở đó |
-| <img src="../images/logo_tenclass.png" width="160"> | [Shifang Ronghai](https://www.tenclass.com/) | Cảm ơn [Shifang Ronghai](https://www.tenclass.com/) đã xây dựng giao thức truyền thông tiêu chuẩn, phương án tương thích đa thiết bị và mô phạm thực hành tình huống đồng thời cao cho hệ sinh thái Xiaozhi; cung cấp tài liệu hỗ trợ kỹ thuật toàn diện cho dự án này |
-| <img src="../images/logo_xuanfeng.png" width="160"> | [Xuanfeng Technology](https://github.com/Eric0308) | Cảm ơn [Xuanfeng Technology](https://github.com/Eric0308) đã đóng góp khung gọi hàm, giao thức truyền thông MCP và mã triển khai cơ chế gọi dạng plugin, thông qua hệ thống điều phối lệnh tiêu chuẩn hóa và khả năng mở rộng động, đã cải thiện đáng kể hiệu suất tương tác và khả năng mở rộng chức năng của thiết bị front-end(IoT) |
-| <img src="../images/logo_junsen.png" width="160"> | [huangjunsen](https://github.com/huangjunsen0406) | Cảm ơn [huangjunsen](https://github.com/huangjunsen0406) đã đóng góp module `Bảng điều khiển thông minh di động`, thực hiện điều khiển hiệu quả và tương tác thời gian thực trên thiết bị di động đa nền tảng, cải thiện đáng kể sự tiện lợi vận hành và hiệu quả quản lý của hệ thống trong tình huống di động |
-| <img src="../images/logo_huiyuan.png" width="160"> | [Huiyuan Design](http://ui.kwd988.net/) | Cảm ơn [Huiyuan Design](http://ui.kwd988.net/) đã cung cấp giải pháp thị giác chuyên nghiệp cho dự án này, sử dụng kinh nghiệm thực tế thiết kế phục vụ hơn nghìn doanh nghiệp, trao quyền cho trải nghiệm người dùng sản phẩm của dự án này |
-| <img src="../images/logo_qinren.png" width="160"> | [Xi'an Qinren Information Technology](https://www.029app.com/) | Cảm ơn [Xi'an Qinren Information Technology](https://www.029app.com/) đã làm sâu sắc hệ thống thị giác của dự án này, đảm bảo tính nhất quán và khả năng mở rộng của phong cách thiết kế tổng thể trong ứng dụng đa tình huống |
-| <img src="../images/logo_contributors.png" width="160"> | [Người đóng góp mã](https://github.com/xinnan-tech/xiaozhi-esp32-server/graphs/contributors) | Cảm ơn [tất cả người đóng góp mã](https://github.com/xinnan-tech/xiaozhi-esp32-server/graphs/contributors), sự cống hiến của bạn khiến dự án mạnh mẽ và vững chắc hơn. |
-
-
-<a href="https://star-history.com/#xinnan-tech/xiaozhi-esp32-server&Date">
-
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=xinnan-tech/xiaozhi-esp32-server&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=xinnan-tech/xiaozhi-esp32-server&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=xinnan-tech/xiaozhi-esp32-server&type=Date" />
- </picture>
-</a>

@@ -85,11 +85,9 @@ cd YunShu-Link
 
 仓库提供 [docker-setup.sh](docker-setup.sh) 和 [start-dev.sh](start-dev.sh)。运行前先阅读对应部署说明，准备模型服务凭证、数据库与设备连接地址；离线语音识别还需要对应模型文件。
 
-## 项目来源与改造
+## 配套固件与文档
 
-项目基于 [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server) 二次开发。云枢的工作围绕机器人演示场景展开，包括模型接入、实时语音服务集成、工具与知识库配置、控制台设计和部署流程整理。
-
-保留上游通用通信与服务框架，并在代码导览中给出各模块入口。设备端适配单独放在 [YunShu-Link-Firmware](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware) 中。许可证与版权声明见 [LICENSE](LICENSE)。
+设备端适配单独放在 [YunShu-Link-Firmware](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware) 中。许可证与版权声明见 [LICENSE](LICENSE)。
 
 进一步了解：[实时语音接入](docs/doubao-realtime-s2s-integration.md)、[知识库接入](docs/ragflow-integration.md)、[设备视觉与 MCP](docs/mcp-vision-integration.md)。
 
