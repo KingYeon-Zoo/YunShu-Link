@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area">
@@ -77,13 +76,12 @@
 
 <script>
 import Api from "@/apis/api";
-import HeaderBar from "@/components/HeaderBar.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import ViewPasswordDialog from "@/components/ViewPasswordDialog.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomTable from "@/components/CustomTable.vue";
 export default {
-  components: { HeaderBar, ViewPasswordDialog, VersionFooter, CustomButton, CustomTable },
+  components: { ViewPasswordDialog, VersionFooter, CustomButton, CustomTable },
   data() {
     return {
       showViewPassword: false,
@@ -360,7 +358,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -373,7 +371,7 @@ export default {
 
 .main-wrapper {
   // 顶部 63px 底部 35px
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   padding: 20px 22px 0;
   position: relative;
   display: flex;
@@ -405,7 +403,7 @@ export default {
 }
 
 .btn-search {
-  background: linear-gradient(135deg, #6b8cff, #a966ff);
+  background: linear-gradient(135deg, #267dff, #4f5cff);
   border: none;
   color: white;
 }
@@ -452,10 +450,10 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa !important;
+  color: #5f98ff !important;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5 !important;
+  color: #82b4ff !important;
 }
 </style>

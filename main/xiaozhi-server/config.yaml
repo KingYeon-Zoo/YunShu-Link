@@ -405,6 +405,49 @@ ASR:
     boosting_table_name: （选填）你的热词文件名称
     correct_table_name: （选填）你的替换词文件名称
     output_dir: tmp/
+  DoubaoRealtime:
+    # 豆包端到端实时语音大模型（RealtimeAPI），语音直接进、语音直接出。
+    # 选用它时 selected_module.ASR 设为 DoubaoRealtime 即可，
+    # LLM 与 TTS 不再参与实时链路（但记忆总结、聊天标题仍会用到 LLM，保持配置）。
+    # 开通地址 https://console.volcengine.com/speech/service/10011
+    type: doubao_realtime
+    appid: 你的火山引擎语音服务appid
+    access_key: 你的火山引擎语音服务access_token
+    # 模型版本，必传。1.2.1.1 = O2.0（多模态、可唱歌、精品音色）
+    #                2.2.0.0 = SC2.0（角色扮演、saturn_ 克隆音色）
+    # 留空则按 speaker 前缀自动推断
+    model: 1.2.1.1
+    # O2.0 精品音色：zh_female_vv_jupiter_bigtts / zh_female_xiaohe_jupiter_bigtts
+    #               zh_male_yunzhou_jupiter_bigtts / zh_male_xiaotian_jupiter_bigtts
+    # SC2.0 克隆音色以 saturn_ 或 S_ 开头，两类不可混用
+    speaker: zh_female_vv_jupiter_bigtts
+    # 人设。O 系列用下面三项；SC 系列改用 character_manifest。
+    # 留空时自动使用控制台配置的智能体提示词
+    bot_name: ""
+    system_role: ""
+    speaking_style: ""
+    character_manifest: ""
+    # 判定用户说完话的静音窗口，取值 [500, 50000]，默认服务端 1500
+    end_smooth_window_ms: 1200
+    # 输入模式：keep_alive 适合带静音按键的麦克风（推荐，可避免 52000042 超时报错）
+    # push_to_talk 为按键说话，屏蔽服务端 VAD，由设备声明结束
+    input_mod: keep_alive
+    # 内置联网搜索，需在火山控制台开通「融合信息搜索」
+    enable_websearch: false
+    # web（普通）/ web_summary（总结版）/ web_agent（搜索 Agent，需填 websearch_bot_id）
+    websearch_type: web
+    websearch_api_key: ""
+    websearch_bot_id: ""
+    websearch_result_count: 5
+    # 工具调用：由旁路 LLM 判断后用 ChatRAGText 注入结果，由端到端模型口语化播报
+    enable_tools: true
+    # 工具判定的等待上限（秒）。超时按闲聊放行，避免可感知的静默
+    tool_decision_timeout: 2.5
+    # 唱歌能力，仅 O2.0（1.2.1.1）支持，配到 SC2.0 会直接报错
+    enable_music: false
+    # 打开后模型识别到用户想结束对话时会在 TTSEnded 带退出信号
+    enable_user_query_exit: true
+    output_dir: tmp/
   DoubaoStreamASR:
     # 可以在这里申请相关Key等信息
     # https://console.volcengine.com/speech/app

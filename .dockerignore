@@ -4,4 +4,12 @@ __pycache__
 .env
 Dockerfile
 tmp/
+main/xiaozhi-server/data
+main/xiaozhi-server/models/SenseVoiceSmall/model.pt
+main/xiaozhi-server/mysql
+main/xiaozhi-server/uploadfile
+main/manager-web/node_modules
+main/manager-web/dist
+main/manager-web/.webpack_cache
+main/manager-api/target
 data/

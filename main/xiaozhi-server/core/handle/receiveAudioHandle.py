@@ -84,6 +84,13 @@ async def startToChat(conn: "ConnectionHandler", text):
     if conn.client_is_speaking and conn.client_listen_mode != "manual":
         await handleAbortMessage(conn)
 
+    # 端到端语音模式：文本 query 直接交给 S2S 会话，保持同一人设与音色，
+    # 不走 LLM + TTS 链路（意图识别与工具调用由 S2S provider 内部桥接）。
+    if getattr(conn.asr, "is_s2s", False):
+        if await conn.asr.send_text_query(actual_text):
+            return
+        conn.logger.bind(tag=TAG).warning("端到端文本 query 发送失败，回退到常规链路")
+
     # 首先进行意图分析，使用实际文本内容
     intent_handled = await handle_user_intent(conn, actual_text)
 

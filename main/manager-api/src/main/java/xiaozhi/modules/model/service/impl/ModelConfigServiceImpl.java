@@ -71,14 +71,21 @@ public class ModelConfigServiceImpl extends BaseServiceImpl<ModelConfigDao, Mode
                         .eq("model_type", "llm")
                         .eq("is_enabled", 1)
                         .like(StringUtils.isNotBlank(modelName), "model_name", modelName)
-                        .select("id", "model_name", "config_json"));
+                        .select("id", "model_name", "config_json")
+                        .orderByAsc("sort"));
 
         return entities.stream().map(item -> {
             LlmModelBasicInfoDTO dto = new LlmModelBasicInfoDTO();
             dto.setId(item.getId());
             dto.setModelName(item.getModelName());
-            String type = item.getConfigJson().getOrDefault("type", "").toString();
+            JSONObject configJson = item.getConfigJson();
+            String type = configJson == null
+                    ? ""
+                    : configJson.getOrDefault("type", "").toString();
             dto.setType(type);
+            Object isSlm = configJson == null ? null : configJson.get("is_slm");
+            dto.setIsSlm(Boolean.TRUE.equals(isSlm)
+                    || "true".equalsIgnoreCase(String.valueOf(isSlm)));
             return dto;
         }).toList();
     }
@@ -93,8 +100,8 @@ public class ModelConfigServiceImpl extends BaseServiceImpl<ModelConfigDao, Mode
         long pageSize = Long.parseLong(limit);
         Page<ModelConfigEntity> pageInfo = new Page<>(curPage, pageSize);
 
-        // 添加排序规则：先按is_enabled降序，再按sort升序
-        pageInfo.addOrder(OrderItem.desc("is_enabled"), OrderItem.asc("sort"));
+        // 添加排序规则：优先按is_default降序（默认模型排在最前），再按is_enabled降序，最后按sort升序
+        pageInfo.addOrder(OrderItem.desc("is_default"), OrderItem.desc("is_enabled"), OrderItem.asc("sort"));
 
         IPage<ModelConfigEntity> modelConfigEntityIPage = modelConfigDao.selectPage(
                 pageInfo,

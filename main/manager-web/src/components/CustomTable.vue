@@ -167,7 +167,7 @@ export default {
     },
     loadingBackground: {
       type: String,
-      default: 'rgba(255, 255, 255, 0.7)'
+      default: 'rgba(5, 14, 27, 0.78)'
     },
     // 自定义类名
     tableClass: {
@@ -221,6 +221,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "@/styles/tokens";
+
 .custom-table-wrapper {
   flex: 1;
   display: flex;
@@ -228,11 +230,12 @@ export default {
   min-height: 0;
   .table-container {
     width: 100%;
-    box-shadow: 0 2px 12px rgba(74, 124, 253, 0.12);
+    background: rgba(7, 17, 32, .76);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .22);
     border-radius: 6px;
     .custom-table {
       width: 100%;
-      border: 1px solid #eef3fd;
+      border: 1px solid $color-hairline-soft;
       border-bottom: none;
       border-radius: 6px;
       .el-table__body-wrapper {
@@ -241,18 +244,18 @@ export default {
           width: 6px;
         }
         &::-webkit-scrollbar-thumb {
-          background: #a1c9fd;
+          background: rgba($color-primary, .42);
           border-radius: 3px;
         }
         &::-webkit-scrollbar-track {
-          background: #f0f3fe;
+          background: $color-surface-soft;
           border-radius: 3px;
         }
       }
       .el-table__header {
         th {
-          color: #342f45;
-          background: #edf2fc !important;
+          color: $color-slate;
+          background: rgba(13, 29, 51, .96) !important;
         }
       }
     }
@@ -265,18 +268,18 @@ export default {
       width: 6px;
     }
     &::-webkit-scrollbar-thumb {
-      background: #a1c9fd;
+      background: rgba($color-primary, .42);
       border-radius: 3px;
     }
     &::-webkit-scrollbar-track {
-      background: #f0f3fe;
+      background: $color-surface-soft;
       border-radius: 3px;
     }
   }
   .el-table__header {
     th {
-      color: #342f45;
-      background: #edf2fc !important;
+      color: $color-slate;
+      background: rgba(13, 29, 51, .96) !important;
     }
   }
 }
@@ -288,7 +291,7 @@ export default {
 }
 
 :deep(.el-loading-mask) {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+  background-color: rgba(5, 14, 27, 0.78) !important;
   backdrop-filter: blur(2px);
 }
 
@@ -298,11 +301,11 @@ export default {
 }
 
 :deep(.el-loading-spinner .path) {
-  stroke: #6b8cff;
+  stroke: #267dff;
 }
 
 :deep(.el-loading-text) {
-  color: #6b8cff !important;
+  color: $color-primary-soft !important;
   font-size: 14px;
   margin-top: 8px;
 }

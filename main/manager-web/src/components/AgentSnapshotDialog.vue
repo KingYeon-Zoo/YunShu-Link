@@ -5,6 +5,7 @@
       :visible="visible"
       width="760px"
       class="agent-snapshot-dialog"
+      append-to-body
       @open="open"
       @close="close"
     >
@@ -473,13 +474,12 @@ const MODEL_FIELD_TYPES = {
   vadModelId: "VAD",
   llmModelId: "LLM",
   slmModelId: "SLM",
-  vllmModelId: "VLLM",
   ttsModelId: "TTS",
   memModelId: "Memory",
   intentModelId: "Intent"
 };
 
-const MODEL_TYPES = ["ASR", "VAD", "LLM", "SLM", "VLLM", "TTS", "Memory", "Intent"];
+const MODEL_TYPES = ["Intent", "Memory", "ASR", "VAD", "LLM", "SLM", "TTS"];
 
 const FALLBACK_MODEL_NAME_KEYS = {
   Memory_nomem: "agentSnapshot.model.Memory_nomem",
@@ -491,14 +491,7 @@ const FALLBACK_MODEL_NAME_KEYS = {
   Intent_function_call: "agentSnapshot.model.Intent_function_call"
 };
 
-const FALLBACK_VOICE_NAME_KEYS = {
-  TTS_EdgeTTS0001: "agentSnapshot.voice.TTS_EdgeTTS0001",
-  TTS_EdgeTTS0002: "agentSnapshot.voice.TTS_EdgeTTS0002",
-  TTS_EdgeTTS0003: "agentSnapshot.voice.TTS_EdgeTTS0003",
-  TTS_EdgeTTS0004: "agentSnapshot.voice.TTS_EdgeTTS0004",
-  TTS_EdgeTTS0005: "agentSnapshot.voice.TTS_EdgeTTS0005",
-  TTS_EdgeTTS0006: "agentSnapshot.voice.TTS_EdgeTTS0006"
-};
+const FALLBACK_VOICE_NAME_KEYS = {};
 
 const CHAT_HISTORY_CONF_LABEL_KEYS = {
   0: "agentSnapshot.chatHistoryConf.none",

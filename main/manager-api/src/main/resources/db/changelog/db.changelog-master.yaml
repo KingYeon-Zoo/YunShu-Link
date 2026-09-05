@@ -704,3 +704,45 @@ databaseChangeLog:
         - sqlFile:
             encoding: utf8
             path: classpath:db/changelog/202607071530.sql
+  - changeSet:
+      id: 202607250900
+      author: Codex
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607250900.sql
+  - changeSet:
+      id: 202607251145
+      author: Codex
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607251145.sql
+  - changeSet:
+      id: 202607251240
+      author: Antigravity
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607251240.sql
+  - changeSet:
+      id: 202607251300
+      author: Antigravity
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607251300.sql
+  - changeSet:
+      id: 202607260900
+      author: Codex
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607260900.sql
+  - changeSet:
+      id: 202607261400
+      author: Claude
+      changes:
+        - sqlFile:
+            encoding: utf8
+            path: classpath:db/changelog/202607261400.sql

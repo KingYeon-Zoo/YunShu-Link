@@ -4,6 +4,7 @@
     :visible.sync="visible"
     width="70%"
     :before-close="handleClose"
+    append-to-body
   >
     <div v-if="isLoading" class="loading-container">
       <p>{{ $t('cache.loading') }}</p>

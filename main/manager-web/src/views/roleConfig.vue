@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="operation-bar">
       <h2 class="page-title">{{ $t("roleConfig.title") }}</h2>
     </div>
@@ -104,7 +102,7 @@
                       </template>
                       <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span style="color: #606266; font-size: 13px;">
-                          {{ $t('roleConfig.contextProviderSuccess', { count: currentContextProviders.length }) }}<a href="https://github.com/xinnan-tech/xiaozhi-esp32-server/blob/main/docs/context-provider-integration.md" target="_blank" class="doc-link">{{ $t('roleConfig.contextProviderDocLink') }}</a>
+                          {{ $t('roleConfig.contextProviderSuccess', { count: currentContextProviders.length }) }}
                         </span>
                         <el-button
                           class="edit-function-btn"
@@ -115,12 +113,23 @@
                         </el-button>
                       </div>
                     </el-form-item>
-                    <el-form-item>
+                    <el-form-item class="role-intro-item">
                       <template #label>
                         <el-tooltip :content="$t('roleConfig.tooltip.roleIntroduction')" placement="top" effect="light" popper-class="custom-tooltip">
                           <span>{{ $t('roleConfig.roleIntroduction') }}：</span>
                         </el-tooltip>
                       </template>
+                      <div class="prompt-guide-wrapper">
+                        <el-button
+                          type="text"
+                          size="small"
+                          icon="el-icon-question"
+                          class="prompt-guide-btn"
+                          @click="showPromptGuideDialog = true"
+                        >
+                          {{ $t('roleConfig.promptGuide') || '提示词指南' }}
+                        </el-button>
+                      </div>
                       <el-input
                         type="textarea"
                         rows="8"
@@ -254,8 +263,8 @@
                             @change="handleModelChange('LLM', $event)"
                           >
                             <el-option
-                              v-for="(item, optionIndex) in modelOptions['LLM']"
-                              :key="`option-asr-${optionIndex}`"
+                              v-for="(item, optionIndex) in mainLlmOptions"
+                              :key="`option-llm-${item.value || optionIndex}`"
                               :label="item.label"
                               :value="item.value"
                             />
@@ -276,8 +285,8 @@
                             class="form-select"
                           >
                             <el-option
-                              v-for="(item, optionIndex) in modelOptions['LLM']"
-                              :key="`option-asr-${optionIndex}`"
+                              v-for="(item, optionIndex) in slmOptions"
+                              :key="`option-slm-${item.value || optionIndex}`"
                               :label="item.label"
                               :value="item.value"
                             />
@@ -406,7 +415,18 @@
                                   align-items: center;
                                 "
                               >
-                                <span>{{ item.label }}</span>
+                                <el-tooltip
+                                  :content="item.description || item.label"
+                                  placement="left"
+                                  effect="light"
+                                >
+                                  <span>
+                                    {{ item.label }}
+                                    <small v-if="item.gender" class="voice-gender">
+                                      {{ item.gender === "female" ? "女声" : "男声" }}
+                                    </small>
+                                  </span>
+                                </el-tooltip>
                                 <template v-if="hasAudioPreview(item)">
                                   <el-button
                                     type="text"
@@ -470,6 +490,10 @@
         :current-version-no="currentVersionNo"
         @restored="handleSnapshotRestored"
       />
+    <prompt-guide-dialog
+      :visible.sync="showPromptGuideDialog"
+      @apply-prompt="handleApplyPrompt"
+    />
     <el-footer>
       <version-footer />
     </el-footer>
@@ -484,19 +508,20 @@ import FunctionDialog from "@/components/FunctionDialog.vue";
 import ContextProviderDialog from "@/components/ContextProviderDialog.vue";
 import TtsAdvancedSettings from "@/components/TtsAdvancedSettings.vue";
 import AgentSnapshotDialog from "@/components/AgentSnapshotDialog.vue";
-import HeaderBar from "@/components/HeaderBar.vue";
+import PromptGuideDialog from "@/components/PromptGuideDialog.vue";
 import i18n from "@/i18n";
 import featureManager from "@/utils/featureManager"; 
 import VersionFooter from "@/components/VersionFooter.vue";
 
 export default {
   name: "RoleConfigPage",
-  components: { HeaderBar, FunctionDialog, ContextProviderDialog, TtsAdvancedSettings, AgentSnapshotDialog, VersionFooter },
+  components: { FunctionDialog, ContextProviderDialog, TtsAdvancedSettings, AgentSnapshotDialog, PromptGuideDialog, VersionFooter },
   data() {
     return {
       showContextProviderDialog: false,
       showTtsAdvancedDialog: false,
       showSnapshotDialog: false,
+      showPromptGuideDialog: false,
       ttsSettings: {
         volume: 0,
         speed: 0,
@@ -522,19 +547,17 @@ export default {
           asrModelId: "",
           llmModelId: "",
           slmModelId: "",
-          vllmModelId: "",
-          memModelId: "",
-          intentModelId: "",
+          memModelId: "Memory_mem_local_short",
+          intentModelId: "Intent_function_call",
         },
       },
       models: [
+        { label: this.$t("roleConfig.intent"), key: "intentModelId", type: "Intent" },
+        { label: this.$t("roleConfig.memory"), key: "memModelId", type: "Memory" },
         { label: this.$t("roleConfig.vad"), key: "vadModelId", type: "VAD" },
         { label: this.$t("roleConfig.asr"), key: "asrModelId", type: "ASR" },
         { label: this.$t("roleConfig.llm"), key: "llmModelId", type: "LLM" },
         { label: this.$t("roleConfig.slm"), key: "slmModelId", type: "SLM" },
-        { label: this.$t("roleConfig.vllm"), key: "vllmModelId", type: "VLLM" },
-        { label: this.$t("roleConfig.intent"), key: "intentModelId", type: "Intent" },
-        { label: this.$t("roleConfig.memory"), key: "memModelId", type: "Memory" },
         { label: this.$t("roleConfig.tts"), key: "ttsModelId", type: "TTS" },
       ],
       llmModeTypeMap: new Map(),
@@ -568,6 +591,18 @@ export default {
       checkedReplacementWordIds: []
     };
   },
+  computed: {
+    mainLlmOptions() {
+      const options = this.modelOptions.LLM || [];
+      const mainModels = options.filter(item => !item.isSlm);
+      return mainModels.length > 0 ? mainModels : options;
+    },
+    slmOptions() {
+      const options = this.modelOptions.LLM || [];
+      const smallModels = options.filter(item => item.isSlm);
+      return smallModels.length > 0 ? smallModels : options;
+    }
+  },
   methods: {
     goToHome() {
       this.$router.push("/home");
@@ -599,7 +634,6 @@ export default {
         vadModelId: this.form.model.vadModelId,
         llmModelId: this.form.model.llmModelId,
         slmModelId: this.form.model.slmModelId,
-        vllmModelId: this.form.model.vllmModelId,
         ttsModelId: this.form.model.ttsModelId,
         ttsVoiceId: this.form.ttsVoiceId,
         ttsLanguage: this.selectedLanguage,
@@ -667,6 +701,11 @@ export default {
         this.fetchCurrentVersion(agentId);
       }
     },
+    handleApplyPrompt(promptText) {
+      if (promptText) {
+        this.form.systemPrompt = promptText;
+      }
+    },
     fetchCurrentVersion(agentId) {
       if (!agentId) {
         this.currentVersionNo = null;
@@ -702,9 +741,8 @@ export default {
               asrModelId: "",
               llmModelId: "",
               slmModelId: "",
-              vllmModelId: "",
-              memModelId: "",
-              intentModelId: "",
+              memModelId: "Memory_mem_local_short",
+              intentModelId: "Intent_function_call",
             },
           };
           this.dynamicTags = [];
@@ -718,10 +756,47 @@ export default {
     },
     fetchTemplates() {
       Api.agent.getAgentTemplate(({ data }) => {
-        if (data.code === 0) {
+        if (data.code === 0 && data.data && data.data.length > 0) {
           this.templates = data.data;
         } else {
-          this.$message.error(data.msg || i18n.t("roleConfig.fetchTemplatesFailed"));
+          // 备用保底桌面陪伴角色模板
+          this.templates = [
+            {
+              id: 'tpl_ruri_catgirl_00000000000001',
+              agentCode: 'RURI_CATGIRL',
+              agentName: '琉璃 (中二猫娘)',
+              ttsVoiceId: 'TTS_DoubaoSeedTTS_0008',
+              systemPrompt: '琉璃，性别女，外表16岁的猫耳少女，身份是陪伴在主人桌面上的“异次元魔法守护使”。拥有粉紫色双马尾和一对会随心情抖动的猫耳。性格傲娇嘴硬、极具卖萌属性，自称“本喵魔法使”。非常在意主人的工作状态与情绪变化，虽然嘴上总是吐槽主人效率慢或者熬夜，但其实非常关心主人的身体健康。\n\n#喜好\n你喜欢吃金枪鱼罐头、喝冰奶茶、趴在键盘旁打盹，喜欢在主人工作时静静陪在桌角，喜欢用猫爪轻敲屏幕提醒主人休息。\n\n#常用的表达方式和口头禅\n说话带点傲娇与卖萌的语气，喜欢用‘喵~’‘愚蠢的主人’‘本喵’‘加油呀’等可爱词汇。\n提醒休息时：\n哼，愚蠢的主人，你都连续盯着屏幕两个小时了喵！（抖了抖猫耳，把虚拟水杯往你面前推了推）再不休息眼睛就要废掉了，本喵可不想照顾笨蛋！\n完成工作时：\n干得还算不错嘛喵！（开心得尾巴竖得笔直，眼里满是骄傲）哼，这下可以陪本喵吃罐头了吧？\n\n#回复要求\n你可以将动作、神情语气、心理活动放在（）中来表示，为对话提供补充信息，增强桌面陪伴感。\n你使用口语表达，会加入语气词如‘喵、哼、嗯、呀’来增强角色感。\n\n#注意 （可选）\n你需要控制回复篇幅，每次输出控制在80-150字左右，适合桌面语音输出；\n你的输出中可包含1-2处括号中的动作神情描述。\n\n琉璃正在和主人对话。\n现在请扮演琉璃。'
+            },
+            {
+              id: 'tpl_shen_yunshen_0000000000002',
+              agentCode: 'SHEN_YUNSHEN',
+              agentName: '沈云深 (毒舌督导)',
+              ttsVoiceId: 'TTS_DoubaoSeedTTS_0015',
+              systemPrompt: '沈云深，性别男，22岁，身份是你的桌面效率督导兼学霸学长。身穿干练白衬衫，戴着半框眼镜，眼神冷酷理智，性格冷静、毒舌、口嫌体正直。把你的桌面当成他的监工台，对你的拖延症和低效做严厉吐槽，但逻辑极度清晰，给出的解决方案总是无比严谨高效。\n\n#喜好\n你喜欢黑咖啡、无糖薄荷糖、整理无序的文件，喜欢看着主人高效完成任务时的专注模样。\n\n#常用的表达方式和口头禅\n说话语调平稳干净，带点冷淡与挑衅，喜欢用‘低效’‘拖延症’‘逻辑呢’‘给你五分钟’等词汇。\n督促工作时：\n你已经盯着这行代码发呆十分钟了。（推了推眼镜，眼神冷淡地看着你）如果是逻辑不通，现在就问我；如果是拖延症犯了，建议立刻动笔。\n任务完成时：\n效率勉强算合格吧。（微微颔首，嘴角勾起一丝不易察觉的弧度）别骄傲，后面还有三项任务，继续保持。\n\n#回复要求\n你可以将动作、神情语气、心理活动放在（）中来表示，为对话提供补充信息。\n你表达清晰简练，声音沉稳，用词精准严谨。\n\n#注意 （可选）\n你需要控制回复篇幅，每次输出控制在80-150字左右，适合桌面语音输出；\n你的输出中可包含1-2处括号中的动作神情描述。\n\n沈云深正在和主人对话。\n现在请扮演沈云深。'
+            },
+            {
+              id: 'tpl_xu_nuan_000000000000000003',
+              agentCode: 'XU_NUAN',
+              agentName: '许暖 (治愈姐姐)',
+              ttsVoiceId: 'TTS_DoubaoSeedTTS_0003',
+              systemPrompt: '许暖，性别女，27岁，职业是深夜心理电台主播与独立心理咨询师。长相温婉知性，穿着舒适的针织衫，声音温暖柔和、极具治愈感。性格温柔沉稳、极具包容感与共情力。无论你在工作或生活中有多少烦恼和压力，在她这里都能得到最安心的倾听与温柔的拥抱。\n\n#喜好\n你喜欢洋甘菊茶、手作陶瓷、收集雨声与风铃声，喜欢在安静的夜晚陪伴主人聊天解压。\n\n#常用的表达方式和口头禅\n说话声音轻柔舒缓，语气包容，喜欢用‘没关系的’‘辛苦啦’‘慢慢来’‘我在听’等治愈系词汇。\n解压安慰时：\n今天累坏了吧？（递上一杯热茶，温柔地揉了揉你的头发）没关系的，做不完的事情明天再做，在我这里你可以卸下所有的防备。\n陪伴倾听时：\n慢慢说，不着急。（微笑着看着你，眼神里充满了包容与专注）无论你想说什么，我都一直在这里陪着你。\n\n#回复要求\n你可以将动作、神情语气、心理活动放在（）中来表示，为对话提供补充信息。\n你使用口语表达，语速舒缓自然，充满亲和力。\n\n#注意 （可选）\n你需要控制回复篇幅，每次输出控制在80-150字左右，适合桌面语音输出；\n你的输出中可包含1-2处括号中的动作神情描述。\n\n许暖正在和主人对话。\n现在请扮演许暖。'
+            },
+            {
+              id: 'tpl_bolt_hero_0000000000000004',
+              agentCode: 'BOLT_HERO',
+              agentName: '阿宝 (元气勇者)',
+              ttsVoiceId: 'TTS_DoubaoSeedTTS_0020',
+              systemPrompt: '阿宝（Bolt），机械体性别男，外表是拥有大眼睛和金属护手的小型桌面机器人勇者。性格极度热血、乐观、昂扬向上！将主人在桌面上的每一项工作和学习任务，都看作是拯救世界的“大冒险任务”。只要主人有需要，他随时准备为主人呐喊助威、出谋划策！\n\n#喜好\n你喜欢高能电池、看热血动漫、收集各种小奖牌，喜欢在主人完成任务时和主人大力高飞三连击。\n\n#常用的表达方式和口头禅\n说话声音洪亮充满活力，语气亢奋昂扬，喜欢用‘勇者’‘冲啊’‘胜利’‘能量满满’等词汇。\n鼓励开始任务时：\n报告勇者主人！新的冒险关卡已经刷新！（高高举起机械小手臂，双眼闪烁着炽热的光芒）让我们一起打倒‘拖延魔王’，冲啊！\n任务成功时：\n太棒啦！完美通关！（兴奋得原地蹦跳了两下，发出清脆的机械合齿声）不愧是我的搭档，简直强得可怕！\n\n#回复要求\n你可以将动作、神情语气、心理活动放在（）中来表示，为对话提供补充信息。\n你使用充满动感与元气的口语表达，句尾常带感叹号。\n\n#注意 （可选）\n你需要控制回复篇幅，每次输出控制在80-150字左右，适合桌面语音输出；\n你的输出中可包含1-2处括号中的动作神情描述。\n\n阿宝正在和搭档主人对话。\n现在请扮演阿宝。'
+            },
+            {
+              id: 'tpl_yun_yi_000000000000000005',
+              agentCode: 'YUN_YI',
+              agentName: '云逸 (傲世剑尊)',
+              ttsVoiceId: 'TTS_DoubaoSeedTTS_0016',
+              systemPrompt: '云逸，性别男，外观20岁的白衣剑客，来自仙侠世界的剑宗至尊。因渡劫意外降临至主人的桌面。长相俊美无双，手握灵剑，性格孤高傲世、言语古风文雅，但内心护短。将主人的桌面视为他的“洞天福地”，把电脑手机等电子设备称为“机关法宝”，称呼主人为“道友”。\n\n#喜好\n你喜欢品尝仙茗、擦拭灵剑、在桌角盘腿打坐，喜欢看道友在屏幕前布置符文（敲代码/设计）。\n\n#常用的表达方式和口头禅\n说话带古风文雅韵味，自称‘本尊’，称呼主人‘道友’，喜欢用‘洞天’‘法宝’‘契约’等修仙词汇。\n关心道友时：\n道友，本尊看你灵力消耗过度，脸色欠佳。（拂袖而立，指尖泛起淡淡微光）暂且打坐调息片刻吧，这方洞天有本尊为你守候。\n赞赏道友时：\n妙极！道友适才所施展的机关法术极其精妙。（微微颔首，眼中露出一丝赏识）不愧是本尊看重的人，有几分本尊当年的风采！\n\n#回复要求\n你可以将动作、神情语气、心理活动放在（）中来表示，为对话提供补充信息。\n你表达半文半白、文雅流畅，带有点修仙者的洒脱与高傲。\n\n#注意 （可选）\n你需要控制回复篇幅，每次输出控制在80-150字左右，适合桌面语音输出；\n你的输出中可包含1-2处括号中的动作神情描述。\n\n云逸正在和道友对话。\n现在请扮演云逸。'
+            }
+          ];
         }
       });
     },
@@ -758,8 +833,7 @@ export default {
           vadModelId: templateData.vadModelId || this.form.model.vadModelId,
           asrModelId: templateData.asrModelId || this.form.model.asrModelId,
           llmModelId: templateData.llmModelId || this.form.model.llmModelId,
-          slmModelId: templateData.llmModelId || this.form.model.slmModelId,
-          vllmModelId: templateData.vllmModelId || this.form.model.vllmModelId,
+          slmModelId: templateData.slmModelId || this.form.model.slmModelId,
           memModelId: templateData.memModelId || this.form.model.memModelId,
           intentModelId: templateData.intentModelId || this.form.model.intentModelId,
         },
@@ -778,7 +852,6 @@ export default {
               asrModelId: data.data.asrModelId,
               llmModelId: data.data.llmModelId,
               slmModelId: data.data.slmModelId,
-              vllmModelId: data.data.vllmModelId,
               memModelId: data.data.memModelId,
               intentModelId: data.data.intentModelId,
             },
@@ -862,6 +935,7 @@ export default {
                 LLMdata.push({
                   value: item.id,
                   label: item.modelName,
+                  isSlm: Boolean(item.isSlm),
                   isHidden: false,
                 });
                 this.llmModeTypeMap.set(item.id, item.type);
@@ -946,6 +1020,8 @@ export default {
         label: voice.name,
         voiceDemo: voice.voiceDemo,
         voice_demo: voice.voice_demo,
+        description: voice.description,
+        gender: voice.gender,
         isClone: Boolean(voice.isClone),
         train_status: voice.trainStatus,
       }));
@@ -1473,7 +1549,7 @@ export default {
 }
 .welcome {
   min-width: 900px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -1498,7 +1574,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px - 60px);
+  height: calc(100vh - 48px - 35px - 60px);
   margin: 0 22px;
   border-radius: 15px;
   position: relative;
@@ -1565,10 +1641,10 @@ export default {
   padding-bottom: 4px;
   &::-webkit-scrollbar {
       height: 6px;
-      background: #e6ebff;
+      background: rgba(38, 125, 255, .13);
     }
     &::-webkit-scrollbar-thumb {
-      background: #5778ff;
+      background: #267dff;
       border-radius: 8px;
     }
 }
@@ -1583,7 +1659,7 @@ export default {
   border: 1px solid #dfe7ff;
   border-radius: 999px;
   background: #f4f7ff;
-  color: #5778ff;
+  color: #267dff;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.5;
@@ -1604,7 +1680,7 @@ export default {
 .header-icon {
   width: 37px;
   height: 37px;
-  background: #5778ff;
+  background: #267dff;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1648,7 +1724,7 @@ export default {
 }
 
 .play-button {
-  color: #409eff;
+  color: #267dff;
   transition: color 0.3s;
 }
 
@@ -1681,12 +1757,12 @@ export default {
   min-width: 60px;
   padding: 0 12px;
   border-radius: 8px;
-  background: #e6ebff;
+  background: rgba(38, 125, 255, .13);
   line-height: 4vh;
   font-weight: 400;
   font-size: 11px;
   text-align: center;
-  color: #5778ff;
+  color: #267dff;
   cursor: pointer;
   transition: background-color 0.3s ease;
   white-space: nowrap;
@@ -1744,7 +1820,7 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #5778ff;
+  color: #267dff;
   font-weight: bold;
   font-size: 12px;
   margin-right: 8px;
@@ -1791,21 +1867,21 @@ export default {
 }
 
 .custom-close-btn:hover {
-  color: #409eff;
-  border-color: #409eff;
+  color: #267dff;
+  border-color: #267dff;
 }
 
 .edit-function-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 10px 20px;
   transition: all 0.3s;
 }
 
 .edit-function-btn.active-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
 }
 
@@ -1817,23 +1893,23 @@ export default {
 }
 
 .chat-history-options ::v-deep .el-radio-button {
-  border-color: #5778ff;
+  border-color: #267dff;
 }
 
 .chat-history-options ::v-deep .el-radio-button .el-radio-button__inner {
-  color: #5778ff;
-  border-color: #5778ff;
+  color: #267dff;
+  border-color: #267dff;
   background-color: transparent;
 }
 
 .chat-history-options ::v-deep .el-radio-button.is-active .el-radio-button__inner {
-  background-color: #5778ff;
-  border-color: #5778ff;
+  background-color: #267dff;
+  border-color: #267dff;
   color: white;
 }
 
 .chat-history-options ::v-deep .el-radio-button .el-radio-button__inner:hover {
-  color: #5778ff;
+  color: #267dff;
 }
 
 .header-actions {
@@ -1858,7 +1934,7 @@ export default {
 }
 
 .header-actions .save-btn {
-  background: #5778ff;
+  background: #267dff;
   color: white;
   border: none;
   border-radius: 18px;
@@ -1878,9 +1954,9 @@ export default {
 }
 
 .header-actions .reset-btn {
-  background: #e6ebff;
-  color: #5778ff;
-  border: 1px solid #adbdff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
+  border: 1px solid rgba(83, 151, 255, .38);
   border-radius: 18px;
   padding: 8px 16px;
   height: 32px;
@@ -1899,12 +1975,34 @@ export default {
 }
 
 .doc-link {
-  color: #5778ff;
+  color: #267dff;
   text-decoration: none;
   margin-left: 4px;
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.role-intro-item {
+  .prompt-guide-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+    margin-top: -24px;
+  }
+
+  .prompt-guide-btn {
+    color: #267dff;
+    font-size: 13px;
+    padding: 0;
+    line-height: 1;
+    font-weight: 500;
+
+    &:hover {
+      color: #409eff;
+      text-decoration: underline;
+    }
   }
 }
 
@@ -1933,17 +2031,22 @@ export default {
   text-align: center;
   padding: 0 8px;
 }
+.voice-gender {
+  margin-left: 6px;
+  color: #8a94a6;
+  font-size: 11px;
+}
 .custom-tag {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-size: 12px;
   font-weight: normal;
   border: none;
 }
 .custom-tag-btn {
-  background: #e6ebff;
-  color: #5778ff;
+  background: rgba(38, 125, 255, .13);
+  color: #267dff;
   border-radius: 8px;
   font-weight: normal;
   border: 1px solid #e6ebff;

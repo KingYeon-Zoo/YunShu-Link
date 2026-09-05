@@ -1,9 +1,9 @@
 <template>
-  <el-dialog :visible.sync="visible" width="400px" center>
+  <el-dialog :visible.sync="visible" width="400px" center append-to-body>
     <div
       style="margin: 0 10px 10px;display: flex;align-items: center;gap: 10px;font-weight: 700;font-size: 20px;text-align: left;color: #3d4566;">
       <div
-        style="width: 40px;height: 40px;border-radius: 50%;background: #5778ff;display: flex;align-items: center;justify-content: center;">
+        style="width: 40px;height: 40px;border-radius: 50%;background: #267dff;display: flex;align-items: center;justify-content: center;">
         <img src="@/assets/login/shield.png" alt=""
           style="width: 19px;height: 23px; filter: brightness(0) invert(1);" />
       </div>
@@ -20,11 +20,11 @@
       </div>
     </div>
     <div style="display: flex;margin: 15px 15px;gap: 7px;">
-      <div class="dialog-btn" style="background: #e6ebff;border: 1px solid #adbdff;color: #5778ff;"
+      <div class="dialog-btn" style="background: rgba(38, 125, 255, .13);border: 1px solid rgba(83, 151, 255, .38);color: #267dff;"
         @click="closeDialog">
         关闭
       </div>
-      <div class="dialog-btn" style="background: #5778ff;color: white;" @click="copyPassword">
+      <div class="dialog-btn" style="background: #267dff;color: white;" @click="copyPassword">
         复制密码
       </div>
     </div>

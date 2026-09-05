@@ -1,6 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area" v-loading="loading" :element-loading-text="$t('knowledgeBaseManagement.loading')">
@@ -61,7 +60,7 @@
                             v-model="kb.status"
                             :active-value="1"
                             :inactive-value="0"
-                            active-color="#5778ff"
+                            active-color="#267dff"
                             inactive-color="#DCDFE6"
                             @click.native.stop
                             @change="handleStatusChange(kb)"
@@ -245,7 +244,6 @@
 
 <script>
 import Api from "@/apis/api";
-import HeaderBar from "@/components/HeaderBar.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import KnowledgeBaseDialog from "@/components/KnowledgeBaseDialog.vue";
 import KnowledgeBaseItem from "./KnowledgeBaseItem.vue";
@@ -255,7 +253,7 @@ import CustomPagination from "@/components/CustomPagination.vue";
 import CustomButton from "@/components/CustomButton.vue";
 
 export default {
-  components: { HeaderBar, VersionFooter, KnowledgeBaseDialog, KnowledgeBaseItem, ManualIcon, CustomDialog, CustomPagination, CustomButton },
+  components: { VersionFooter, KnowledgeBaseDialog, KnowledgeBaseItem, ManualIcon, CustomDialog, CustomPagination, CustomButton },
   data() {
     return {
       knowledgeBases: [],
@@ -691,7 +689,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -703,7 +701,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   margin: 20px 22px 0;
   border-radius: 15px;
   position: relative;
@@ -1134,7 +1132,7 @@ export default {
     flex: 1;
 
     .el-icon-document {
-      color: #409eff;
+      color: #267dff;
       margin-right: 8px;
       font-size: 16px;
     }
@@ -1190,7 +1188,7 @@ export default {
 
       .chunk-similarity {
         // font-size: 12px;
-        color: #409eff;
+        color: #267dff;
         white-space: nowrap;
 
         .similarity-label {

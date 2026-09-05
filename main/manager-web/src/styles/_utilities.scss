@@ -1,0 +1,103 @@
+@import "tokens";
+
+.surface-card {
+  background: $color-canvas;
+  border-radius: $rounded-xl;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.elevated-card {
+  background: $color-canvas;
+  border-radius: $rounded-xxxl;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes surface-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.992);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.fade-in-up {
+  opacity: 0;
+  animation: fade-in-up 400ms $ease-out-expo forwards;
+}
+
+// 全站页面内容入场：覆盖表格、配置、卡片与详情页面的通用结构。
+.main-layout__content {
+  .operation-bar,
+  .operation-header,
+  .config-header,
+  .kb-section-header,
+  .doc-section-header,
+  .content-panel,
+  .agent-section,
+  .el-card {
+    animation: surface-rise 520ms $ease-out-expo both;
+  }
+
+  .operation-header,
+  .config-header,
+  .kb-section-header,
+  .doc-section-header {
+    animation-delay: 40ms;
+  }
+
+  .content-panel,
+  .agent-section,
+  .el-card {
+    animation-delay: 90ms;
+  }
+}
+
+@for $i from 1 through 6 {
+  .stagger-#{$i} {
+    animation-delay: #{$i * 80}ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .stagger-1,
+  .stagger-2,
+  .stagger-3,
+  .stagger-4,
+  .stagger-5,
+  .stagger-6 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .main-layout__content .operation-bar,
+  .main-layout__content .operation-header,
+  .main-layout__content .config-header,
+  .main-layout__content .kb-section-header,
+  .main-layout__content .doc-section-header,
+  .main-layout__content .content-panel,
+  .main-layout__content .agent-section,
+  .main-layout__content .el-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
