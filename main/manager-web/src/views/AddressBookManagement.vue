@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="page-content">
       <!-- 左侧设备列表 -->
       <div class="left-panel">
@@ -201,7 +199,6 @@
 </template>
 
 <script>
-import HeaderBar from "@/components/HeaderBar.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import Api from "@/apis/api.js";
 import AddressBookApi from "@/apis/module/addressBook.js";
@@ -210,7 +207,7 @@ import CustomButton from "@/components/CustomButton.vue";
 
 export default {
   name: "AddressBookManagement",
-  components: { HeaderBar, VersionFooter, MacAddressMask, CustomButton },
+  components: { VersionFooter, MacAddressMask, CustomButton },
   data() {
     return {
       searchKeyword: "",
@@ -582,7 +579,7 @@ export default {
 .welcome {
   min-width: 1200px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
   background-size: cover;
@@ -775,7 +772,7 @@ export default {
       font-size: 24px;
       font-weight: 600;
       color: #3d4566;
-      border: 1px solid #6b8cff;
+      border: 1px solid #267dff;
       border-radius: 4px;
       padding: 2px 8px;
       outline: none;
@@ -784,11 +781,11 @@ export default {
 
     i {
       cursor: pointer;
-      color: #6b8cff;
+      color: #267dff;
       font-size: 18px;
 
       &:hover {
-        color: #a966ff;
+        color: #4f5cff;
       }
     }
   }
@@ -860,7 +857,7 @@ export default {
 
     i {
       font-size: 28px;
-      color: #6b8cff;
+      color: #267dff;
       flex-shrink: 0;
     }
 
@@ -893,7 +890,7 @@ export default {
           color: #909399;
           cursor: pointer;
           &:hover {
-            color: #6b8cff;
+            color: #267dff;
           }
         }
       }
@@ -902,7 +899,7 @@ export default {
         font-size: 14px;
         color: #3d4566;
         font-weight: 500;
-        border: 1px solid #6b8cff;
+        border: 1px solid #267dff;
         border-radius: 4px;
         padding: 2px 6px;
         outline: none;
@@ -1056,7 +1053,7 @@ export default {
         cursor: pointer;
         flex-shrink: 0;
         &:hover {
-          color: #6b8cff;
+          color: #267dff;
         }
       }
     }
@@ -1087,7 +1084,7 @@ export default {
 .permission-edit-input {
   font-size: 14px;
   color: #3d4566;
-  border: 1px solid #6b8cff;
+  border: 1px solid #267dff;
   border-radius: 4px;
   padding: 2px 6px;
   outline: none;
@@ -1147,7 +1144,7 @@ export default {
   }
 
   &.active, &.expanded {
-    border-color: #6b8cff;
+    border-color: #267dff;
     background: #e6f0ff;
   }
 
@@ -1206,7 +1203,7 @@ export default {
   padding-top: 20px;
 
   .el-button--primary {
-    background: linear-gradient(135deg, #6b8cff, #a966ff);
+    background: linear-gradient(135deg, #267dff, #4f5cff);
     border: none;
     width: 120px;
   }

@@ -1,0 +1,72 @@
+name: yunshu-link-dev
+
+# 开发环境只把基础设施和不常改的 Java 管理 API 放进 Docker。
+# manager-web 与 xiaozhi-server 由根目录 start-dev.sh 在宿主机隔离运行。
+services:
+  mysql:
+    image: mysql:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3306:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: xiaozhi_esp32_server
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p123456"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      # 使用已有目录，兼容项目之前的开发数据；start-dev.sh 初始化前会备份它。
+      - ./main/xiaozhi-server/mysql/data:/var/lib/mysql
+
+  redis:
+    image: redis:8.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - manager_redis_data:/data
+
+  manager-api:
+    image: maven:3.9.9-eclipse-temurin-21
+    working_dir: /workspace
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command:
+      - mvn
+      - -Dmaven.repo.local=/root/.m2/repository
+      - -DskipTests
+      - spring-boot:run
+    ports:
+      - "0.0.0.0:8002:8002"
+    environment:
+      TZ: Asia/Shanghai
+      SPRING_DATASOURCE_DRUID_URL: jdbc:mysql://mysql:3306/xiaozhi_esp32_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&nullCatalogMeansCurrent=true&connectTimeout=30000&socketTimeout=30000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+      SPRING_DATASOURCE_DRUID_USERNAME: root
+      SPRING_DATASOURCE_DRUID_PASSWORD: "123456"
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PASSWORD: ""
+      SPRING_DATA_REDIS_PORT: "6379"
+    volumes:
+      # Java 源码和 Maven 缓存均与宿主机环境隔离。
+      - ./main/manager-api:/workspace
+      - manager_maven_cache:/root/.m2
+      - ./main/xiaozhi-server/uploadfile:/uploadfile
+
+volumes:
+  manager_maven_cache:
+  manager_redis_data:

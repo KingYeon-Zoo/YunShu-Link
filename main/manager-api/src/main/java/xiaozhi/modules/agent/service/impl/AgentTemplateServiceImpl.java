@@ -61,6 +61,9 @@ public class AgentTemplateServiceImpl extends ServiceImpl<AgentTemplateDao, Agen
             case "LLM":
                 wrapper.set("llm_model_id", modelId);
                 break;
+            case "SLM":
+                wrapper.set("slm_model_id", modelId);
+                break;
             case "TTS":
                 wrapper.set("tts_model_id", modelId);
                 wrapper.set("tts_voice_id", null);

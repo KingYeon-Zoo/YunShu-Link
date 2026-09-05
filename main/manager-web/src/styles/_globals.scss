@@ -1,0 +1,365 @@
+// 全局工具样式、滚动条、autofill — Meta 设计语言
+@import './tokens';
+
+// 统一盒模型
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// 页面基础
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-family-base;
+  color: $color-ink;
+  background-color: $color-canvas;
+  margin: 0;
+}
+
+// 覆盖浏览器自动填充背景色与字体颜色
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-text-fill-color: inherit !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  transition: background-color 50000s ease-in-out 0s !important;
+  background-color: transparent !important;
+}
+
+// Element 全局消息提示位置
+.el-message {
+  top: 70px !important;
+  min-width: 360px;
+  border-color: $color-hairline !important;
+  background: rgba(7, 17, 32, .95) !important;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, .38);
+  backdrop-filter: blur(18px);
+
+  .el-message__content { color: $color-charcoal !important; }
+}
+
+// 页脚高度覆盖
+.el-footer {
+  height: 35px !important;
+}
+
+// 视频播放/暂停图标大小覆盖
+.el-icon-video-play,
+.el-icon-video-pause {
+  font-size: 18px !important;
+}
+
+// 深色 popover/tooltip 样式覆盖
+.is-light {
+  border: 1px solid $color-hairline !important;
+  color: $color-charcoal;
+  font-size: 14px;
+  background: rgba(8, 18, 34, .98) !important;
+
+  .popper__arrow {
+    border-top-color: $color-hairline !important;
+  }
+}
+
+// 滚动条样式 mixin（保持组件中 @include scrollbar-style 可用）
+@mixin scrollbar-style {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba($color-primary, 0.35);
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $color-surface-soft;
+    border-radius: 3px;
+  }
+}
+
+// 全局滚动条
+html,
+body {
+  @include scrollbar-style;
+}
+
+// 玻璃拟态卡片工具类
+.glass-card {
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  -webkit-backdrop-filter: blur($glass-blur);
+  border: 1px solid $color-glass-border;
+  border-radius: $rounded-xxxl;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .28);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: $color-glass-bg-hover;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// 兼容旧业务页面中的白色硬编码表面，让所有管理模块统一进入深色系统。
+.main-layout__content {
+  .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--danger):not(.el-button--text),
+  .custom-button--secondary {
+    background: rgba(12, 26, 47, .9) !important;
+    border-color: rgba(83, 151, 255, .26) !important;
+    color: #bfd0e9 !important;
+    box-shadow: none !important;
+  }
+
+  .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--danger):not(.el-button--text):hover,
+  .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--danger):not(.el-button--text):focus {
+    background: rgba(38, 125, 255, .13) !important;
+    border-color: rgba(83, 151, 255, .38) !important;
+    color: #79aaff !important;
+  }
+
+  color: $color-ink;
+
+  // 旧管理页仍大量使用浅色硬编码；在管理壳内统一接入深空主题。
+  > .welcome,
+  .welcome,
+  .main-wrapper {
+    background: transparent !important;
+    color: $color-ink !important;
+  }
+
+  .el-card,
+  .content-panel,
+  .content-area,
+  .table-container,
+  .config-container,
+  .params-container,
+  .page-container,
+  .page-content,
+  .left-panel,
+  .right-panel,
+  .kb-section,
+  .doc-section,
+  .search-container,
+  .operation-bar,
+  .operation-header,
+  .config-card,
+  .device-card,
+  .params-card,
+  .provider-card,
+  .template-card,
+  .user-card,
+  .feature-card,
+  .voice-print-card,
+  .main-card {
+    background-color: rgba(7, 17, 32, .76) !important;
+    border-color: $color-hairline-soft !important;
+    color: $color-ink !important;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, .22) !important;
+  }
+
+  .content-panel,
+  .content-area,
+  .el-card {
+    border-color: $color-hairline-soft !important;
+  }
+
+  .el-card__body,
+  .el-table__body-wrapper,
+  .el-table__empty-block {
+    background: transparent !important;
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  .title, .page-title, .section-title,
+  .el-card__header { color: $color-ink-deep !important; }
+
+  .subtitle, .description, .tip, .hint,
+  .el-empty__description p { color: $color-steel !important; }
+
+  .el-form-item__label,
+  .el-checkbox__label,
+  .el-radio__label,
+  .el-table__empty-text,
+  .el-pagination__total,
+  .el-pagination__jump { color: $color-charcoal !important; }
+
+  .el-table,
+  .el-table__expanded-cell,
+  .el-table th,
+  .el-table tr { background: transparent !important; }
+
+  .el-table th {
+    color: $color-slate !important;
+    background: rgba(13, 29, 51, .96) !important;
+    border-bottom-color: $color-hairline-soft !important;
+  }
+
+  .el-table td {
+    background: rgba(7, 16, 30, .68) !important;
+    border-bottom-color: $color-hairline-soft !important;
+  }
+
+  .el-table--enable-row-hover .el-table__body tr:hover > td {
+    background: rgba(18, 39, 68, .88) !important;
+  }
+
+  .el-loading-mask {
+    background: rgba(5, 14, 27, .78) !important;
+    backdrop-filter: blur(3px);
+  }
+
+  .el-pagination button,
+  .el-pager li {
+    background: rgba(11, 24, 43, .88) !important;
+    color: $color-charcoal !important;
+  }
+
+  .el-pager li.active { color: #65c9ff !important; }
+}
+
+.main-layout__content {
+  .el-table__row td {
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .el-table__row:hover td:first-child {
+    box-shadow: inset 3px 0 0 rgba($color-primary, 0.72);
+  }
+}
+
+// A「深空电蓝」兼容层：覆盖旧页面的局部按钮硬编码，确保所有模块层级一致。
+.main-layout__content {
+  .el-button--primary,
+  .custom-button--default,
+  .custom-button--confirm,
+  .btn-search,
+  .search-btn,
+  .search-button {
+    background: linear-gradient(135deg, #267dff, #4f5cff) !important;
+    border-color: rgba(96, 143, 255, .58) !important;
+    color: #fff !important;
+    box-shadow: 0 7px 18px rgba(38, 125, 255, .22) !important;
+  }
+
+  .el-button--primary:hover,
+  .el-button--primary:focus,
+  .custom-button--default:hover,
+  .custom-button--confirm:hover,
+  .btn-search:hover,
+  .search-btn:hover,
+  .search-button:hover {
+    background: linear-gradient(135deg, #398aff, #626eff) !important;
+    border-color: rgba(119, 164, 255, .72) !important;
+    box-shadow: 0 9px 22px rgba(38, 125, 255, .3) !important;
+    transform: none !important;
+  }
+
+  .el-button--success,
+  .custom-button--add {
+    background: #17b890 !important;
+    border-color: #17b890 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--success:hover,
+  .el-button--success:focus,
+  .custom-button--add:hover {
+    background: #24c69e !important;
+    border-color: #24c69e !important;
+    transform: none !important;
+  }
+
+  .el-button--danger,
+  .custom-button--delete {
+    background: rgba(227, 93, 120, .12) !important;
+    border-color: rgba(227, 93, 120, .38) !important;
+    color: #ef7890 !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--danger:hover,
+  .el-button--danger:focus,
+  .custom-button--delete:hover {
+    background: rgba(227, 93, 120, .2) !important;
+    border-color: rgba(227, 93, 120, .58) !important;
+    color: #ff91a7 !important;
+    transform: none !important;
+  }
+
+  .el-button--text {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: #5f98ff !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--text:hover,
+  .el-button--text:focus {
+    background: rgba(38, 125, 255, .1) !important;
+    color: #82b4ff !important;
+  }
+
+  .el-button.is-disabled,
+  .el-button.is-disabled:hover,
+  .custom-button.is-disabled,
+  .custom-button.is-disabled:hover {
+    background: #18243a !important;
+    border-color: rgba(100, 125, 165, .16) !important;
+    color: #536078 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+}
+
+.el-dialog {
+  overflow: hidden;
+}
+
+.dialog-fade-enter-active .el-dialog {
+  animation: dialog-spring-in 360ms $ease-out-expo both;
+}
+
+@keyframes dialog-spring-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.96);
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@supports not (backdrop-filter: blur($glass-blur)) {
+  .glass-card {
+    background: $color-canvas;
+  }
+}
+
+// 尊重用户减少动画偏好
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}

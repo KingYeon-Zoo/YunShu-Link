@@ -7,6 +7,8 @@ import i18n from '../i18n/index';
 const fly = new Fly()
 // 设置超时
 fly.config.timeout = 30000
+// 设置基础 URL，避免相对路径被拼接成 undefined/...
+fly.config.baseURL = ''
 
 /**
  * Request服务封装

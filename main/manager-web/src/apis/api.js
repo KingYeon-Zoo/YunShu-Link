@@ -20,7 +20,7 @@ import addressBook from './module/addressBook.js'
  * 开发时自动读取使用.env.development文件
  * 编译时自动读取使用.env.production文件
  */
-const DEV_API_SERVICE = process.env.VUE_APP_API_BASE_URL
+const DEV_API_SERVICE = process.env.VUE_APP_API_BASE_URL || '/xiaozhi'
 
 /**
  * 根据开发环境返回接口url

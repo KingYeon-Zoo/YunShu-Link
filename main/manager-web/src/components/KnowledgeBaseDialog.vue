@@ -199,7 +199,7 @@ export default {
       transition: all 0.3s ease;
 
       &:focus {
-        border-color: #5f70f3;
+        border-color: #267dff;
         box-shadow: 0 0 0 2px rgba(95, 112, 243, 0.2);
       }
     }
@@ -213,7 +213,7 @@ export default {
       transition: all 0.3s ease;
 
       &:focus {
-        border-color: #5f70f3;
+        border-color: #267dff;
         box-shadow: 0 0 0 2px rgba(95, 112, 243, 0.2);
       }
     }
@@ -228,7 +228,7 @@ export default {
       transition: all 0.3s ease;
 
       &:focus {
-        border-color: #5f70f3;
+        border-color: #267dff;
         box-shadow: 0 0 0 2px rgba(95, 112, 243, 0.2);
       }
     }

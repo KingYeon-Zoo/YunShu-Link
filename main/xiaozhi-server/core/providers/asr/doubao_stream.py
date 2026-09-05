@@ -27,7 +27,9 @@ class ASRProvider(ASRProviderBase):
         self._is_stopping = False  # 添加停止标志，防止竞态条件
 
         # 配置参数
-        self.appid = str(config.get("appid"))
+        # 新版控制台使用 X-Api-Key 鉴权；保留旧版 App ID + Access Token 作为兼容回退。
+        self.api_key = config.get("api_key")
+        self.appid = str(config.get("appid") or "")
         self.access_token = config.get("access_token")
         # 资源ID，用于区分不同的ASR模型（默认1.0模型小时版，v2版本使用seed-asr）
         self.resource_id = config.get("resource_id", "volc.bigasr.sauc.duration")
@@ -76,7 +78,10 @@ class ASRProvider(ASRProviderBase):
                 self.is_processing = True
                 # 建立新的WebSocket连接
                 headers = self.token_auth() if self.auth_method == "token" else None
-                logger.bind(tag=TAG).info(f"正在连接ASR服务，headers: {headers}")
+                auth_mode = "X-Api-Key" if self.api_key else "旧版 App/Access Key"
+                logger.bind(tag=TAG).info(
+                    f"正在连接ASR服务，鉴权方式: {auth_mode}，资源 ID: {self.resource_id}"
+                )
 
                 self.asr_ws = await websockets.connect(
                     self.ws_url,
@@ -283,12 +288,9 @@ class ASRProvider(ASRProviderBase):
 
     def construct_request(self, reqid):
         req = {
-            "app": {
-                "appid": self.appid,
-                "token": self.access_token,
-            },
             "user": {"uid": self.uid},
             "request": {
+                "model_name": "bigmodel",
                 "reqid": reqid,
                 "workflow": self.workflow,
                 "show_utterances": True,
@@ -310,6 +312,13 @@ class ASRProvider(ASRProviderBase):
             },
         }
 
+        # 旧版鉴权仍要求在请求体中携带 app；新版 X-Api-Key 鉴权不写入密钥。
+        if not self.api_key:
+            req["app"] = {
+                "appid": self.appid,
+                "token": self.access_token,
+            }
+
         # language参数仅在多语种模式下添加
         if self.enable_multilingual and self.language:
             req["audio"]["language"] = self.language
@@ -320,12 +329,19 @@ class ASRProvider(ASRProviderBase):
         return req
 
     def token_auth(self):
-        return {
-            "X-Api-App-Key": self.appid,
-            "X-Api-Access-Key": self.access_token,
+        request_id = str(uuid.uuid4())
+        headers = {
             "X-Api-Resource-Id": self.resource_id,
-            "X-Api-Connect-Id": str(uuid.uuid4()),
+            "X-Api-Request-Id": request_id,
+            "X-Api-Sequence": "-1",
+            "X-Api-Connect-Id": request_id,
         }
+        if self.api_key:
+            headers["X-Api-Key"] = self.api_key
+        else:
+            headers["X-Api-App-Key"] = self.appid
+            headers["X-Api-Access-Key"] = self.access_token
+        return headers
 
     def generate_header(
         self,
@@ -428,4 +444,3 @@ class ASRProvider(ASRProviderBase):
                 pass
             self.forward_task = None
         self.is_processing = False
-
