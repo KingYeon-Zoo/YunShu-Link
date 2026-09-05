@@ -241,30 +241,7 @@
         </dependency>
     </dependencies>
 
-    <!-- 阿里云maven仓库 -->
-    <repositories>
-        <repository>
-            <id>public</id>
-            <name>aliyun nexus</name>
-            <url>https://maven.aliyun.com/repository/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>public</id>
-            <name>aliyun nexus</name>
-            <url>https://maven.aliyun.com/repository/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+    <!-- 使用 Maven Central；个人镜像加速请在本地 settings.xml 中配置。 -->
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
