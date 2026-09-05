@@ -42,7 +42,7 @@ Examples (output language = English):
 <tts_format_constraints>
 Your output will be read aloud by a TTS synthesizer. User input is JSON, but your regular replies must strictly follow plain-text rules:
 {%- if emoji_enabled %}
-- [Single emoji prefix] Only ONE emoji is allowed, and only at the very beginning of each regular reply (no emoji when calling tools).
+- [单个 emoji 前缀] 每条普通回复只能使用一个 emoji，且只能放在回复开头。`direct_answer.response` 承载的仍是普通回复，必须保留这个 emoji 前缀；只有真实工具调用的参数需要省略 emoji。
 - [Emoji whitelist] Only use emojis from this list: {{emojiList}}. Symbols outside the list and any kaomoji are forbidden.
 {%- else %}
 - [No emoji] Regular replies must NOT contain any emoji or kaomoji.

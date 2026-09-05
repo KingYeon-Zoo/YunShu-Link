@@ -10,4 +10,5 @@ import lombok.EqualsAndHashCode;
 @Data
 public class LlmModelBasicInfoDTO extends ModelBasicInfoDTO{
     private String type;
+    private Boolean isSlm;
 }

@@ -570,7 +570,7 @@ export default {
 }
 
 ::v-deep .remark-input .el-textarea__inner:focus {
-  border-color: #409EFF !important;
+  border-color: #267dff !important;
   outline: none;
 }
 
@@ -634,12 +634,12 @@ export default {
 }
 
 .save-Tts {
-  background: #796dea;
+  background: #4f5cff;
   border: None;
 }
 
 .save-Tts:hover {
-  background: #8b80f0;
+  background: #626eff;
 }
 
 .custom-audio-container audio {
@@ -656,19 +656,19 @@ export default {
 .delete-btn,
 .save-btn {
   margin: 0 8px;
-  color: #7079aa !important;
+  color: #5f98ff !important;
   transition: all 0.3s;
 }
 
 .edit-btn:hover,
 .delete-btn:hover,
 .save-btn:hover {
-  color: #5f70f3 !important;
+  color: #267dff !important;
   transform: scale(1.05);
 }
 
 .save-btn {
-  color: #5cca8e !important;
+  color: #17b890 !important;
 }
 
 /* 表格单元格自适应 */

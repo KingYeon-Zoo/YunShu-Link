@@ -1,4 +1,3 @@
-import 'element-ui/lib/theme-chalk/index.css';
 import 'normalize.css/normalize.css'; // A modern alternative to CSS resets
 import Vue from 'vue';
 import ElementUI from 'element-ui';
@@ -7,7 +6,7 @@ import router from './router';
 import store from './store';
 import i18n from './i18n';
 import locale from 'element-ui/lib/locale'
-import './styles/global.scss';
+import './styles/index.scss';
 import { register as registerServiceWorker } from './registerServiceWorker';
 import featureManager from './utils/featureManager';
 

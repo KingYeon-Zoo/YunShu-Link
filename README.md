@@ -1,160 +1,94 @@
-<h1 align="center">YunShu-Link-Server（云枢·链）</h1>
-
 <p align="center">
-面向 ESP32 智能语音硬件的自研后端服务<br/>
-打通「语音识别 → 大模型 → 语音合成」全链路，支持声纹识别、意图理解、工具调用与知识库<br/>
-基于人机共生智能理念，提供 WebSocket、MQTT+UDP、MCP 多协议接入
+  <img src="main/manager-web/src/assets/brand/yunshu-link-logo.png" width="240" alt="YunShu-Link 云枢" />
 </p>
 
+# YunShu-Link 云枢
+
+**面向 ESP32 智能硬件的交互服务端：在一个控制台中配置设备、智能体、模型与知识库，运行实时语音和工具调用。**
+
+设备接入后，系统为会话装配模型与工具，将声音交给推理服务，再把语音回复或设备控制指令送回终端。云枢同时提供管理控制台，方便维护不同设备使用的角色与能力配置。
+
 <p align="center">
-  <img alt="license" src="https://img.shields.io/badge/license-MIT-black">
-  <img alt="python" src="https://img.shields.io/badge/Python-3.10-blue">
-  <img alt="java" src="https://img.shields.io/badge/Java-21-orange">
-  <img alt="springboot" src="https://img.shields.io/badge/Spring%20Boot-3.4-green">
-  <img alt="vue" src="https://img.shields.io/badge/Vue-2%20%2F%203-42b883">
+  <img src="web%20端图片/首页（控制台界面）.png" width="100%" alt="实际控制台：智能体列表、设备关联与模型配置" />
 </p>
 
----
+[观看演示](https://github.com/KingYeon-Zoo/YunShu-Link/releases/tag/demo-2026) · [机器人固件](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware) · [核心设计](#核心设计) · [部署入口](#部署入口)
 
-## 项目简介
+## 从控制台到设备
 
-**YunShu-Link-Server** 是一套面向 [ESP32](https://github.com/78/xiaozhi-esp32) 智能语音硬件的自研后端服务，为语音终端提供完整的实时对话能力与设备管理能力。
+<table>
+  <tr>
+    <td width="50%"><img src="web%20端图片/角色配置界面.png" alt="配置智能体角色与能力" /></td>
+    <td width="50%"><img src="web%20端图片/知识库界面.png" alt="管理知识库与检索内容" /></td>
+  </tr>
+  <tr>
+    <td align="center">为设备选择角色、模型与工具</td>
+    <td align="center">维护可供对话使用的知识库</td>
+  </tr>
+</table>
 
-项目采用「实时语音管线」与「控制台管理」分层解耦的架构：Python 侧负责低延迟的语音交互链路，Java 侧负责多用户 / 多智能体 / 多设备的配置管理与下发，前端提供 Web 与移动端两套控制台。整体面向**可插拔、可扩展**设计——ASR、LLM、TTS、记忆、意图等每一类能力都以「提供者（Provider）」形式接入，新增一个平台无需改动核心逻辑。
+<p align="center">
+  <img src="实物图片/1.jpg" width="24%" alt="机器人实物正面" />
+  <img src="实物图片/2.jpg" width="24%" alt="机器人实物侧面" />
+  <img src="实物图片/3.jpg" width="24%" alt="机器人交互状态" />
+</p>
 
-> 本项目在开源社区方案的基础上进行了大量二次开发与重构，后端交互逻辑、模块编排、工具调用与配置体系均为独立实现。仅供学习与研究使用，未经安全评测，请勿直接用于生产环境。
+演示展示了控制台、实时语音与终端动作。更多界面见 [Web 截图](web%20端图片/)，硬件实现见[固件仓库](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware)。
 
----
+## 核心设计
 
-## 核心特性
+### 实时交互与管理业务分开运行
 
-| 能力 | 说明 |
-|------|------|
-| 🎙️ 实时语音交互 | 流式 ASR + 流式 TTS + VAD 语音活动检测，支持多语言与实时打断 |
-| 🧠 智能对话 | 兼容任意 OpenAI 接口协议的 LLM，支持 Ollama / Dify / Coze / FastGPT / Xinference |
-| 👁️ 视觉感知 | 接入 VLLM 视觉大模型，实现拍照识物等多模态交互 |
-| 🗣️ 声纹识别 | 多用户声纹注册与识别，与 ASR 并行，实时区分说话人并个性化回应 |
-| 🎯 意图理解 | 大模型函数调用（function_call）/ 独立意图识别 / 无意图三种模式 |
-| 🧩 工具调用 | 支持 IoT 协议、客户端 MCP、服务端 MCP、MCP 接入点，以及自定义插件函数 |
-| 💾 记忆系统 | 本地短期记忆 / mem0ai / PowerMem 智能记忆，具备记忆总结能力 |
-| 📚 知识库 | 接入 RAGFlow，让模型自主判断是否检索知识库后再回答 |
-| 📡 指令下发 | 依托 MQTT 从控制台向 ESP32 设备下发 MCP 指令 |
-| 🖥️ 控制台 | Web + 移动端双端管理，支持用户 / 设备 / 智能体 / 模型配置，多语言界面 |
-| 🔌 插件热加载 | 启动时自动扫描注册插件函数，支持自定义扩展 |
+Python 服务维护设备连接、对话上下文、流式音频和模型调用。Spring Boot 服务处理设备、用户、智能体配置与管理数据，Vue 控制台提供操作入口。
 
----
+两部分按接口交换配置与消息，便于分别调整模型接入和管理功能。只需要语音交互时，也可以使用本地配置运行 Python 服务。
 
-## 技术架构
+### 模型与工具按配置装配
 
-项目为多语言 monorepo，代码位于 `main/` 下的四个子系统：
+语音识别、语言模型、语音合成、记忆和意图处理使用 Provider 接口。设备会话读取对应配置，选择实现并初始化模块。
 
-| 子系统 | 目录 | 技术栈 | 职责 |
-|--------|------|--------|------|
-| 语音核心服务 | `main/xiaozhi-server` | Python 3.10 · asyncio | WebSocket / MQTT+UDP 语音管线、OTA 与视觉 HTTP 接口 |
-| 控制台后端 | `main/manager-api` | Java 21 · Spring Boot 3.4 | 用户 / 设备 / 智能体管理、配置下发、鉴权 |
-| 控制台 Web | `main/manager-web` | Vue 2 · Element UI | 智控台 Web 界面 |
-| 控制台移动端 | `main/manager-mobile` | uni-app（Vue 3 + TS） | App / H5 / 各平台小程序 |
-| 音频测试工具 | `main/digital-human` | Python · 静态页面 | 数字人与音频交互调试 |
+工具层统一管理函数调用、服务端 MCP 与设备端 MCP。业务可以更换模型服务或增加工具，设备通信链路沿用已有协议。
 
-### 设计要点
+### 设备执行与云端推理解耦
 
-- **Provider 可插拔体系**：`xiaozhi-server/core/providers/` 下 `asr`、`tts`、`vad`、`llm`、`vllm`、`memory`、`intent` 各有抽象基类与多平台实现，通过配置的 `selected_module` 选择，热插拔无侵入。
-- **连接级编排**：`core/connection.py` 为每个设备连接维护独立的对话状态与模块实例，统一调度语音收发、工具调用与流式输出。
-- **插件自动注册**：`plugins_func/` 在启动时自动导入 `functions/` 下全部插件（天气、新闻、音乐、HomeAssistant、Web 搜索、RAGFlow 检索等），新增工具函数即插即用。
-- **配置双模式**：语音服务既可读取本地 `data/.config.yaml` 独立运行，也可通过 `manager-api` 从控制台动态拉取配置，适配「最简化」与「全模块」两种部署形态。
+服务端处理 ASR、LLM、TTS 与工具决策，设备固件处理音频播放、显示和执行。设备 MCP 负责发现并调用终端公开的能力；工具结果回到会话继续处理。
 
----
+公开实现包含多设备与多智能体的配置管理，以及连接级的独立会话处理。具体的跨设备联动需要结合对应设备工具与业务逻辑配置。
 
-## 快速开始
+## 代码导览
 
-项目支持两种部署形态：
+| 模块 | 实现入口 |
+| --- | --- |
+| 设备连接、会话状态与模块初始化 | [connection.py](main/xiaozhi-server/core/connection.py) |
+| 模型与能力接入 | [providers/](main/xiaozhi-server/core/providers/) |
+| 统一工具管理 | [unified_tool_manager.py](main/xiaozhi-server/core/providers/tools/unified_tool_manager.py) |
+| 设备 MCP 调用 | [device_mcp/](main/xiaozhi-server/core/providers/tools/device_mcp/) |
+| Spring Boot 管理服务 | [manager-api/](main/manager-api/) |
+| Web 控制台 | [manager-web/](main/manager-web/) |
 
-- **最简化安装**：仅运行 `xiaozhi-server`，配置存于本地文件，无需数据库，适合个人 / 单智能体场景。
-- **全模块安装**：`xiaozhi-server` + `manager-api` + `manager-web` + MySQL + Redis，支持多用户、多智能体与控制台管理。
+主要技术为 Python、Spring Boot、Vue、WebSocket、MQTT / UDP 与 MCP。知识库、记忆及不同模型接入的配置说明保留在 `docs/`。
 
-### 1. 语音核心服务（Python）
+## 部署入口
 
 ```bash
-cd main/xiaozhi-server
-conda create -n yunshu-link python=3.10 -y
-conda activate yunshu-link
-pip install -r requirements.txt
-
-# 将根目录 config.yaml（或 config_from_api.yaml）复制为 data/.config.yaml 并填好密钥
-python app.py                    # 默认 WebSocket :8000, HTTP :8003
-```
-> 需预先安装 `ffmpeg`。可用 `python performance_tester.py` 测试各模块响应速度。
-
-### 2. 控制台后端（Java / Maven）
-
-```bash
-cd main/manager-api
-mvn spring-boot:run              # http://localhost:8002/xiaozhi
-# API 文档：http://localhost:8002/xiaozhi/doc.html
+git clone https://github.com/KingYeon-Zoo/YunShu-Link.git
+cd YunShu-Link
 ```
 
-### 3. 控制台 Web（Vue）
+按使用目的选择部署方式：
 
-```bash
-cd main/manager-web
-npm install
-npm run serve                    # 开发服务器 :8001，代理至后端 :8002
-```
+| 方式 | 适用场景 | 操作说明 |
+| --- | --- | --- |
+| 最简化服务 | 先连通一台设备，使用本地配置运行语音链路 | [最简化部署](docs/Deployment.md) |
+| 全模块部署 | 使用管理控制台、数据库和多设备配置 | [全模块部署](docs/Deployment_all.md) |
+| 开发环境 | 修改前端或 Python 模型接口 | [开发与运维说明](docs/dev-ops-integration.md) |
 
-### 4. 控制台移动端（uni-app）
+仓库提供 [docker-setup.sh](docker-setup.sh) 和 [start-dev.sh](start-dev.sh)。运行前先阅读对应部署说明，准备模型服务凭证、数据库与设备连接地址；离线语音识别还需要对应模型文件。
 
-```bash
-cd main/manager-mobile
-pnpm install                     # 强制使用 pnpm
-pnpm dev:h5                      # 或 pnpm dev:mp-weixin / pnpm dev:app
-```
+## 项目来源与改造
 
-### Docker 部署
+项目基于 [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server) 二次开发。云枢的工作围绕机器人演示场景展开，包括模型接入、实时语音服务集成、工具与知识库配置、控制台设计和部署流程整理。
 
-根目录提供 `docker-setup.sh` 交互式脚本；`main/xiaozhi-server/` 下有 `docker-compose.yml`（仅服务）与 `docker-compose_all.yml`（服务 + Web + MySQL + Redis）。
+保留上游通用通信与服务框架，并在代码导览中给出各模块入口。设备端适配单独放在 [YunShu-Link-Firmware](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware) 中。许可证与版权声明见 [LICENSE](LICENSE)。
 
----
-
-## 支持的模型与平台
-
-| 类别 | 支持 |
-|------|------|
-| **LLM** | 阿里百炼、火山引擎、DeepSeek、智谱、Gemini、讯飞、Ollama、Dify、FastGPT、Coze、Xinference、HomeAssistant（及任意 OpenAI 兼容接口） |
-| **VLLM** | 阿里百炼、智谱 ChatGLM VLLM（及任意 OpenAI 兼容接口） |
-| **TTS** | EdgeTTS、讯飞、火山引擎、腾讯云、阿里云 / 百炼、Minimax、灵犀流式、OpenAI TTS、FishSpeech、GPT-SoVITS、Index-TTS、PaddleSpeech 等 |
-| **ASR** | FunASR、SherpaASR（本地）；火山、讯飞、腾讯、阿里、百度、OpenAI（接口） |
-| **VAD** | SileroVAD（本地） |
-| **声纹** | 3D-Speaker（本地） |
-| **记忆** | mem_local_short、mem0ai、PowerMem、nomem |
-| **意图** | function_call、intent_llm、nointent |
-| **知识库** | RAGFlow |
-
----
-
-## 目录结构
-
-```
-YunShu-Link/
-├── main/
-│   ├── xiaozhi-server/     # Python 语音核心服务
-│   │   ├── app.py          # 启动入口（WebSocket + HTTP）
-│   │   ├── core/           # 连接编排、providers、handle、api
-│   │   └── plugins_func/   # 可扩展工具函数插件
-│   ├── manager-api/        # Spring Boot 控制台后端
-│   ├── manager-web/        # Vue 控制台 Web
-│   ├── manager-mobile/     # uni-app 控制台移动端
-│   └── digital-human/      # 音频交互测试工具
-├── docs/                   # 各能力集成文档
-├── docker-setup.sh         # 一键部署脚本
-└── CLAUDE.md               # 面向开发者的架构说明
-```
-
-更多集成细节见 `docs/` 目录（如 `mcp-endpoint-integration.md`、`ragflow-integration.md`、`voiceprint-integration.md` 等）。
-
----
-
-## 许可证
-
-本项目基于 [MIT License](LICENSE) 开源。
-
-本项目为独立二次开发作品，其架构参考并衍生自开源项目 [xiaozhi-esp32-server](https://github.com/xinnan-tech/xiaozhi-esp32-server)（MIT License）。按照 MIT 许可要求，已在 LICENSE 中保留原始版权声明。
+进一步了解：[实时语音接入](docs/doubao-realtime-s2s-integration.md)、[知识库接入](docs/ragflow-integration.md)、[设备视觉与 MCP](docs/mcp-vision-integration.md)。

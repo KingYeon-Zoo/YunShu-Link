@@ -1,7 +1,5 @@
 <template>
   <div class="welcome">
-    <HeaderBar />
-
     <div class="main-wrapper">
       <div class="content-panel">
         <div class="content-area">
@@ -97,7 +95,6 @@
 <script>
 import Api from '@/apis/api';
 import AddDeviceDialog from "@/components/AddDeviceDialog.vue";
-import HeaderBar from "@/components/HeaderBar.vue";
 import ManualAddDeviceDialog from "@/components/ManualAddDeviceDialog.vue";
 import VersionFooter from "@/components/VersionFooter.vue";
 import MacAddressMask from "@/components/MacAddressMask.vue";
@@ -106,7 +103,6 @@ import CustomTable from "@/components/CustomTable.vue";
 
 export default {
   components: {
-    HeaderBar,
     AddDeviceDialog,
     ManualAddDeviceDialog,
     VersionFooter,
@@ -445,7 +441,7 @@ export default {
 .welcome {
   min-width: 900px;
   min-height: 506px;
-  height: 100vh;
+  min-height: calc(100vh - 48px);
   display: flex;
   position: relative;
   flex-direction: column;
@@ -457,7 +453,7 @@ export default {
 }
 
 .main-wrapper {
-  height: calc(100vh - 63px - 35px);
+  height: calc(100vh - 48px - 35px);
   padding: 20px 22px 0;
   position: relative;
   display: flex;
@@ -531,19 +527,19 @@ export default {
 }
 
 :deep(.el-table .el-button--text) {
-  color: #7079aa;
+  color: #5f98ff;
 }
 
 :deep(.el-table .el-button--text:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 
 :deep(.el-icon-edit) {
-  color: #7079aa;
+  color: #5f98ff;
   cursor: pointer;
 }
 
 :deep(.el-icon-edit:hover) {
-  color: #5a64b5;
+  color: #82b4ff;
 }
 </style>

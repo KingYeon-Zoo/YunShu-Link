@@ -41,7 +41,7 @@
             </div>
             <div class="progress-container">
               <span class="progress-label" :class="getProgressClass(doc)">{{ getDocStatusText(doc) }}</span>
-              <span class="doc-slice-count">{{ $t('knowledgeFileUpload.sliceCount') }} <b>{{ doc.sliceCount }}</b></span>
+              <span class="doc-slice-count">{{ $t('knowledgeFileUpload.sliceCount') }} <b>{{ getSliceCount(doc) }}</b></span>
             </div>
           </div>
           <div class="doc-card-actions">
@@ -296,6 +296,14 @@ export default {
       this.documents.forEach(doc => {
         this.fetchSliceCountForSingleDocument(doc);
       });
+    },
+
+    getSliceCount(doc) {
+      // listChunks 拿不到时（RAGFlow 不可用）退回列表接口返回的本地切片数，避免显示空白
+      if (doc.sliceCount !== undefined && doc.sliceCount !== null) {
+        return doc.sliceCount;
+      }
+      return doc.chunkCount != null ? doc.chunkCount : 0;
     },
 
     fetchSliceCountForSingleDocument(doc) {

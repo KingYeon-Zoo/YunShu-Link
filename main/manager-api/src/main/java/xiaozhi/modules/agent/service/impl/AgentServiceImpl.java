@@ -512,6 +512,7 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
             entity.setAsrModelId(template.getAsrModelId());
             entity.setVadModelId(template.getVadModelId());
             entity.setLlmModelId(template.getLlmModelId());
+            entity.setSlmModelId(template.getSlmModelId());
             entity.setVllmModelId(template.getVllmModelId());
             entity.setTtsModelId(template.getTtsModelId());
 
@@ -554,7 +555,7 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         }
 
         if (entity.getSlmModelId() == null) {
-            String defaultSlmModelId = getDefaultLLMModelId();
+            String defaultSlmModelId = getDefaultSLMModelId();
             if (defaultSlmModelId != null) {
                 entity.setSlmModelId(defaultSlmModelId);
             }
@@ -598,7 +599,7 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
         return entity.getId();
     }
 
-    private String getDefaultLLMModelId() {
+    private String getDefaultSLMModelId() {
         try {
             List<ModelConfigEntity> llmConfigs = modelConfigService.getEnabledModelsByType("LLM");
             if (llmConfigs == null || llmConfigs.isEmpty()) {
@@ -606,11 +607,19 @@ public class AgentServiceImpl extends BaseServiceImpl<AgentDao, AgentEntity> imp
             }
 
             for (ModelConfigEntity config : llmConfigs) {
-                if (config.getIsDefault() != null && config.getIsDefault() == 1) {
+                Object isSlm = config.getConfigJson() == null
+                        ? null
+                        : config.getConfigJson().get("is_slm");
+                if (Boolean.TRUE.equals(isSlm) || "true".equalsIgnoreCase(String.valueOf(isSlm))) {
                     return config.getId();
                 }
             }
 
+            for (ModelConfigEntity config : llmConfigs) {
+                if (config.getIsDefault() != null && config.getIsDefault() == 1) {
+                    return config.getId();
+                }
+            }
             return llmConfigs.get(0).getId();
         } catch (Exception e) {
             return null;

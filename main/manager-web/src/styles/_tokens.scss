@@ -1,0 +1,93 @@
+// 设计 Token — 云枢深空指挥舱视觉系统
+// 颜色 / 字体 / 间距 / 圆角 / 阴影
+
+// 品牌主色：A「深空电蓝」
+$color-primary: #267dff;
+$color-primary-soft: #4f5cff;
+$color-primary-deep: #1a61d7;
+$color-on-primary: #ffffff;
+
+// 强调与按钮
+$color-ink-button: #267dff;
+$color-on-ink-button: #ffffff;
+
+// 背景与表面
+$color-canvas: #07101e;
+$color-surface-soft: #0d192a;
+
+// 玻璃亚克力
+$color-glass-bg: rgba(8, 18, 35, 0.82);
+$color-glass-bg-hover: rgba(12, 27, 49, 0.9);
+$color-glass-border: rgba(99, 139, 199, 0.18);
+$color-glass-border-strong: rgba(89, 142, 221, 0.28);
+$glass-blur: 20px;
+
+// 文字
+$color-ink-deep: #f4f8ff;
+$color-ink: #e7effd;
+$color-charcoal: #b7c4d8;
+$color-slate: #a1afc5;
+$color-steel: #8190a9;
+$color-stone: #65738b;
+
+// 边框与分隔
+$color-hairline: rgba(104, 139, 190, 0.28);
+$color-hairline-soft: rgba(96, 132, 187, 0.16);
+$color-disabled-text: #536078;
+$color-disabled-bg: #18243a;
+
+// 语义色
+$color-success: #17b890;
+$color-attention: #f2a918;
+$color-warning: #f7b928;
+$color-critical: #e35d78;
+$color-critical-strong: #ed6b84;
+
+// 字体
+$font-family-base: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+// 字号 / 字重 / 行高
+$font-display-lg: 500 48px/1.17 $font-family-base;      // 登录页大标题
+$font-heading-lg: 500 36px/1.28 $font-family-base;      // 首页欢迎语
+$font-heading-sm: 500 24px/1.25 $font-family-base;      // 卡片标题
+$font-subtitle-lg: 700 18px/1.44 $font-family-base;     // 弹窗标题 / FAQ 问题
+$font-body-md: 400 16px/1.5 $font-family-base;          // 正文
+$font-body-md-bold: 700 16px/1.5 $font-family-base;     // 正文强调
+$font-body-sm: 400 14px/1.43 $font-family-base;         // 辅助文字 / 按钮
+$font-body-sm-bold: 700 14px/1.43 $font-family-base;    // 按钮 / 小标题
+$font-caption: 400 12px/1.33 $font-family-base;         // 标签 / 时间戳
+$font-caption-bold: 700 12px/1.33 $font-family-base;    // 徽标
+
+// 间距 Token
+$spacing-xxs: 4px;
+$spacing-xs: 8px;
+$spacing-sm: 10px;
+$spacing-md: 12px;
+$spacing-base: 16px;
+$spacing-lg: 20px;
+$spacing-xl: 24px;
+$spacing-xxl: 32px;
+$spacing-xxxl: 40px;
+$spacing-section-sm: 48px;
+$spacing-section: 64px;
+$spacing-section-lg: 80px;
+
+// 圆角 Token
+$rounded-xs: 2px;
+$rounded-sm: 4px;
+$rounded-md: 6px;
+$rounded-lg: 8px;
+$rounded-xl: 16px;
+$rounded-xxl: 24px;
+$rounded-xxxl: 32px;
+$rounded-full: 100px;
+$rounded-circle: 50%;
+
+// 阴影 Token
+$shadow-flat: none;
+$shadow-subtle: rgba(0, 0, 0, 0.2) 1px 1px 0px 0px;
+$shadow-sticky: rgba(20, 22, 26, 0.3) 0px 1px 4px 0px;
+$shadow-dialog: 0 4px 24px rgba(0, 0, 0, 0.12);
+
+// 缓动 Token
+$ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);

@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "analyze": "cross-env ANALYZE=true vue-cli-service build"
+    "analyze": "cross-env ANALYZE=true vue-cli-service build",
+    "test:motion": "node tests/motionProfile.test.js && node tests/particlesSource.test.js"
   },
   "dependencies": {
     "core-js": "^3.41.0",
@@ -14,6 +15,7 @@
     "element-ui": "^2.15.14",
     "flyio": "^0.6.14",
     "normalize.css": "^8.0.1",
+    "ogl": "^1.0.11",
     "opus-decoder": "^0.7.7",
     "opus-recorder": "^8.0.5",
     "sm-crypto": "^0.3.13",

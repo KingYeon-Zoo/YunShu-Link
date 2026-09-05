@@ -1,0 +1,246 @@
+@import "./tokens";
+
+// Element UI SCSS 变量覆盖 —— 在编译官方主题之前注入
+$--color-primary: $color-primary;
+$--color-success: $color-success;
+$--color-warning: $color-warning;
+$--color-danger: $color-critical;
+$--color-text-primary: $color-ink;
+$--color-text-regular: $color-charcoal;
+$--color-text-secondary: $color-steel;
+$--color-text-placeholder: $color-stone;
+$--border-color-base: $color-hairline;
+$--border-color-light: $color-hairline-soft;
+$--background-color-base: $color-surface-soft;
+
+// 修正源码编译时字体路径解析
+$--font-path: "~element-ui/packages/theme-chalk/src/fonts";
+
+// 通过源码重新编译 Element UI 主题，使上方变量生效
+@import "~element-ui/packages/theme-chalk/src/index";
+
+// 组件级微调 --------------------------------------------------------------
+
+// 按钮：指挥舱式紧凑几何
+.el-button {
+  border-radius: $rounded-lg !important;
+  font: $font-body-sm-bold;
+  background: rgba(12, 26, 47, .9);
+  border-color: rgba(83, 151, 255, .26);
+  color: #bfd0e9;
+  box-shadow: none;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+
+  &:hover,
+  &:focus {
+    background: rgba(38, 125, 255, .13);
+    border-color: rgba(83, 151, 255, .38);
+    color: #79aaff;
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, #267dff, #4f5cff);
+    border-color: rgba(96, 143, 255, .58);
+    color: #fff;
+    box-shadow: 0 7px 18px rgba(38, 125, 255, .22);
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #398aff, #626eff);
+      border-color: rgba(119, 164, 255, .72);
+      color: #fff;
+      box-shadow: 0 9px 22px rgba(38, 125, 255, .3);
+    }
+
+    &:active {
+      background: linear-gradient(135deg, #1a68df, #404ddc);
+      border-color: $color-primary-deep;
+    }
+  }
+
+  &--success {
+    background: #17b890;
+    border-color: #17b890;
+    color: #fff;
+
+    &:hover,
+    &:focus {
+      background: #24c69e;
+      border-color: #24c69e;
+      color: #fff;
+    }
+  }
+
+  &--danger {
+    background: rgba(227, 93, 120, .12);
+    border-color: rgba(227, 93, 120, .38);
+    color: #ef7890;
+
+    &:hover,
+    &:focus {
+      background: rgba(227, 93, 120, .2);
+      border-color: rgba(227, 93, 120, .58);
+      color: #ff91a7;
+    }
+  }
+
+  &--text {
+    background: transparent;
+    border-color: transparent;
+    color: #5f98ff;
+    box-shadow: none;
+
+    &:hover,
+    &:focus {
+      background: rgba(38, 125, 255, .1);
+      border-color: transparent;
+      color: #82b4ff;
+    }
+  }
+
+  &.is-disabled,
+  &.is-disabled:hover,
+  &.is-disabled:focus {
+    background: $color-disabled-bg;
+    border-color: rgba(100, 125, 165, .16);
+    color: $color-disabled-text;
+    box-shadow: none;
+  }
+}
+
+// 输入框
+.el-input__inner {
+  height: 44px;
+  border-radius: $rounded-lg;
+  border: 1px solid $color-hairline;
+  font: $font-body-md;
+  background: rgba(7, 17, 32, .84);
+  color: $color-ink;
+
+  &:focus {
+    border-color: $color-primary-soft;
+    box-shadow: 0 0 0 3px rgba($color-primary-soft, 0.12);
+  }
+}
+
+.el-input.is-error .el-input__inner {
+  border-color: $color-critical-strong;
+}
+
+// 弹窗
+.el-dialog {
+  background: $color-glass-bg;
+  backdrop-filter: blur($glass-blur);
+  border-radius: $rounded-xxl;
+  box-shadow: $shadow-dialog;
+  border: 1px solid $color-glass-border-strong;
+
+  &__header {
+    padding: $spacing-xl;
+    padding-bottom: $spacing-base;
+  }
+
+  &__title {
+    font: $font-subtitle-lg;
+    color: $color-ink-deep;
+  }
+
+  &__body {
+    padding: $spacing-xl;
+    color: $color-charcoal;
+  }
+
+  &__footer {
+    padding: $spacing-base $spacing-xl $spacing-xl;
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-base;
+  }
+}
+
+// 表格
+.el-table {
+  color: $color-charcoal;
+  background: transparent;
+
+  &::before { background-color: $color-hairline-soft; }
+
+  th {
+    background-color: $color-surface-soft;
+    color: $color-ink;
+    font: $font-body-sm-bold;
+    height: 48px;
+  }
+
+  td {
+    color: $color-charcoal;
+    height: 48px;
+    background-color: rgba(7, 16, 30, .68);
+    border-bottom-color: $color-hairline-soft;
+  }
+
+  tr:hover > td {
+    background-color: $color-surface-soft;
+  }
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background-color: rgba(18, 39, 68, .88);
+}
+
+.el-select-dropdown,
+.el-dropdown-menu,
+.el-picker-panel,
+.el-popover {
+  background: rgba(8, 18, 34, .97);
+  border-color: $color-hairline;
+  color: $color-charcoal;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .45);
+}
+
+.el-dropdown-menu__item,
+.el-select-dropdown__item,
+.el-cascader-node {
+  color: $color-charcoal;
+  &:hover, &.hover { background: rgba($color-primary, .12); color: #fff; }
+}
+
+// Element UI 的 divided 菜单项默认会插入白色间隔块，深色主题下统一消除。
+.el-dropdown-menu__item--divided {
+  border-top-color: $color-hairline-soft !important;
+
+  &::before {
+    background-color: rgba(8, 18, 34, .97) !important;
+  }
+}
+
+.el-dropdown-menu.el-popper[x-placement^='bottom'] .popper__arrow {
+  border-bottom-color: $color-hairline !important;
+
+  &::after {
+    border-bottom-color: rgba(8, 18, 34, .97) !important;
+  }
+}
+
+.el-form-item__label,
+.el-radio,
+.el-checkbox,
+.el-tabs__item { color: $color-charcoal; }
+
+.el-textarea__inner {
+  background: rgba(7, 17, 32, .84);
+  border-color: $color-hairline;
+  color: $color-ink;
+}
+
+// 分页
+.el-pagination {
+  .el-pager li {
+    border-radius: $rounded-full;
+
+    &.active {
+      background-color: $color-primary;
+      color: $color-on-primary;
+    }
+  }
+}
