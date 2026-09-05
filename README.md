@@ -92,3 +92,9 @@ cd YunShu-Link
 保留上游通用通信与服务框架，并在代码导览中给出各模块入口。设备端适配单独放在 [YunShu-Link-Firmware](https://github.com/KingYeon-Zoo/YunShu-Link-Firmware) 中。许可证与版权声明见 [LICENSE](LICENSE)。
 
 进一步了解：[实时语音接入](docs/doubao-realtime-s2s-integration.md)、[知识库接入](docs/ragflow-integration.md)、[设备视觉与 MCP](docs/mcp-vision-integration.md)。
+
+## 项目海报
+
+下面为项目宣传示意；实际运行界面、实物照片和演示入口见本文前面的展示。
+
+![云枢项目宣传海报](docs/images/yunshu-link-poster.png)
