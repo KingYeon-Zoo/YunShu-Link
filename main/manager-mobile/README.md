@@ -16,7 +16,7 @@
 
 ### 快速开始
 1) 配置环境变量
-   - 复制 `env/.env.example` 为 `env/.env.development`
+   - 复制 `env/.env` 为 `env/.env.local`（已被 Git 忽略）
    - 根据实际情况修改配置项（特别是 `VITE_SERVER_BASEURL`、`VITE_UNI_APPID`、`VITE_WX_APPID`）
 
 2) 安装依赖
@@ -43,7 +43,7 @@ pnpm i
 - VITE_SHOW_SOURCEMAP：是否生成 sourcemap（默认关闭）
 - VITE_LOGIN_URL：未登录跳转的登录页路径（路由拦截器使用）
 
-示例（`env/.env.development`）：
+示例（`env/.env.local`）：
 ```env
 VITE_APP_TITLE=小智
 VITE_FALLBACK_LOCALE=zh-Hans
@@ -58,7 +58,9 @@ VITE_LOGIN_URL=/pages/login/index
 ```
 
 说明：
-- `manifest.config.ts` 会从 `env` 读取标题、appid、语言等配置。
+- `manifest.config.ts` 会从 `env` 读取标题、appid、语言等配置。仓库默认不绑定任何微信小程序，构建微信版本前请在 `env/.env.local` 设置自己的 `VITE_WX_APPID`；也可使用 `env/.env.production.local` 或构建环境变量覆盖。
+- AppID 是应用标识，AppSecret 才是服务端密钥；不要把 AppSecret 放入会进入客户端产物的 `VITE_*` 变量。
+- `src/manifest.json` 会被构建工具重新生成，构建后请检查差异，不要把个人 AppID 配置提交回公共仓库。
 
 ### 重要注意事项
 ⚠️ **部署前必须修改的配置项：**
